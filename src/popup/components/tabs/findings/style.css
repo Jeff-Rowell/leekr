@@ -4,6 +4,11 @@
     width: 100%;
     padding: 4px 16px 16px;
     background-color: var(--color-bg-dark);
+    overflow: hidden;
+}
+
+.findings-td {
+    font-size: 12px;
 }
 
 .findings-section {
@@ -11,6 +16,9 @@
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     padding: 4px 4px 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .findings-header {
@@ -29,6 +37,53 @@
 /* Table styles */
 .findings-table-container {
     overflow-x: auto;
+    overflow-y: auto;
+    max-height: 340px;
+    border-radius: 6px;
+
+    /* Firefox scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-bg-hover) var(--color-bg-dark);
+}
+
+/* Webkit scrollbar styling (Chrome, Safari, newer Edge) */
+.findings-table-container::-webkit-scrollbar {
+    width: 14px;
+    height: 14px;
+}
+
+.findings-table-container::-webkit-scrollbar-track {
+    background: var(--color-bg-dark);
+    border-radius: 4px;
+}
+
+.findings-table-container::-webkit-scrollbar-thumb {
+    background: var(--color-bg-dark-hover);
+    border-radius: 4px;
+    border: 2px solid #f3f4f6;
+    transition: background 0.2s ease;
+}
+
+.findings-table-container::-webkit-scrollbar-thumb:hover {
+    background: var(--color-tooltip-bg-dark);
+}
+
+.findings-table-container::-webkit-scrollbar-button {
+    width: 16px;
+    height: 16px;
+    background-color: var(--color-bg-dark-hover);
+    border-radius: 2px;
+}
+
+.findings-table-container::-webkit-scrollbar-button:hover {
+    background-color: var(--color-tooltip-bg-dark);
+}
+
+.findings-table-container::-webkit-scrollbar-button:vertical:start:decrement,
+.findings-table-container::-webkit-scrollbar-button:vertical:end:increment,
+.findings-table-container::-webkit-scrollbar-button:horizontal:start:decrement,
+.findings-table-container::-webkit-scrollbar-button:horizontal:end:increment {
+    display: block;
 }
 
 .findings-table {
@@ -47,6 +102,10 @@
 .findings-table th {
     font-weight: 600;
     color: var(--color-text);
+    position: sticky;
+    top: 0;
+    background-color: var(--color-bg-dark);
+    z-index: 1;
 }
 
 .findings-table tr:hover {

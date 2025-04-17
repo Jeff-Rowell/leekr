@@ -35,15 +35,14 @@ const FindingsTab: React.FC = () => {
                         <thead>
                             <tr>
                                 <th>Type</th>
-                                <th>File</th>
                                 <th>Validity</th>
+                                <th>File</th>
                             </tr>
                         </thead>
                         <tbody>
                             {findings.map((finding, index) => (
                                 <tr key={index}>
-                                    <td>{finding.secretType}</td>
-                                    <td className="file-path"><a target="_blank" href={finding.url}>{finding.filePath}</a></td>
+                                    <td className="findings-td">{finding.secretType}</td>
                                     <td className="validity-cell">
                                         <div className={`validity-status ${getValidityColorClass(finding.validity)}`}>
                                             {finding.validity.replace(/_/g, ' ')}
@@ -72,6 +71,7 @@ const FindingsTab: React.FC = () => {
                                             </button>
                                         </div>
                                     </td>
+                                    <td className="file-path"><a target="_blank" href={finding.url}>{finding.filePath}</a></td>
                                 </tr>
                             ))}
                         </tbody>

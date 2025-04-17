@@ -7,4 +7,6 @@ html {
     height: 600px;
     max-height: 600px;
     background-color: var(--color-bg-dark);
+    overflow: hidden;
+    scrollbar-width: none;
 }
