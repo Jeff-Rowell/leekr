@@ -97,9 +97,11 @@ const Header: React.FC = () => {
                                 {findings.length} {findings.length === 1 ? 'Secret' : 'Secrets'} Detected
                             </h1>
                         )}
-                        <button type="button" className="download-button" onClick={toggleDownloadOptions} ref={downloadButtonRef}>
-                            <Download className="download-component" size={18} />
-                        </button>
+                        {findings.length > 0 && (
+                            <button type="button" className="download-button" onClick={toggleDownloadOptions} ref={downloadButtonRef}>
+                                <Download className="download-component" size={18} />
+                            </button>
+                        )}
                     </div>
 
                     {showDownloadOptions && (
