@@ -26,6 +26,20 @@ chrome.webRequest.onCompleted.addListener(
                         }).catch(() => {
                             chrome.storage.local.get(null);
                         });
+                    });
+
+                    chrome.storage.local.set({ "notifications": uniqueNewFindings.length.toString() }, function () {
+                        if (uniqueNewFindings.length > 0) {
+                            chrome.action.setBadgeText({ text: uniqueNewFindings.length.toString() });
+                            chrome.action.setBadgeBackgroundColor({ color: '#FF141A' });
+                        }
+
+                        chrome.runtime.sendMessage({
+                            type: 'NEW_NOTIFICATION',
+                            payload: uniqueNewFindings.length.toString()
+                        }).catch(() => {
+                            chrome.storage.local.get(null);
+                        });
                     })
                 });
             } catch (err) {

@@ -16,6 +16,16 @@ const FindingsTab: React.FC = () => {
     const handleValidityCheck = (index: number) => {
     };
 
+    React.useEffect(() => {
+        chrome.action.setBadgeText({ text: '' });
+        chrome.storage.local.set({ "notifications": '' }, function () {
+            chrome.runtime.sendMessage({
+                type: 'CLEAR_NOTIFICATIONS',
+                payload: ''
+            }).catch(() => { });
+        });
+    }, []);
+
     const getValidityColorClass = (validity: ValidityStatus): string => {
         switch (validity) {
             case 'valid': return 'validity-valid';
