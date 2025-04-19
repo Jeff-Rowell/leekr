@@ -1,10 +1,12 @@
 :root {
     /* Global Colors and Fonts */
     --color-bg-dark: hsl(60, 2.7%, 7.6%);
+    --color-bg-dark-transparent: hsl(60 2.7% 7.6% / 90%);
     --color-bg-hover: #2A2A2A;
     --color-link-text: hsl(210 70.9% 51.6%);
     --color-link-text-border: hsl(210 70.9% 25.8%);
     --color-tooltip-bg-dark: hsl(60, 2%, 29%);
+    --color-tooltip-bg-dark-hover: hsl(60, 2%, 39%);
     --color-tab-border: #333;
     --text-200: 60 2.5% 23.3%;
     --color-leek: #6c7c36;

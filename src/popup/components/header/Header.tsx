@@ -3,6 +3,7 @@ import { Download } from 'lucide-react';
 import { useAppContext } from '../../AppContext';
 import LeekrIcon from '../../../../public/icons/leekr_icon_128x128.png';
 import ReactComponent from '../../../assets/leekr-font.svg';
+import ModalHeader from '../../../components/ui/Modalheader';
 import './style.css';
 
 const Header: React.FC = () => {
@@ -11,6 +12,10 @@ const Header: React.FC = () => {
     const [redactSecrets, setRedactSecrets] = useState<boolean>(true);
     const downloadOptionsRef = useRef<HTMLDivElement>(null);
     const downloadButtonRef = useRef<HTMLButtonElement>(null);
+
+    const closeModal = () => {
+        setShowDownloadOptions(false);
+    };
 
     const downloadData = (format: 'csv' | 'json') => {
         let content: string;
@@ -106,6 +111,11 @@ const Header: React.FC = () => {
 
                     {showDownloadOptions && (
                         <div className="download-options absolute top-full mt-1 shadow-md rounded border p-2 z-10" ref={downloadOptionsRef}>
+                            <ModalHeader title="Findings Download" onClose={closeModal} />
+                            <div className="format-buttons">
+                                <button onClick={() => downloadData('csv')}>CSV</button>
+                                <button onClick={() => downloadData('json')}>JSON</button>
+                            </div>
                             <div className="redact-option">
                                 <input
                                     type="checkbox"
@@ -114,10 +124,6 @@ const Header: React.FC = () => {
                                     onChange={() => setRedactSecrets(!redactSecrets)}
                                 />
                                 <label htmlFor="redact-secrets">Redact Secret Values</label>
-                            </div>
-                            <div className="format-buttons">
-                                <button onClick={() => downloadData('csv')}>CSV</button>
-                                <button onClick={() => downloadData('json')}>JSON</button>
                             </div>
                         </div>
                     )}
