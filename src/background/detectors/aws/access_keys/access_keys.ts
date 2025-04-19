@@ -21,7 +21,7 @@ export async function detectAwsAccessKeys(content: string, url: string): Promise
             url: url,
         };
         match.fingerprint = await computeFingerprint(match.secretValue, 'SHA-512');
-        return match
+        return match;
     }
 
     return null;

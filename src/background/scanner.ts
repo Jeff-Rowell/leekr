@@ -8,7 +8,7 @@ export async function findSecrets(content: string, url: string): Promise<Finding
 
     if (awsMatches) { // If AWS access keys were matched
         const f: Finding = {
-            numOccurrences: 0,
+            numOccurrences: 1,
             secretType: awsMatches.secretType,
             secretValue: awsMatches.secretValue,
             validity: "valid",
@@ -16,9 +16,7 @@ export async function findSecrets(content: string, url: string): Promise<Finding
             fingerprint: awsMatches.fingerprint,
             occurrences: new Set([awsMatches])
         }
-        console.log("awsMatches.fingerprint", awsMatches.fingerprint);
-        f.numOccurrences = f.occurrences.size
-        findings.push(f)
+        findings.push(f);
     }
 
     return findings;
