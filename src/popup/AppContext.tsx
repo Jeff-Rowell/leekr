@@ -66,7 +66,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
                 dispatch({ type: "SET_FINDINGS", payload: results.findings });
             }
 
-            if (results.notifications) {
+            if (results.notifications && results.notifications != "0") {
                 chrome.action.setBadgeText({ text: results.notifications });
                 chrome.action.setBadgeBackgroundColor({ color: '#FF141A' });
                 dispatch({ type: 'SET_NOTIFICATIONS', payload: results.notifications });
@@ -88,7 +88,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
                 const newNotifications = changes.notifications.newValue;
                 dispatch({ type: 'SET_NOTIFICATIONS', payload: newNotifications });
 
-                if (newNotifications !== '') {
+                if (newNotifications !== '' && newNotifications !== '0') {
                     chrome.action.setBadgeText({ text: newNotifications });
                     chrome.action.setBadgeBackgroundColor({ color: '#FF141A' });
                 } else {
