@@ -1,0 +1,24 @@
+.modal-header {
+    padding: calc(var(--spacing) * 2);
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    display: flex;
+    color: var(--color-leek);
+}
+
+.modal-header h1 {
+    margin-left: calc(var(--spacing) * 1);
+    font-size: 0.85rem;
+    font-weight: 800;
+}
+
+.modal-header button {
+    padding: calc(var(--spacing) * 1);
+
+    &:hover {
+        @media (hover: hover) {
+            background-color: var(--color-bg-hover);
+        }
+    }
+}
