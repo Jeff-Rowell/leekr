@@ -1,4 +1,4 @@
-import { matchPatterns } from './patternMatcher';
+import { findSecrets } from './scanner';
 import { Finding } from 'src/types/findings.types';
 
 chrome.webRequest.onCompleted.addListener(
@@ -7,7 +7,7 @@ chrome.webRequest.onCompleted.addListener(
             try {
                 const response = await fetch(details.url);
                 const content = await response.text();
-                const findings = matchPatterns(content, details.url);
+                const findings = await findSecrets(content, details.url);
 
                 chrome.storage.local.get(['findings'], function (result) {
                     let allFindings = result.findings || [];

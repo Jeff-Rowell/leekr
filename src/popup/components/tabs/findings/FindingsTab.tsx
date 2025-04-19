@@ -46,7 +46,7 @@ const FindingsTab: React.FC = () => {
                             <tr>
                                 <th>Type</th>
                                 <th>Validity</th>
-                                <th>File</th>
+                                <th>Occurrences</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -81,7 +81,8 @@ const FindingsTab: React.FC = () => {
                                             </button>
                                         </div>
                                     </td>
-                                    <td className="file-path"><a target="_blank" href={finding.url}>{finding.filePath}</a></td>
+                                    <td className="findings-td">{finding.numOccurrences}</td>
+                                    {/* <td className="file-path"><a target="_blank" href={finding.url}>{finding.filePath}</a></td> */}
                                 </tr>
                             ))}
                         </tbody>

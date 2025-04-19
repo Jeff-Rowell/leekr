@@ -23,17 +23,15 @@ const Header: React.FC = () => {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
 
         if (format === 'csv') {
-            const headers = ['secretType', 'filePath', 'validity', 'validatedAt', 'secretValue', 'fingerprint', 'url'];
+            const headers = ['secretType', 'validity', 'validatedAt', 'secretValue', 'fingerprint'];
             const csvRows = [headers.join(',')];
             findings.forEach(finding => {
                 const row = [
                     finding.secretType,
-                    finding.filePath,
                     finding.validity,
                     finding.validatedAt || '',
                     redactSecrets ? '********' : JSON.stringify(finding.secretValue),
-                    finding.fingerprint,
-                    finding.url
+                    finding.fingerprint
                 ];
                 csvRows.push(row.join(','));
             });
