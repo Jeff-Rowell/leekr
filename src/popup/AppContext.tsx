@@ -112,19 +112,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         ) => {
             switch (message.type) {
                 case 'NEW_FINDINGS':
-                    console.log('Received new findings: ', message.payload);
                     dispatch({ type: 'SET_FINDINGS', payload: message.payload });
                     break;
 
                 case 'NEW_NOTIFICATION':
-                    console.log('Setting badge to:', message.payload);
                     chrome.action.setBadgeText({ text: message.payload });
                     chrome.action.setBadgeBackgroundColor({ color: '#FF141A' });
                     dispatch({ type: 'SET_NOTIFICATIONS', payload: message.payload });
                     break;
 
                 case 'CLEAR_NOTIFICATIONS':
-                    console.log('Clearing notifications badge');
                     chrome.action.setBadgeText({ text: '' });
                     dispatch({ type: 'CLEAR_NOTIFICATIONS', payload: '' });
                     break;
