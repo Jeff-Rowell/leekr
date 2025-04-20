@@ -1,6 +1,6 @@
 import React from 'react';
 import FindingsTab from './findings/FindingsTab';
-import PatternsTab from './patterns/PatternsTab';
+import DetectorsTab from './detectors/DetectorsTab'
 import MoreTab from './more/MoreTab';
 
 interface TabContentProps {
@@ -11,8 +11,8 @@ const TabContent: React.FC<TabContentProps> = ({ activeTab }) => {
     switch (activeTab) {
         case 'Findings':
             return <FindingsTab />;
-        case 'Patterns':
-            return <PatternsTab />;
+        case 'Detectors':
+            return <DetectorsTab />;
         case 'More':
             return <MoreTab />;
     }

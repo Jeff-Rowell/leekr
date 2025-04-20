@@ -9,7 +9,7 @@ const Navbar: React.FC = () => {
         actions.setActiveTab(tab);
     };
 
-    const tabs = ['Findings', 'Patterns', 'More'];
+    const tabs = ['Findings', 'Detectors', 'More'];
 
     return (
         <div className="navbar">
