@@ -30,6 +30,17 @@ export async function awsValidityHelper(finding: Finding): Promise<void> {
                 chrome.storage.local.set({ findings: existingFindings }, () => { });
             });
             break;
+        } else {
+            // is still valid, update the timstamp
+            chrome.storage.local.get(['findings'], async function (result) {
+                let existingFindings: Finding[] = result.findings || [];
+                const index = existingFindings.findIndex(
+                    (f) => f.fingerprint === finding.fingerprint
+                );
+                existingFindings[index].validity = "valid";
+                existingFindings[index].validatedAt = new Date().toISOString();
+                chrome.storage.local.set({ findings: existingFindings }, () => { });
+            });
         }
     }
 }
