@@ -12,8 +12,11 @@ const getCallerIdentity = async (accessKeyId: string, secretAccessKey: string, r
     try {
         const data = await sts.getCallerIdentity({});
         return data;
-    } catch (error) {
-        if (retryOn403) {
+    } catch (error: any) {
+        if (error.name === "InvalidClientTokenId") {
+            return false;
+        }
+        if (error.name === "SignatureDoesNotMatch" && retryOn403) {
             await new Promise(r => setTimeout(r, 5000));
             return getCallerIdentity(accessKeyId, secretAccessKey, false);
         } else {

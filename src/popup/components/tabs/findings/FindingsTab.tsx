@@ -8,12 +8,17 @@ import {
     TooltipProvider,
     TooltipTrigger
 } from "../../../../components/ui/tooltip";
-import { ValidityStatus } from 'src/types/findings.types';
+import { Finding, ValidityStatus } from 'src/types/findings.types';
+import { awsValidityHelper } from '../../utils/awsValidityHelper';
 
 const FindingsTab: React.FC = () => {
     const { data: { findings } } = useAppContext();
 
-    const handleValidityCheck = (index: number) => {
+    const handleValidityCheck = async (finding: Finding) => {
+        console.log("validating finding =", finding)
+        if (finding.secretType === "AWS Access & Secret Keys") {
+            awsValidityHelper(finding);
+        }
     };
 
     React.useEffect(() => {
@@ -57,7 +62,7 @@ const FindingsTab: React.FC = () => {
                                         <div className={`validity-status ${getValidityColorClass(finding.validity)}`}>
                                             {finding.validity.replace(/_/g, ' ')}
 
-                                            {finding.validity === 'valid' && finding.validatedAt && (
+                                            {finding.validatedAt && (
                                                 <TooltipProvider>
                                                     <Tooltip>
                                                         <TooltipTrigger asChild>
@@ -66,7 +71,7 @@ const FindingsTab: React.FC = () => {
                                                             </div>
                                                         </TooltipTrigger>
                                                         <TooltipContent>
-                                                            Validated at: {new Date(finding.validatedAt).toLocaleString()}
+                                                            Last Checked: {new Date(finding.validatedAt).toLocaleString()}
                                                         </TooltipContent>
                                                     </Tooltip>
                                                 </TooltipProvider>
@@ -74,7 +79,7 @@ const FindingsTab: React.FC = () => {
 
                                             <button
                                                 className="recheck-button"
-                                                onClick={() => handleValidityCheck(index)}
+                                                onClick={() => handleValidityCheck(finding)}
                                                 aria-label="Recheck validity"
                                             >
                                                 <RotateCw size={14} />
