@@ -2,9 +2,10 @@ import { calculateShannonEntropy } from '../../../utils/entropy';
 import { isKnownFalsePositive, falsePositiveSecretPattern } from '../../../utils/falsePositives';
 import { validateAWSCredentials } from '../../../utils/aws';
 import { AWS_RESOURCE_TYPES, DEFAULT_AWS_CONFIG } from '../../../config/aws';
-import { AWSOccurrence, AWSDetectorConfig } from '../../../../types/aws.types';
-import { Occurrence } from '../../../../types/findings.types';
+import { AWSOccurrence, AWSDetectorConfig, AWSSecretValue } from '../../../../types/aws.types';
+import { Occurrence, Finding } from '../../../../types/findings.types';
 import { computeFingerprint } from '../../../utils/computeFingerprint';
+import { getExistingFindings } from '../../../utils/common';
 
 let awsConfig: AWSDetectorConfig = { ...DEFAULT_AWS_CONFIG };
 
@@ -50,8 +51,22 @@ export async function detectAwsAccessKeys(content: string, url: string): Promise
         return [];
     }
 
+    const existingFindings = await getExistingFindings();
+    const filteredAccessKeys = await Promise.all(
+        validAccessKeys.map(async (aKey) => {
+            const alreadyFound = existingFindings.some(
+                (finding: Finding) =>
+                    Object.values(finding.secretValue).some(
+                        (match: AWSSecretValue) => Object.values(match).includes(aKey)
+                    )
+            );
+            return alreadyFound ? null : aKey;
+        })
+    );
+    const prunedAccessKeys = filteredAccessKeys.filter((key): key is string => key !== null);
+
     const validOccurrences: Occurrence[] = [];
-    for (const aKey of validAccessKeys) {
+    for (const aKey of prunedAccessKeys) {
         for (const sKey of validSecretKeys) {
             const validationResult = await validateAWSCredentials(aKey, sKey);
             if (validationResult.valid) {
