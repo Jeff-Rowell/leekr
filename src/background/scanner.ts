@@ -1,22 +1,23 @@
 import { detectAwsAccessKeys } from './detectors/aws/access_keys/access_keys';
-import { validateAwsAccessKeys } from './validators/aws/access_keys/access_keys';
-import { Finding, NullableFinding, NullableOccurrence } from '../types/findings.types';
+import { Finding, Occurrence } from '../types/findings.types';
 
 export async function findSecrets(content: string, url: string): Promise<Finding[]> {
     const findings: Finding[] = [];
-    const awsMatches: NullableOccurrence = await detectAwsAccessKeys(content, url);
+    const awsMatches: Occurrence[] = await detectAwsAccessKeys(content, url);
 
-    if (awsMatches) { // If AWS access keys were matched
-        const f: Finding = {
-            numOccurrences: 1,
-            secretType: awsMatches.secretType,
-            secretValue: awsMatches.secretValue,
-            validity: "valid",
-            validatedAt: new Date().toISOString(),
-            fingerprint: awsMatches.fingerprint,
-            occurrences: new Set([awsMatches])
-        }
-        findings.push(f);
+    if (awsMatches.length > 0) {
+        awsMatches.forEach(occurrence => {
+            const f: Finding = {
+                numOccurrences: 1,
+                secretType: occurrence.secretType,
+                secretValue: occurrence.secretValue,
+                validity: "valid",
+                validatedAt: new Date().toISOString(),
+                fingerprint: occurrence.fingerprint,
+                occurrences: new Set([occurrence])
+            }
+            findings.push(f);
+        });
     }
 
     return findings;

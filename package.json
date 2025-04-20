@@ -21,6 +21,7 @@
     },
     "homepage": "https://github.com/Jeff-Rowell/Leekr#readme",
     "dependencies": {
+        "@aws-sdk/client-sts": "^3.787.0",
         "@radix-ui/react-tooltip": "^1.2.0",
         "@tailwindcss/postcss": "^4.1.4",
         "@types/chrome": "^0.0.315",
