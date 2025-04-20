@@ -15,7 +15,6 @@ const FindingsTab: React.FC = () => {
     const { data: { findings } } = useAppContext();
 
     const handleValidityCheck = async (finding: Finding) => {
-        console.log("validating finding =", finding)
         if (finding.secretType === "AWS Access & Secret Keys") {
             awsValidityHelper(finding);
         }
