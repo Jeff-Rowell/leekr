@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './style.css';
 import { useAppContext } from '../../../AppContext';
-import { RotateCw } from 'lucide-react';
+import { RotateCw, Settings } from 'lucide-react';
 import {
     Tooltip,
     TooltipContent,
@@ -10,9 +10,14 @@ import {
 } from "../../../../components/ui/tooltip";
 import { Finding, ValidityStatus } from 'src/types/findings.types';
 import { awsValidityHelper } from '../../utils/awsValidityHelper';
+import ModalHeader from '../../../../components/ui/Modalheader';
 
 const FindingsTab: React.FC = () => {
     const { data: { findings } } = useAppContext();
+    const [activeSettingsMenu, setActiveSettingsMenu] = useState<number | null>(null);
+    const settingsButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+    const settingsDropdownRef = useRef<HTMLDivElement>(null);
+    const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
 
     const handleValidityCheck = async (finding: Finding) => {
         if (finding.secretType === "AWS Access & Secret Keys") {
@@ -41,6 +46,68 @@ const FindingsTab: React.FC = () => {
         }
     };
 
+    const toggleSettingsMenu = (index: number, e: React.MouseEvent) => {
+        e.stopPropagation();
+
+        if (activeSettingsMenu === index) {
+            setActiveSettingsMenu(null);
+        } else {
+            const buttonElement = settingsButtonRefs.current[index];
+            if (buttonElement) {
+                const rect = buttonElement.getBoundingClientRect();
+                setDropdownPosition({
+                    top: rect.bottom + window.scrollY,
+                    left: rect.right - 250 + window.scrollX // 250px is the width of the dropdown
+                });
+            }
+            setActiveSettingsMenu(index);
+        }
+    };
+
+    const closeSettingsMenu = () => {
+        setActiveSettingsMenu(null);
+    };
+
+    // Close the settings menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            const clickedSettingsButton = settingsButtonRefs.current.some(
+                ref => ref && ref.contains(event.target as Node)
+            );
+
+            if (
+                activeSettingsMenu !== null &&
+                settingsDropdownRef.current &&
+                !settingsDropdownRef.current.contains(event.target as Node) &&
+                !clickedSettingsButton
+            ) {
+                setActiveSettingsMenu(null);
+            }
+        };
+
+        if (activeSettingsMenu !== null) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [activeSettingsMenu]);
+
+    // Handle settings option click
+    const handleSettingsOptionClick = (option: string, findingIndex: number) => {
+        console.log(`Option "${option}" clicked for finding at index ${findingIndex}`);
+        setActiveSettingsMenu(null);
+    };
+
+    // Ensure we have enough refs for all findings
+    useEffect(() => {
+        settingsButtonRefs.current = settingsButtonRefs.current.slice(0, findings.length);
+        while (settingsButtonRefs.current.length < findings.length) {
+            settingsButtonRefs.current.push(null);
+        }
+    }, [findings.length]);
+
     return (
         <section className="findings-tab">
             <div className="findings-section">
@@ -51,6 +118,7 @@ const FindingsTab: React.FC = () => {
                                 <th>Type</th>
                                 <th>Validity</th>
                                 <th>Occurrences</th>
+                                <th>{/* Empty header for settings column */}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -86,13 +154,49 @@ const FindingsTab: React.FC = () => {
                                         </div>
                                     </td>
                                     <td className="findings-td">{finding.numOccurrences}</td>
-                                    {/* <td className="file-path"><a target="_blank" href={finding.url}>{finding.filePath}</a></td> */}
+                                    <td className="settings-cell">
+                                        <div className="settings-container">
+                                            <button
+                                                ref={el => { settingsButtonRefs.current[index] = el; }}
+                                                className="settings-button"
+                                                onClick={(e) => toggleSettingsMenu(index, e)}
+                                                aria-label="Settings"
+                                            >
+                                                <Settings size={16} className="settings-icon" />
+                                            </button>
+                                        </div>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
             </div>
+
+            {/* Render dropdown outside of table for proper z-index handling */}
+            {activeSettingsMenu !== null && (
+                <div
+                    className="download-options settings-dropdown shadow-md rounded border z-10"
+                    ref={settingsDropdownRef}
+                    style={{
+                        top: `${dropdownPosition.top}px`,
+                        left: `${dropdownPosition.left}px`
+                    }}
+                >
+                    <ModalHeader title="Finding Options" onClose={closeSettingsMenu} />
+                    <div className="settings-options">
+                        <button onClick={() => handleSettingsOptionClick("View Occurrences", activeSettingsMenu)}>
+                            View Occurrences
+                        </button>
+                        <button onClick={() => handleSettingsOptionClick("Delete Finding", activeSettingsMenu)}>
+                            Delete Finding
+                        </button>
+                        <button onClick={() => handleSettingsOptionClick("Report Issue", activeSettingsMenu)}>
+                            Report Issue
+                        </button>
+                    </div>
+                </div>
+            )}
         </section>
     );
 };
