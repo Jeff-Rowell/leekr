@@ -14,7 +14,7 @@ import ModalHeader from '../../../../components/ui/Modalheader';
 
 const FindingsTab: React.FC = () => {
     const { data: { findings } } = useAppContext();
-    const [activeSettingsMenu, setActiveSettingsMenu] = useState<number | null>(null);
+    const [activeSettingsMenu, setActiveSettingsMenu] = useState<{ index: number, finding: Finding } | null>(null);
     const settingsButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
     const settingsDropdownRef = useRef<HTMLDivElement>(null);
     const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
@@ -46,10 +46,10 @@ const FindingsTab: React.FC = () => {
         }
     };
 
-    const toggleSettingsMenu = (index: number, e: React.MouseEvent) => {
+    const toggleSettingsMenu = (index: number, finding: Finding, e: React.MouseEvent) => {
         e.stopPropagation();
 
-        if (activeSettingsMenu === index) {
+        if (activeSettingsMenu !== null && activeSettingsMenu.index === index) {
             setActiveSettingsMenu(null);
         } else {
             const buttonElement = settingsButtonRefs.current[index];
@@ -60,7 +60,7 @@ const FindingsTab: React.FC = () => {
                     left: rect.right - 250 + window.scrollX // 250px is the width of the dropdown
                 });
             }
-            setActiveSettingsMenu(index);
+            setActiveSettingsMenu({ index, finding });
         }
     };
 
@@ -95,9 +95,18 @@ const FindingsTab: React.FC = () => {
     }, [activeSettingsMenu]);
 
     // Handle settings option click
-    const handleSettingsOptionClick = (option: string, findingIndex: number) => {
+    const handleSettingsOptionClick = (option: string, activeMenu: { index: number, finding: Finding }) => {
         if (option === "Report Issue") {
             window.open("https://github.com/Jeff-Rowell/Leekr/issues/new", "_blank");
+        } else if (option === "Delete Finding") {
+            chrome.storage.local.get(['findings'], async function (result) {
+                let existingFindings: Finding[] = result.findings || [];
+                const index = existingFindings.findIndex(
+                    (f) => f.fingerprint === activeMenu.finding.fingerprint
+                );
+                existingFindings.splice(index, 1);
+                chrome.storage.local.set({ findings: existingFindings }, () => { });
+            });
         }
 
         setActiveSettingsMenu(null);
@@ -162,7 +171,7 @@ const FindingsTab: React.FC = () => {
                                             <button
                                                 ref={el => { settingsButtonRefs.current[index] = el; }}
                                                 className="settings-button"
-                                                onClick={(e) => toggleSettingsMenu(index, e)}
+                                                onClick={(e) => toggleSettingsMenu(index, finding, e)}
                                                 aria-label="Settings"
                                             >
                                                 <Settings size={16} className="settings-icon" />
