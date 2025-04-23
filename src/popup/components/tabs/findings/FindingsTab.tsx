@@ -96,7 +96,10 @@ const FindingsTab: React.FC = () => {
 
     // Handle settings option click
     const handleSettingsOptionClick = (option: string, findingIndex: number) => {
-        console.log(`Option "${option}" clicked for finding at index ${findingIndex}`);
+        if (option === "Report Issue") {
+            window.open("https://github.com/Jeff-Rowell/Leekr/issues/new", "_blank");
+        }
+
         setActiveSettingsMenu(null);
     };
 
