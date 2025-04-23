@@ -107,6 +107,10 @@ const FindingsTab: React.FC = () => {
                 existingFindings.splice(index, 1);
                 chrome.storage.local.set({ findings: existingFindings }, () => { });
             });
+        } else if (option === "View Occurrences") {
+            const url = chrome.runtime.getURL("options.html") +
+                `?tab=occurrences&fingerprint=${activeMenu.finding.fingerprint}`;
+            chrome.tabs.create({ url });
         }
 
         setActiveSettingsMenu(null);
