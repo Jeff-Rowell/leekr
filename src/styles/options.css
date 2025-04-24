@@ -1,0 +1,331 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  line-height: 1.6;
+}
+
+/* Options Layout */
+.options-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.options-header {
+  background-color: var(--color-leek);
+  color: white;
+  padding: 16px 24px;
+  box-shadow: var(--shadow);
+  z-index: 10;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  width: 32px;
+  height: 32px;
+  margin-right: 12px;
+}
+
+.options-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background-color: var(--color-bg-dark);
+  border-right: 1px solid var(--color-border);
+  overflow-y: auto;
+}
+
+.sidebar nav ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar nav li {
+  margin: 4px 0;
+}
+
+.sidebar nav button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--color-text);
+  border-radius: 0;
+  transition: background-color 0.2s;
+}
+
+.sidebar nav button:hover {
+  background-color: rgba(108, 124, 54, 0.1);
+}
+
+.sidebar nav li.active button {
+  background-color: rgba(108, 124, 54, 0.2);
+  color: var(--color-leek);
+  font-weight: 500;
+  border-left: 3px solid var(--color-leek);
+}
+
+.sidebar nav button svg {
+  margin-right: 12px;
+  color: var(--color-text-light);
+}
+
+.sidebar nav li.active button svg {
+  color: var(--color-leek);
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.tab-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.tab-content h2 {
+  margin-bottom: 24px;
+  color: var(--color-leek);
+  font-weight: 600;
+}
+
+/* Occurrences Tab */
+.selected-finding-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.finding-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.validity-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.validity-badge.valid {
+  background-color: rgba(52, 199, 89, 0.2);
+  color: #2d7d4b;
+}
+
+.validity-badge.invalid {
+  background-color: rgba(255, 69, 58, 0.2);
+  color: #c93a37;
+}
+
+.validity-badge.unknown,
+.validity-badge.no_checker,
+.validity-badge.failed_to_check {
+  background-color: rgba(255, 159, 10, 0.2);
+  color: #b36d00;
+}
+
+.occurrences-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.occurrence-item {
+  background-color: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+.occurrence-path {
+  font-weight: 500;
+  color: var(--color-leek);
+  margin-bottom: 4px;
+}
+
+.occurrence-line {
+  font-size: 12px;
+  color: var(--color-text-light);
+  margin-bottom: 8px;
+}
+
+.occurrence-context {
+  background-color: var(--color-bg-dark);
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  overflow-x: auto;
+}
+
+.occurrence-context pre {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 13px;
+  white-space: pre-wrap;
+}
+
+.occurrence-link {
+  display: inline-block;
+  color: var(--color-link-text);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.occurrence-link:hover {
+  text-decoration: underline;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  color: var(--color-text-light);
+  text-align: center;
+}
+
+.empty-state svg {
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+/* Settings Tab */
+.settings-section {
+  margin-bottom: 32px;
+}
+
+.settings-section h3 {
+  margin-bottom: 16px;
+  font-size: 18px;
+  color: var(--color-text);
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background-color: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  margin-bottom: 12px;
+}
+
+.setting-item label {
+  display: flex;
+  flex-direction: column;
+}
+
+.setting-description {
+  font-size: 13px;
+  color: var(--color-text-light);
+  margin-top: 4px;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 26px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+  background-color: var(--color-leek);
+}
+
+input:focus + .toggle-slider {
+  box-shadow: 0 0 1px var(--color-leek);
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(26px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .options-content {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+  
+  .sidebar nav ul {
+    display: flex;
+    overflow-x: auto;
+  }
+  
+  .sidebar nav li {
+    margin: 0;
+  }
+  
+  .sidebar nav button {
+    white-space: nowrap;
+  }
+}
