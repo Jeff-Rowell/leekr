@@ -1,6 +1,11 @@
 declare module "*.png";
-declare module "*.svg" {
+declare module "*/leekr-font.svg" {
     import * as React from "react";
-    const ReactComponent: React.FunctionComponent<React.SVGProps<SVGSVGElement> & { title?: string }>;
-    export default ReactComponent;
+    const LeekrFont: React.FunctionComponent<React.SVGProps<SVGSVGElement> & { title?: string }>;
+    export default LeekrFont;
+}
+declare module "*/settings-font.svg" {
+    import * as React from "react";
+    const SettingsFont: React.FunctionComponent<React.SVGProps<SVGSVGElement> & { title?: string }>;
+    export default SettingsFont;
 }

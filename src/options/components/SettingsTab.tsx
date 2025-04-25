@@ -6,7 +6,7 @@ export const SettingsTab = () => {
 
     return (
         <div className="tab-content">
-            <h2>Leekr Settings</h2>
+            <h2>Settings</h2>
 
             <div className="settings-section">
                 <h3>Notifications</h3>

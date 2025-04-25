@@ -32,8 +32,8 @@ body {
 }
 
 .logo {
-  width: 32px;
-  height: 32px;
+  width: 64px;
+  height: 64px;
   margin-right: 12px;
 }
 
@@ -41,6 +41,7 @@ body {
   display: flex;
   flex: 1;
   overflow: hidden;
+  border-top: 1px solid white;
 }
 
 /* Sidebar */
@@ -100,6 +101,7 @@ body {
   flex: 1;
   padding: 24px;
   overflow-y: auto;
+  background-color: var(--color-options-background);
 }
 
 .tab-content {
@@ -328,4 +330,15 @@ input:checked + .toggle-slider:before {
   .sidebar nav button {
     white-space: nowrap;
   }
+}
+
+.leekr-svg {
+    color: var(--color-leekr-options-font);
+    max-width: 150px;
+}
+
+.settings-svg {
+    color: var(--color-options-background);
+    max-width: 225px;
+    padding-left: 5px;
 }

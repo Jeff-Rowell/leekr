@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Download } from 'lucide-react';
 import { useAppContext } from '../../AppContext';
 import LeekrIcon from '../../../../public/icons/leekr_icon_128x128.png';
-import ReactComponent from '../../../assets/leekr-font.svg';
+import LeekrFont from '../../../assets/leekr-font.svg';
 import ModalHeader from '../../../components/ui/Modalheader';
 import './style.css';
 
@@ -23,6 +23,9 @@ const Header: React.FC = () => {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
 
         if (format === 'csv') {
+            // get all the fields from Findings
+            // loop through the findings occurrences and get all the occurrences fields
+            // dudupe them by putting them in a set
             const headers = ['secretType', 'validity', 'validatedAt', 'secretValue', 'fingerprint'];
             const csvRows = [headers.join(',')];
             findings.forEach(finding => {
@@ -92,7 +95,7 @@ const Header: React.FC = () => {
                 alt="Leekr"
             />
             <div className="flex flex-col items-center">
-                <ReactComponent className="h-10 header-svg" />
+                <LeekrFont className="h-10 header-svg" />
                 <div className="flex flex-col items-center relative">
                     <div className="flex items-center">
                         {findings.length > 0 && (

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Shield, Settings, Eye, Info } from 'lucide-react';
 import '../../styles/variables.css';
 import '../../styles/options.css';
+import LeekrFont from '../../assets/leekr-font.svg';
+import SettingsFont from '../../assets/settings-font.svg';
 import { SettingsTab } from '../components/SettingsTab';
 import { Occurrences } from '../components/Occurrences';
 
@@ -51,8 +53,9 @@ const Options: React.FC = () => {
         <div className="options-container">
             <header className="options-header">
                 <div className="logo-container">
-                    <img src="icons/leekr_icon_128x128.png" alt="Leekr Logo" className="logo" />
-                    <h1>Leekr Settings</h1>
+                    <img src="icons/leekr_head_icon_trimmed_128x128.png" alt="Leekr Logo" className="logo" />
+                    <LeekrFont className="h-10 leekr-svg" />
+                    <SettingsFont className="h-10 settings-svg" />
                 </div>
             </header>
 
