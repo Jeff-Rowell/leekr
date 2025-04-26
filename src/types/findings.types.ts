@@ -18,5 +18,10 @@ export interface Finding {
     occurrences: Set<Occurrence>;
 }
 
+export interface FindingDict {
+    // fingerprint as the key, all matching occurrences as the values
+    [key: string]: Set<Occurrence>;
+}
+
 export type NullableFinding = Finding | null;
 export type NullableOccurrence = Occurrence | null;
