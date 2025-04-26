@@ -1,7 +1,8 @@
 export type ValidityStatus = 'valid' | 'invalid' | 'failed_to_check' | 'no_checker' | 'unknown';
+export type DetectorType = 'AWS Access & Secret Keys' | 'AWS Session Keys';
 
 export interface Occurrence {
-    secretType: string;
+    secretType: DetectorType;
     fingerprint: string;
     secretValue: object;
     filePath: string;
@@ -10,7 +11,7 @@ export interface Occurrence {
 
 export interface Finding {
     numOccurrences: number;
-    secretType: string;
+    secretType: DetectorType;
     secretValue: object;
     validity: ValidityStatus;
     validatedAt?: string;

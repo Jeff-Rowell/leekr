@@ -4,6 +4,7 @@ import { useAppContext } from '../../AppContext';
 import LeekrIcon from '../../../../public/icons/leekr_icon_128x128.png';
 import LeekrFont from '../../../assets/leekr-font.svg';
 import ModalHeader from '../../../components/ui/Modalheader';
+import { Occurrence } from '../../../types/findings.types';
 import './style.css';
 
 const Header: React.FC = () => {
@@ -23,28 +24,77 @@ const Header: React.FC = () => {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
 
         if (format === 'csv') {
-            // get all the fields from Findings
-            // loop through the findings occurrences and get all the occurrences fields
-            // dudupe them by putting them in a set
-            const headers = ['secretType', 'validity', 'validatedAt', 'secretValue', 'fingerprint'];
+            const findingFields = ['secretType', 'validity', 'validatedAt', 'fingerprint'];
+            const occurrenceFieldsSet = new Set<string>();
+            console.log("findings = ", findings)
+            findings.forEach(finding => {
+                console.log("finding.occurrences = ", findings)
+                // this is empty
+                Array.from(finding.occurrences).forEach(occurrence => {
+                    console.log("occurrence = ", occurrence)
+                    Object.keys(occurrence).forEach(key => {
+                        console.log("key = ", key)
+                        if (key !== 'secretValue') {
+                            occurrenceFieldsSet.add(`occurrence.${key}`);
+                        }
+                    });
+                });
+            });
+
+            console.log("occurrenceFieldsSet = ", occurrenceFieldsSet)
+
+            const headers = [
+                ...findingFields,
+                'secretValue',
+                ...Array.from(occurrenceFieldsSet)
+            ];
+            console.log("headers = ", headers)
             const csvRows = [headers.join(',')];
             findings.forEach(finding => {
-                const row = [
-                    finding.secretType,
-                    finding.validity,
-                    finding.validatedAt || '',
-                    redactSecrets ? '********' : JSON.stringify(finding.secretValue),
-                    finding.fingerprint
-                ];
-                csvRows.push(row.join(','));
+                Array.from(finding.occurrences).forEach(occurrence => {
+                    const row: string[] = [];
+                    headers.forEach(header => {
+                        if (header === 'secretType') {
+                            row.push(finding.secretType || '');
+                        } else if (header === 'validity') {
+                            row.push(finding.validity || '');
+                        } else if (header === 'validatedAt') {
+                            row.push(finding.validatedAt || '');
+                        } else if (header === 'fingerprint') {
+                            row.push(finding.fingerprint || '');
+                        } else if (header === 'secretValue') {
+                            row.push(redactSecrets ? '********' : JSON.stringify(finding.secretValue));
+                        } else if (header.startsWith('occurrence.')) {
+                            const occField = header.replace('occurrence.', '') as keyof Occurrence;
+                            const value = occField in occurrence
+                                ? (occField === 'secretValue'
+                                    ? (redactSecrets ? '********' : JSON.stringify(occurrence.secretValue))
+                                    : String((occurrence as any)[occField] || ''))
+                                : '';
+
+                            row.push(value);
+                        }
+                    });
+
+                    csvRows.push(row.join(','));
+                });
             });
+
             content = csvRows.join('\n');
             filename = `leekr-findings-${timestamp}.csv`;
         } else {
-            const jsonData = findings.map(finding => ({
-                ...finding,
-                secretValue: redactSecrets ? '********' : finding.secretValue
-            }));
+            const jsonData = findings.map(finding => {
+                const modifiedFinding = {
+                    ...finding,
+                    secretValue: redactSecrets ? '********' : finding.secretValue,
+                    occurrences: Array.from(finding.occurrences).map(occurrence => ({
+                        ...occurrence,
+                        secretValue: redactSecrets ? '********' : occurrence.secretValue
+                    }))
+                };
+                return modifiedFinding;
+            });
+
             content = JSON.stringify(jsonData, null, 2);
             filename = `leekr-findings-${timestamp}.json`;
         }

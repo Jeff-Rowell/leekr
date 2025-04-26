@@ -13,7 +13,6 @@ interface Occurrence {
     findingFingerprint: string;
 }
 
-
 export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFingerprint }) => {
     const { data } = useAppContext();
     const [occurrences, setOccurrences] = useState<Occurrence[]>([]);
@@ -53,7 +52,7 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
             setFilteredOccurrences(filtered);
 
             // Set the selected finding
-            const finding = data.findings.find(f => f.fingerprint === filterFingerprint);
+            const finding = data.findings.getFinding(filterFingerprint);
             if (finding) {
                 setSelectedFinding(finding);
             }

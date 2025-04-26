@@ -9,7 +9,7 @@ import { getExistingFindings } from '../../../utils/common';
 
 let awsConfig: AWSDetectorConfig = { ...DEFAULT_AWS_CONFIG };
 
-export async function detectAwsAccessKeys(content: string, url: string): Promise<Occurrence[]> {
+export async function detectAwsAccessKeys(content: string, url: string): Promise<Set<Occurrence>> {
     const awsAccessKeyIdPattern = /\b((?:AKIA|ABIA|ACCA|AIDA)[A-Z0-9]{16})\b/g;
     const awsSecretAccessKeyPattern = /"([A-Za-z0-9+/]{40})"|(?:[^A-Za-z0-9+/]|^)([A-Za-z0-9+/]{40})(?:[^A-Za-z0-9+/]|$)/g;
     const accessKeyMatches = content.match(awsAccessKeyIdPattern) || [];
@@ -26,7 +26,7 @@ export async function detectAwsAccessKeys(content: string, url: string): Promise
     })
 
     if (accessKeyMatches.length === 0 || secretKeyMatches.length === 0) {
-        return [];
+        return new Set<Occurrence>;
     }
 
     const validAccessKeys = accessKeyMatches.filter(key => {
@@ -48,7 +48,7 @@ export async function detectAwsAccessKeys(content: string, url: string): Promise
     });
 
     if (validAccessKeys.length === 0 || validSecretKeys.length === 0) {
-        return [];
+        return new Set<Occurrence>;
     }
 
     const existingFindings = await getExistingFindings();
@@ -65,7 +65,7 @@ export async function detectAwsAccessKeys(content: string, url: string): Promise
     );
     const prunedAccessKeys = filteredAccessKeys.filter((key): key is string => key !== null);
 
-    const validOccurrences: Occurrence[] = [];
+    const validOccurrences: Set<Occurrence> = new Set<Occurrence>;
     for (const aKey of prunedAccessKeys) {
         for (const sKey of validSecretKeys) {
             const validationResult = await validateAWSCredentials(aKey, sKey);
@@ -87,14 +87,14 @@ export async function detectAwsAccessKeys(content: string, url: string): Promise
                 match.accountId = validationResult.accountId;
                 match.arn = validationResult.arn;
                 match.fingerprint = await computeFingerprint(match.secretValue, 'SHA-512');
-                validOccurrences.push(match);
+                validOccurrences.add(match);
             }
         }
     }
 
-    if (validOccurrences.length > 0) {
+    if (validOccurrences.size > 0) {
         return validOccurrences;
     } else {
-        return [];
+        return new Set<Occurrence>;
     }
 };

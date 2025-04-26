@@ -1,15 +1,15 @@
 import React, { createContext, useContext, useReducer, useEffect, useState } from "react";
-import { Finding } from '../types/findings.types';
+import { Findings } from '../models/Findings';
 
 interface AppState {
     activeTab: string;
-    findings: Finding[];
+    findings: Findings;
     notifications: string;
 }
 
 interface AppActions {
     setActiveTab: (tab: string) => void;
-    setFindings: (findings: Finding[]) => void;
+    setFindings: (findings: Findings) => void;
     setNotifications: (notifications: string) => void;
     clearNotifications: () => void;
 }
@@ -18,7 +18,7 @@ const AppContext = createContext<{ data: AppState; actions: AppActions } | undef
 
 const initialState: AppState = {
     activeTab: 'Findings',
-    findings: [],
+    findings: new Findings(),
     notifications: '',
 };
 
