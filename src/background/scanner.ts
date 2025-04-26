@@ -4,10 +4,14 @@ import { Findings } from '../models/Findings';
 
 const findings = new Findings();
 
-function broadcastState(payload: Finding[] = findings.getAllFindigns()) {
+function broadcastState(payload: Finding[] = findings.getAllFindings()) {
     chrome.runtime.sendMessage({
         type: 'NEW_FINDINGS',
         payload: payload
+    });
+    chrome.runtime.sendMessage({
+        type: 'NEW_NOTIFICATION',
+        payload: payload.length.toString()
     });
 }
 

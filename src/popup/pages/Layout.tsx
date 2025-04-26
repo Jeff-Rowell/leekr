@@ -5,13 +5,13 @@ import TabContent from '../components/tabs/TabContent';
 import { useAppContext } from '../AppContext';
 
 const Layout: React.FC = () => {
-    const { data } = useAppContext();
+    const { state } = useAppContext();
 
     return (
         <div className="content">
             <Header />
             <Navbar />
-            <TabContent activeTab={data.activeTab} />
+            <TabContent activeTab={state.activeTab} />
         </div>
     );
 };

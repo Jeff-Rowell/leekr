@@ -1,58 +1,164 @@
-import { Finding, FindingDict, Occurrence } from 'src/types/findings.types';
+import { FindingsState } from '../types/app.types';
+import { Finding, Occurrence, FindingDict } from '../types/findings.types';
 
 /**
  * Represents all the findings identified by Leekr
  */
 export class Findings {
-    private findings: Finding[];
-    private findingsMap: FindingDict[];
+    private state: FindingsState;
 
     /**
      * Creates a new Findings instance that gets managed by AppContext.
      */
     constructor() {
-        this.findings = [];
-        this.findingsMap = [];
+        this.state = {
+            activeTab: "Findings",
+            findings: [],
+            findingsMap: [],
+            notifications: ""
+        };
+        this.loadFromStorage();
     }
 
     /**
-     * Gets the length of this Findings instance.
-     * @returns The length of this Findings instance.
+     * Loads the existing FindingsState from storage if it exists, 
+     * otherwise sets the storage to default values
      */
-    get length(): number {
-        return this.findings.length;
+    private async loadFromStorage() {
+        await this.loadActiveTabFromStorage();
+        await this.loadFindingsFromStorage();
+        await this.loadFindingsMapFromStorage();
+        await this.loadNotificationsFromStorage();
     }
 
     /**
-     * Applies a function to each element in the Findings array and returns a new 
-     * Findings array containing the results.
-     * 
-     * @param callback The function that is called one time for each Finding in 
-     *                 this Findings instance.
-     * @param value The current element being processed
-     * @param index The position of the current element being processed
-     * @returns A new array with each element being the result of the callback function.
+     * Loads the current active tab from storage.
      */
-    map<U>(callback: (value: Finding, index: number) => U): U[] {
-        const result: U[] = [];
-        for (let i = 0; i < this.findings.length; i++) {
-            result.push(callback(this.findings[i], i));
+    private async loadActiveTabFromStorage() {
+        const activeTabResults = await chrome.storage.local.get('activeTab')
+        if (activeTabResults.activeTab) {
+            this.state.activeTab = activeTabResults.activeTab;
+        } else {
+            await chrome.storage.local.set({ 'activeTab': this.state.activeTab });
         }
-        return result;
     }
 
     /**
-     * Applies a function to each element in the Findings array and returns a new 
-     * Findings array containing the results.
-     * 
-     * @param callback The function that is called one time for each Finding in 
-     *                 this Findings instance.
-     * @param item The current element being processed
-     * @returns A new array with each element being the result of the callback function.
+     * Loads the Findings from storage.
      */
-    forEach(callback: (item: Finding) => void): void {
-        for (let i = 0; i < this.findings.length; i++) {
-            callback(this.findings[i]);
+    private async loadFindingsFromStorage() {
+        const findingsResults = await chrome.storage.local.get(['findings']);
+        if (findingsResults.findings) {
+            if (!Array.isArray(findingsResults.findings)) {
+                this.state.findings = Object.values(findingsResults.findings);
+            } else {
+                this.state.findings = findingsResults.findings;
+            }
+
+            this.state.findings = this.state.findings.map((finding: any) => {
+                if (finding.occurrences && !(finding.occurrences instanceof Set)) {
+                    const occurrencesArray = Array.isArray(finding.occurrences)
+                        ? finding.occurrences
+                        : Object.values(finding.occurrences);
+                    finding.occurrences = new Set(occurrencesArray);
+                }
+                return finding;
+            });
+        } else {
+            await chrome.storage.local.set({ 'findings': [] });
+        }
+    }
+
+    /**
+     * Loads the findingsMap from storage.
+     */
+    private async loadFindingsMapFromStorage() {
+        const findingsMapResults = await chrome.storage.local.get(['findingsMap']);
+        if (findingsMapResults.findingsMap) {
+            if (!Array.isArray(findingsMapResults.findingsMap)) {
+                this.state.findingsMap = Object.values(findingsMapResults.findingsMap);
+            } else {
+                this.state.findingsMap = findingsMapResults.findingsMap;
+            }
+            this.state.findingsMap = this.state.findingsMap.map((dict: any) => {
+                const result: FindingDict = {};
+
+                Object.keys(dict).forEach(key => {
+                    const occurrences = dict[key];
+                    if (occurrences && !(occurrences instanceof Set)) {
+                        result[key] = new Set(Array.isArray(occurrences) ? occurrences : Object.values(occurrences));
+                    } else {
+                        result[key] = occurrences;
+                    }
+                });
+
+                return result;
+            });
+        } else {
+            await chrome.storage.local.set({ 'findingsMap': [] });
+        }
+    }
+
+    /**
+     * Loads the current notifications from storage.
+     */
+    private async loadNotificationsFromStorage() {
+        const notificationsResults = await chrome.storage.local.get('notifications');
+        if (notificationsResults.notifications) {
+            this.state.notifications = notificationsResults.notifications;
+        } else {
+            await chrome.storage.local.set({ 'notifications': this.state.notifications });
+        }
+    }
+
+    /**
+     * Write the current FindingsState to storage.
+     */
+    private async saveToStorage() {
+        if (!Array.isArray(this.state.findings)) {
+            this.state.findings = Object.values(this.state.findings);
+        }
+
+        if (!Array.isArray(this.state.findingsMap)) {
+            this.state.findingsMap = Object.values(this.state.findingsMap);
+        }
+
+        const serializedFindings = this.state.findings.map((finding: any) => ({
+            ...finding,
+            occurrences: Array.from(finding.occurrences || [])
+        }));
+
+        const serializedFindingsMap = this.state.findingsMap.map((dict: any) => {
+            const serializedDict: Record<string, any> = {};
+
+            Object.keys(dict).forEach(key => {
+                serializedDict[key] = Array.from(dict[key] || []);
+            });
+
+            return serializedDict;
+        });
+
+        await chrome.storage.local.set({
+            'activeTab': this.state.activeTab,
+            'findings': serializedFindings,
+            'findingsMap': serializedFindingsMap,
+            'notifications': this.state.notifications,
+        });
+    }
+
+    /**
+     * Checks if two URLs share the same origin.
+     * @param url1 - The first URL to compare
+     * @param url2 - The second URL to compare
+     * @returns True if the URLs share the same origin, false otherwise
+     */
+    private isSameOrigin(url1: string, url2: string): boolean {
+        try {
+            const u1 = new URL(url1);
+            const u2 = new URL(url2);
+            return u1.origin === u2.origin;
+        } catch (e) {
+            return false;
         }
     }
 
@@ -65,6 +171,8 @@ export class Findings {
         if (this.hasFinding(newFinding.fingerprint)) {
             return false;
         } else {
+            this.state.findings.push(newFinding);
+            this.saveToStorage();
             return true;
         }
     }
@@ -78,11 +186,12 @@ export class Findings {
         if (!this.hasFinding(fingerprint)) {
             return false;
         } else {
-            const findingsIdx = this.findings.findIndex(obj => obj.fingerprint === fingerprint);
-            const findingsMapIdx = this.findingsMap.findIndex(obj => fingerprint in obj);
+            const findingsIdx = this.state.findings.findIndex(obj => obj.fingerprint === fingerprint);
+            const findingsMapIdx = this.state.findingsMap.findIndex(obj => fingerprint in obj);
             if (findingsIdx > -1 && findingsMapIdx > -1) {
-                this.findings.splice(findingsIdx, 1);
-                this.findingsMap.splice(findingsMapIdx, 1);
+                this.state.findings.splice(findingsIdx, 1);
+                this.state.findingsMap.splice(findingsMapIdx, 1);
+                this.saveToStorage();
                 return true;
             } else {
                 return false;
@@ -96,9 +205,9 @@ export class Findings {
      * @returns The Finding object if it exists, null otherwise
      */
     getFinding(fingerprint: string): Finding | null {
-        const idx = this.findings.findIndex(obj => obj.fingerprint === fingerprint);
+        const idx = this.state.findings.findIndex(obj => obj.fingerprint === fingerprint);
         if (idx > -1) {
-            return this.findings[idx]
+            return this.state.findings[idx]
         } else {
             return null;
         }
@@ -108,8 +217,8 @@ export class Findings {
      * 
      * @returns All of the findings
      */
-    getAllFindigns(): Finding[] {
-        return this.findings;
+    getAllFindings(): Finding[] {
+        return this.state.findings;
     }
 
     /**
@@ -118,7 +227,7 @@ export class Findings {
      * @returns True if the fingerprint has an associated Finding object, false otherwise
      */
     hasFinding(fingerprint: string): boolean {
-        return this.findingsMap.some(findingDict => fingerprint in findingDict);
+        return this.state.findingsMap.some(findingDict => fingerprint in findingDict);
     }
 
     /**
@@ -144,6 +253,7 @@ export class Findings {
         }
         existingFinding.occurrences.add(newOccurrence)
         existingFinding.numOccurrences += 1;
+        this.saveToStorage();
         return true;
     }
 
@@ -167,26 +277,28 @@ export class Findings {
         }
         // the occurrence is set here, but it gets unset later on somewhere
         console.log('newFinding = ', newFinding);
-        this.findings.push(newFinding);
+        this.state.findings.push(newFinding);
         const newFindingDict: FindingDict = {}
         newFindingDict[newFinding.fingerprint] = newFinding.occurrences;
-        this.findingsMap.push(newFindingDict);
+        this.state.findingsMap.push(newFindingDict);
+        this.saveToStorage();
         return newFinding;
     }
 
     /**
-     * Checks if two URLs share the same origin.
-     * @param url1 - The first URL to compare
-     * @param url2 - The second URL to compare
-     * @returns True if the URLs share the same origin, false otherwise
+     * Gets the current FindingsState.
+     * @returns The FindingsState.
      */
-    private isSameOrigin(url1: string, url2: string): boolean {
-        try {
-            const u1 = new URL(url1);
-            const u2 = new URL(url2);
-            return u1.origin === u2.origin;
-        } catch (e) {
-            return false;
-        }
+    getState(): FindingsState {
+        return { ...this.state };
+    }
+
+    /**
+     * Updates the current FindingsState given a new state.
+     * @param newState The new FindingsState to use to update.
+     */
+    updateState(newState: FindingsState): void {
+        this.state = newState;
+        this.saveToStorage();
     }
 }

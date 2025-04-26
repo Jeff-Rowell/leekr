@@ -8,7 +8,7 @@ import { Occurrence } from '../../../types/findings.types';
 import './style.css';
 
 const Header: React.FC = () => {
-    const { data: { findings } } = useAppContext();
+    const { state: { findings } } = useAppContext();
     const [showDownloadOptions, setShowDownloadOptions] = useState<boolean>(false);
     const [redactSecrets, setRedactSecrets] = useState<boolean>(true);
     const downloadOptionsRef = useRef<HTMLDivElement>(null);

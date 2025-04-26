@@ -11,9 +11,11 @@ import {
 import { Finding, ValidityStatus } from 'src/types/findings.types';
 import { awsValidityHelper } from '../../utils/awsValidityHelper';
 import ModalHeader from '../../../../components/ui/Modalheader';
+import { Findings } from '../../../../models/Findings';
 
 const FindingsTab: React.FC = () => {
-    const { data: { findings } } = useAppContext();
+    const findingsObj = new Findings();
+    const { state: { findings } } = useAppContext();
     const [activeSettingsMenu, setActiveSettingsMenu] = useState<{ index: number, finding: Finding } | null>(null);
     const settingsButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
     const settingsDropdownRef = useRef<HTMLDivElement>(null);
@@ -26,12 +28,9 @@ const FindingsTab: React.FC = () => {
     };
 
     React.useEffect(() => {
-        chrome.action.setBadgeText({ text: '' });
-        chrome.storage.local.set({ "notifications": '' }, function () {
-            chrome.runtime.sendMessage({
-                type: 'CLEAR_NOTIFICATIONS',
-                payload: ''
-            }).catch(() => { });
+        chrome.runtime.sendMessage({
+            type: 'CLEAR_NOTIFICATIONS',
+            payload: ''
         });
     }, []);
 
@@ -99,20 +98,13 @@ const FindingsTab: React.FC = () => {
         if (option === "Report Issue") {
             window.open("https://github.com/Jeff-Rowell/Leekr/issues/new", "_blank");
         } else if (option === "Delete Finding") {
-            chrome.storage.local.get(['findings'], async function (result) {
-                let existingFindings: Finding[] = result.findings || [];
-                const index = existingFindings.findIndex(
-                    (f) => f.fingerprint === activeMenu.finding.fingerprint
-                );
-                existingFindings.splice(index, 1);
-                chrome.storage.local.set({ findings: existingFindings }, () => { });
-            });
+            // TODO: troubleshoot why this isn't deleting
+            findingsObj.removeFinding(activeMenu.finding.fingerprint);
         } else if (option === "View Occurrences") {
             const url = chrome.runtime.getURL("options.html") +
                 `?tab=occurrences&fingerprint=${activeMenu.finding.fingerprint}`;
             chrome.tabs.create({ url });
         }
-
         setActiveSettingsMenu(null);
     };
 
