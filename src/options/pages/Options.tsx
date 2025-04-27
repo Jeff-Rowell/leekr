@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Settings, Eye, Info, Box } from 'lucide-react';
+import { Shield, Settings, Eye, Info } from 'lucide-react';
 import '../../styles/variables.css';
 import '../../styles/options.css';
 import LeekrFont from '../../assets/leekr-font.svg';
@@ -65,7 +65,7 @@ const Options: React.FC = () => {
                         <ul>
                             <li className={activeTab === 'general' ? 'active' : ''}>
                                 <button onClick={() => setActiveTab('general')}>
-                                    <Box size={18} />
+                                    <Shield size={18} />
                                     <span>General</span>
                                 </button>
                             </li>

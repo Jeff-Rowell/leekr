@@ -101,7 +101,7 @@ body {
   flex: 1;
   padding: 24px;
   overflow-y: auto;
-  background-color: var(--color-bg-dark);
+  background-color: var(--color-options-background);
 }
 
 .tab-content {

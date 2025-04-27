@@ -13,8 +13,9 @@ interface Occurrence {
     findingFingerprint: string;
 }
 
+
 export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFingerprint }) => {
-    const { state } = useAppContext();
+    const { data } = useAppContext();
     const [occurrences, setOccurrences] = useState<Occurrence[]>([]);
     const [filteredOccurrences, setFilteredOccurrences] = useState<Occurrence[]>([]);
     const [selectedFinding, setSelectedFinding] = useState<Finding | null>(null);
@@ -23,11 +24,11 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
         // This would normally be loaded from storage or an API
         // For demo purposes, we'll create some sample data
         const loadOccurrences = async () => {
-            // In a real implementation, this would load from storage or your backend
+            // In a real implementation, this would load from chrome.storage or your backend
             const sampleOccurrences: Occurrence[] = [];
 
             // Create some sample occurrences for each finding
-            state.findings.forEach(finding => {
+            data.findings.forEach(finding => {
                 for (let i = 0; i < finding.numOccurrences; i++) {
                     sampleOccurrences.push({
                         id: `${finding.fingerprint}-${i}`,
@@ -43,7 +44,7 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
         };
 
         loadOccurrences();
-    }, [state.findings]);
+    }, [data.findings]);
 
     // Filter occurrences when fingerprint changes
     useEffect(() => {
@@ -52,7 +53,7 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
             setFilteredOccurrences(filtered);
 
             // Set the selected finding
-            const finding = state.findings.find(f => f.fingerprint === filterFingerprint);
+            const finding = data.findings.find(f => f.fingerprint === filterFingerprint);
             if (finding) {
                 setSelectedFinding(finding);
             }
@@ -60,7 +61,7 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
             setFilteredOccurrences(occurrences);
             setSelectedFinding(null);
         }
-    }, [filterFingerprint, occurrences, state.findings]);
+    }, [filterFingerprint, occurrences, data.findings]);
 
     return (
         <div className="tab-content">

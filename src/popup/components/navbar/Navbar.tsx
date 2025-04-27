@@ -3,10 +3,10 @@ import './style.css';
 import { useAppContext } from '../../AppContext';
 
 const Navbar: React.FC = () => {
-    const { state, dispatch } = useAppContext();
+    const { data, actions } = useAppContext();
 
     const handleTabClick = (tab: string) => {
-        dispatch({ type: 'SET_ACTIVE_TAB', tab: tab });
+        actions.setActiveTab(tab);
     };
 
     const tabs = ['Findings', 'Detectors', 'More'];
@@ -17,7 +17,7 @@ const Navbar: React.FC = () => {
                 {tabs.map((tab) => (
                     <button
                         key={tab}
-                        className={`tab-button ${state.activeTab === tab ? 'active' : ''}`}
+                        className={`tab-button ${data.activeTab === tab ? 'active' : ''}`}
                         onClick={() => handleTabClick(tab)}
                     >
                         {tab}

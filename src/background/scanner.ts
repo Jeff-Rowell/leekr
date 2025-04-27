@@ -1,34 +1,24 @@
 import { detectAwsAccessKeys } from './detectors/aws/access_keys/access_keys';
 import { Finding, Occurrence } from '../types/findings.types';
-import { Findings } from '../models/Findings';
 
-const findings = new Findings();
+export async function findSecrets(content: string, url: string): Promise<Finding[]> {
+    const findings: Finding[] = [];
+    const awsMatches: Occurrence[] = await detectAwsAccessKeys(content, url);
 
-function broadcastState(payload: Finding[] = findings.getAllFindings()) {
-    chrome.runtime.sendMessage({
-        type: 'NEW_FINDINGS',
-        payload: payload
-    });
-    chrome.runtime.sendMessage({
-        type: 'NEW_NOTIFICATION',
-        payload: payload.length.toString()
-    });
-}
-
-export async function findSecrets(content: string, url: string): Promise<null> {
-    const awsMatches: Set<Occurrence> = await detectAwsAccessKeys(content, url);
-
-    if (awsMatches.size > 0) {
+    if (awsMatches.length > 0) {
         awsMatches.forEach(occurrence => {
-            if (findings.hasFinding(occurrence.fingerprint)) {
-                findings.addOccurrence(occurrence)
-            } else {
-                findings.createFindingFromOccurrence(occurrence);
+            const f: Finding = {
+                numOccurrences: 1,
+                secretType: occurrence.secretType,
+                secretValue: occurrence.secretValue,
+                validity: "valid",
+                validatedAt: new Date().toISOString(),
+                fingerprint: occurrence.fingerprint,
+                occurrences: new Set([occurrence])
             }
+            findings.push(f);
         });
     }
 
-    // Update the state after scanning
-    broadcastState();
-    return null;
+    return findings;
 }
