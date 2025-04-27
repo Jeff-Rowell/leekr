@@ -24,7 +24,7 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
         // This would normally be loaded from storage or an API
         // For demo purposes, we'll create some sample data
         const loadOccurrences = async () => {
-            // In a real implementation, this would load from chrome.storage or your backend
+            // In a real implementation, this would load from chrome storage or your backend
             const sampleOccurrences: Occurrence[] = [];
 
             // Create some sample occurrences for each finding

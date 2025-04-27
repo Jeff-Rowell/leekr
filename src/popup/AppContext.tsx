@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect, useState } from "react";
 import { Finding } from '../types/findings.types';
+import { retrieveFindings } from '../background/utils/common';
 
 interface AppState {
     activeTab: string;
@@ -61,11 +62,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     };
 
     useEffect(() => {
-        chrome.storage.local.get(['findings', 'notifications'], function (results) {
-            if (results.findings && results.findings.length > 0) {
-                dispatch({ type: "SET_FINDINGS", payload: results.findings });
+        retrieveFindings().then((resultFindings) => {
+            if (resultFindings && resultFindings.length > 0) {
+                dispatch({ type: "SET_FINDINGS", payload: resultFindings });
             }
-
+        })
+        chrome.storage.local.get(['notifications'], function (results) {
             if (results.notifications && results.notifications != "0") {
                 chrome.action.setBadgeText({ text: results.notifications });
                 chrome.action.setBadgeBackgroundColor({ color: '#FF141A' });
@@ -73,7 +75,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             } else {
                 chrome.action.setBadgeText({ text: '' });
             }
-
             setIsInitialized(true);
         });
 

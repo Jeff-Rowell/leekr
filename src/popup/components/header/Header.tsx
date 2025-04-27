@@ -29,6 +29,7 @@ const Header: React.FC = () => {
             const headers = ['secretType', 'validity', 'validatedAt', 'secretValue', 'fingerprint'];
             const csvRows = [headers.join(',')];
             findings.forEach(finding => {
+                console.log('finding = ', finding)
                 const row = [
                     finding.secretType,
                     finding.validity,

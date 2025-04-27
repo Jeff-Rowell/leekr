@@ -11,6 +11,7 @@ import {
 import { Finding, ValidityStatus } from 'src/types/findings.types';
 import { awsValidityHelper } from '../../utils/awsValidityHelper';
 import ModalHeader from '../../../../components/ui/Modalheader';
+import { retrieveFindings, storeFindings } from '../../../../background/utils/common';
 
 const FindingsTab: React.FC = () => {
     const { data: { findings } } = useAppContext();
@@ -99,13 +100,12 @@ const FindingsTab: React.FC = () => {
         if (option === "Report Issue") {
             window.open("https://github.com/Jeff-Rowell/Leekr/issues/new", "_blank");
         } else if (option === "Delete Finding") {
-            chrome.storage.local.get(['findings'], async function (result) {
-                let existingFindings: Finding[] = result.findings || [];
+            retrieveFindings().then((existingFindings) => {
                 const index = existingFindings.findIndex(
                     (f) => f.fingerprint === activeMenu.finding.fingerprint
                 );
                 existingFindings.splice(index, 1);
-                chrome.storage.local.set({ findings: existingFindings }, () => { });
+                storeFindings(existingFindings);
             });
         } else if (option === "View Occurrences") {
             const url = chrome.runtime.getURL("options.html") +
