@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Settings, Eye, Info } from 'lucide-react';
+import { Shield, Settings, Eye, Info, Boxes } from 'lucide-react';
 import '../../styles/variables.css';
 import '../../styles/options.css';
 import LeekrFont from '../../assets/leekr-font.svg';
@@ -38,7 +38,7 @@ const Options: React.FC = () => {
                 return <General />;
             case 'patterns':
                 return <Patterns />;
-            case 'occurrences':
+            case 'findings':
                 return <Occurrences filterFingerprint={filterFingerprint} />;
             case 'settings':
                 return <SettingsTab />;
@@ -65,14 +65,14 @@ const Options: React.FC = () => {
                         <ul>
                             <li className={activeTab === 'general' ? 'active' : ''}>
                                 <button onClick={() => setActiveTab('general')}>
-                                    <Shield size={18} />
+                                    <Boxes size={18} />
                                     <span>General</span>
                                 </button>
                             </li>
-                            <li className={activeTab === 'occurrences' ? 'active' : ''}>
-                                <button onClick={() => setActiveTab('occurrences')}>
+                            <li className={activeTab === 'findings' ? 'active' : ''}>
+                                <button onClick={() => setActiveTab('findings')}>
                                     <Eye size={18} />
-                                    <span>Occurrences</span>
+                                    <span>Findings</span>
                                 </button>
                             </li>
                             <li className={activeTab === 'patterns' ? 'active' : ''}>

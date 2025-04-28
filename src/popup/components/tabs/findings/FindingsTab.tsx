@@ -109,7 +109,7 @@ const FindingsTab: React.FC = () => {
             });
         } else if (option === "View Occurrences") {
             const url = chrome.runtime.getURL("options.html") +
-                `?tab=occurrences&fingerprint=${activeMenu.finding.fingerprint}`;
+                `?tab=findings&fingerprint=${activeMenu.finding.fingerprint}`;
             chrome.tabs.create({ url });
         }
 
