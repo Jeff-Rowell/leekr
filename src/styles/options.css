@@ -342,3 +342,53 @@ input:checked + .toggle-slider:before {
     max-width: 225px;
     padding-left: 5px;
 }
+
+.occurrence-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.occurrence-info {
+  flex: 1;
+}
+
+.occurrence-path {
+  font-weight: 500;
+  color: var(--color-leek);
+  margin-bottom: 4px;
+}
+
+.occurrence-line {
+  font-size: 12px;
+  color: var(--color-text-light);
+  margin-bottom: 8px;
+}
+
+/* New icon-only link style */
+.occurrence-icon-link {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+  color: var(--color-link-text);
+  background-color: transparent;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.occurrence-icon-link:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--color-leek);
+}
+
+.occurrence-context {
+  background-color: var(--color-bg-dark);
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  overflow-x: auto;
+  clear: both;
+}

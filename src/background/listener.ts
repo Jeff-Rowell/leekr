@@ -1,5 +1,5 @@
 import { findSecrets } from './scanner';
-import { Finding, Occurrence } from 'src/types/findings.types';
+import { Finding } from 'src/types/findings.types';
 import { mergeFindings } from './utils/mergeFindings';
 import { retrieveFindings, storeFindings } from './utils/common';
 
