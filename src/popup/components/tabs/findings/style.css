@@ -135,27 +135,28 @@
 
 .validity-valid {
     background-color: rgba(0, 200, 83, 0.1);
-    color: #00a846;
+    color: var(--color-valitity-valid);
+    width: 62px;
 }
 
 .validity-invalid {
     background-color: rgba(255, 76, 76, 0.1);
-    color: #e63946;
+    color: var(--color-valitity-invalid);
 }
 
 .validity-failed {
     background-color: rgba(255, 193, 7, 0.1);
-    color: #cc8400;
+    color: var(--color-valitity-failed);
 }
 
 .validity-no-checker {
     background-color: rgba(156, 163, 175, 0.1);
-    color: #6b7280;
+    color: var(--color-validity-no-checker-color);
 }
 
 .validity-unknown {
     background-color: rgba(107, 114, 128, 0.1);
-    color: #4b5563;
+    color: var(--color-validity-unknown);
 }
 
 .validity-info {
@@ -265,4 +266,11 @@
 
 .settings-options button:hover {
     background-color: var(--color-bg-hover);
+}
+
+.validity-tooltip-div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
 }

@@ -18,6 +18,11 @@
     --color-tooltip-text: #ffffff;
     --color-border: #e6e6e6;
     --color-leekr-options-font: #e6e6e6;
+    --color-valitity-valid: #00a846;
+    --color-validity-invalid: #e63946;
+    --color-validity-failed: #cc8400;
+    --color-validity-no-checker-color: #6b7280;
+    --color-validity-unknown: #4b5563;
 
     --font-stack:
         ui-sans-serif,

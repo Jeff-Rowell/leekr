@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './style.css';
 import { useAppContext } from '../../../AppContext';
-import { RotateCw, Settings } from 'lucide-react';
+import { RotateCw, Settings, ShieldCheck } from 'lucide-react';
 import {
     Tooltip,
     TooltipContent,
@@ -150,23 +150,33 @@ const FindingsTab: React.FC = () => {
                                                     <Tooltip>
                                                         <TooltipTrigger asChild>
                                                             <div className="validity-info">
-                                                                <span className="info-icon">i</span>
+                                                                <ShieldCheck size={18} />
                                                             </div>
                                                         </TooltipTrigger>
                                                         <TooltipContent>
-                                                            Last Checked: {new Date(finding.validatedAt).toLocaleString()}
+                                                            <div className="validity-tooltip-div">
+                                                                Last Checked: {new Date(finding.validatedAt).toLocaleString()}
+                                                                <button
+                                                                    className="recheck-button"
+                                                                    onClick={() => handleValidityCheck(finding)}
+                                                                    aria-label="Recheck validity"
+                                                                    title="Recheck validity"
+                                                                >
+                                                                    <RotateCw size={16} />
+                                                                </button>
+                                                            </div>
                                                         </TooltipContent>
                                                     </Tooltip>
                                                 </TooltipProvider>
                                             )}
 
-                                            <button
+                                            {/* <button
                                                 className="recheck-button"
                                                 onClick={() => handleValidityCheck(finding)}
                                                 aria-label="Recheck validity"
                                             >
                                                 <RotateCw size={14} />
-                                            </button>
+                                            </button> */}
                                         </div>
                                     </td>
                                     <td className="findings-td">{finding.numOccurrences}</td>
