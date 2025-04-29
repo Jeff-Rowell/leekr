@@ -170,13 +170,6 @@ const FindingsTab: React.FC = () => {
                                                 </TooltipProvider>
                                             )}
 
-                                            {/* <button
-                                                className="recheck-button"
-                                                onClick={() => handleValidityCheck(finding)}
-                                                aria-label="Recheck validity"
-                                            >
-                                                <RotateCw size={14} />
-                                            </button> */}
                                         </div>
                                     </td>
                                     <td className="findings-td">{finding.numOccurrences}</td>

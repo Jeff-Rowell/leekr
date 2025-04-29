@@ -24,6 +24,18 @@
     --color-validity-no-checker-color: #6b7280;
     --color-validity-unknown: #4b5563;
 
+    --color-new-bg-dark: #16171d;
+    --color-new-bg-medium: #1e2029;
+    --color-new-bg-light: #282a36;
+    --color-new-bg-hover: #32344a;
+    --color-new-text-primary: #f8f8f2;
+    --color-new-text-secondary: #bfbfbf;
+    --color-new-text-tertiary: #8e8e8e;
+    --color-new-border-dark: #3b3c54;
+    --color-new-border-light: #4a4b65;
+    --color-new-accent: #a4b15a; /* leek color */
+    --color-new-accent-light: rgba(164, 177, 90, 0.2);
+
     --font-stack:
         ui-sans-serif,
         system-ui,

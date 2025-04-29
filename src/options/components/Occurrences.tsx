@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, SquareArrowOutUpRight } from 'lucide-react';
-import { Finding, Occurrence } from '../../types/findings.types';
+import { AlertTriangle, SquareArrowOutUpRight, ShieldCheck, RotateCw } from 'lucide-react';
+import { Finding } from '../../types/findings.types';
 import { useAppContext } from '../../popup/AppContext';
+import { awsValidityHelper } from '../../popup/components/utils/awsValidityHelper';
 
 
 export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFingerprint }) => {
@@ -23,14 +24,36 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
         }
     }, [filterFingerprint, data.findings]);
 
+    const handleValidityCheck = async (finding: Finding) => {
+        if (finding.secretType === "AWS Access & Secret Keys") {
+            awsValidityHelper(finding);
+        }
+    };
+
     return (
         <div className="tab-content">
             {selectedFinding && (
                 <div className="selected-finding-header">
                     <h2>{selectedFinding.secretType}</h2>
                     <div className="finding-meta">
-                        <span className={`validity-badge ${selectedFinding.validity}`}>
+                        <span className={`validity-status validity-${selectedFinding.validity}`}>
                             {selectedFinding.validity.replace(/_/g, ' ')}
+
+                            {selectedFinding.validatedAt && (
+                                <div className="validity-info tooltip">
+                                    <ShieldCheck size={16} />
+                                    <span className="tooltip-text">
+                                        Last Checked: {new Date(selectedFinding.validatedAt).toLocaleString()}
+                                        <button
+                                            className="recheck-button"
+                                            onClick={() => handleValidityCheck(selectedFinding)}
+                                            aria-label="Recheck validity"
+                                        >
+                                            <RotateCw size={14} />
+                                        </button>
+                                    </span>
+                                </div>
+                            )}
                         </span>
                         <span>{filteredFindings.length} occurrences</span>
                     </div>

@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, Settings, Eye, Info, Boxes } from 'lucide-react';
-import '../../styles/variables.css';
-import '../../styles/options.css';
 import LeekrFont from '../../assets/leekr-font.svg';
 import SettingsFont from '../../assets/settings-font.svg';
 import { SettingsTab } from '../components/SettingsTab';
 import { Occurrences } from '../components/Occurrences';
+import { Findings } from '../components/Findings';
 
 // Tab components
 const General = () => <div className="tab-content">General</div>;
@@ -39,7 +38,11 @@ const Options: React.FC = () => {
             case 'patterns':
                 return <Patterns />;
             case 'findings':
-                return <Occurrences filterFingerprint={filterFingerprint} />;
+                // If we have a fingerprint, show occurrences for that fingerprint
+                // Otherwise show the findings tab
+                return filterFingerprint ?
+                    <Occurrences filterFingerprint={filterFingerprint} /> :
+                    <Findings />;
             case 'settings':
                 return <SettingsTab />;
             case 'about':
@@ -70,7 +73,10 @@ const Options: React.FC = () => {
                                 </button>
                             </li>
                             <li className={activeTab === 'findings' ? 'active' : ''}>
-                                <button onClick={() => setActiveTab('findings')}>
+                                <button onClick={() => {
+                                    setActiveTab('findings');
+                                    setFilterFingerprint(undefined); // Clear any filter when clicking the Findings tab
+                                }}>
                                     <Eye size={18} />
                                     <span>Findings</span>
                                 </button>
