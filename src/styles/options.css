@@ -191,11 +191,9 @@ body {
 }
 
 .occurrence-link {
-    display: inline-block;
-    color: var(--color-link-text);
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .occurrence-link:hover {
@@ -753,16 +751,27 @@ th .sortable-header {
     }
 }
 
+/* Line highlighting */
+.code-line.highlighted-line {
+  background-color: rgba(46, 204, 113, 0.2); /* Light green background */
+}
+
+.code-line.highlighted-line .line-content {
+  font-weight: 600;
+  color: #2ecc71; /* Green text color */
+}
+
 .code-with-line-numbers pre {
   margin: 0;
   padding: 0;
   overflow: auto;
+  font-family: monospace;
 }
 
 .code-line {
   display: flex;
-  font-family: monospace;
   white-space: pre;
+  line-height: 1.5;
 }
 
 .line-number {

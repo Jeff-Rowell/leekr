@@ -78,7 +78,8 @@ export async function detectAwsAccessKeys(content: string, url: string): Promise
                     }),
                     contentFilename: url.split('/').pop() || "",
                     contentStartLineNum: -1,
-                    contentEndLineNum: -1
+                    contentEndLineNum: -1,
+                    exactMatchNumbers: [-1]
                 }
                 const sourceMapUrl = getSourceMapUrl(url, content);
                 if (sourceMapUrl) {
@@ -88,18 +89,25 @@ export async function detectAwsAccessKeys(content: string, url: string): Promise
                         "lib/mappings.wasm": chrome.runtime.getURL('libs/mappings.wasm'),
                     });
                     await sourceMap.SourceMapConsumer.with(sourceMapContent, null, (consumer: any) => {
-                        const secretPosition = findSecretPosition(content, aKey);
-                        const originalPosition = consumer.originalPositionFor({
-                            line: secretPosition.line,
-                            column: secretPosition.column
+                        const accessKeyPosition = findSecretPosition(content, aKey);
+                        const secretKeyPosition = findSecretPosition(content, sKey);
+                        const accessKeyOriginalPosition = consumer.originalPositionFor({
+                            line: accessKeyPosition.line,
+                            column: accessKeyPosition.column
                         });
-                        if (originalPosition.source) {
-                            const sourceContent = consumer.sourceContentFor(originalPosition.source);
+                        const secretKeyOriginalPosition = consumer.originalPositionFor({
+                            line: secretKeyPosition.line,
+                            column: secretKeyPosition.column
+                        });
+                        if (accessKeyOriginalPosition.source && secretKeyOriginalPosition.source
+                            && accessKeyOriginalPosition.source === secretKeyOriginalPosition.source) {
+                            const sourceContent = consumer.sourceContentFor(accessKeyOriginalPosition.source);
                             newSourceContent = {
                                 content: sourceContent,
-                                contentFilename: originalPosition.source,
-                                contentStartLineNum: originalPosition.line - 5,
-                                contentEndLineNum: originalPosition.line + 5
+                                contentFilename: accessKeyOriginalPosition.source,
+                                contentStartLineNum: accessKeyOriginalPosition.line - 5,
+                                contentEndLineNum: accessKeyOriginalPosition.line + 5,
+                                exactMatchNumbers: [accessKeyOriginalPosition.line, secretKeyOriginalPosition.line]
                             };
                         }
                     });

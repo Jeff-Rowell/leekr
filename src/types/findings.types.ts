@@ -5,6 +5,7 @@ export interface SourceContent {
     contentFilename: string;
     contentStartLineNum: number;
     contentEndLineNum: number;
+    exactMatchNumbers: number[];
 }
 
 export interface Occurrence {

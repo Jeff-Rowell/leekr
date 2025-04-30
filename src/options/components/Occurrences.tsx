@@ -68,12 +68,12 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
                                 <div key={occurrence.fingerprint} className="occurrence-item">
                                     <div className="occurrence-header">
                                         <div className="occurrence-info">
-                                            <div className="occurrence-path">{occurrence.sourceContent.contentFilename}: Line {occurrence.sourceContent.contentStartLineNum + 5}</div>
+                                            <div className="occurrence-path">{occurrence.sourceContent.contentFilename} - Line {occurrence.sourceContent.contentStartLineNum + 5}</div>
                                         </div>
                                         {occurrence.url && (
                                             <a href={occurrence.url} target="_blank" rel="noopener noreferrer"
                                                 className="occurrence-link" title="View JS Bundle">
-                                                View JS Bundle
+                                                <span className="link-text">View JS Bundle</span>
                                                 <SquareArrowOutUpRight size={18} />
                                             </a>
                                         )}
@@ -82,10 +82,16 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
                                         <pre>
                                             {occurrence.sourceContent.content.split('\n').map((line, index) => {
                                                 const currentLineNum = occurrence.sourceContent.contentStartLineNum + index;
+                                                const highlightLine = occurrence.sourceContent.exactMatchNumbers &&
+                                                    occurrence.sourceContent.exactMatchNumbers.includes(currentLineNum + 1);
+
                                                 if (currentLineNum >= occurrence.sourceContent.contentStartLineNum &&
                                                     currentLineNum <= occurrence.sourceContent.contentEndLineNum) {
                                                     return (
-                                                        <div key={index} className="code-line">
+                                                        <div
+                                                            key={index}
+                                                            className={`code-line ${highlightLine ? 'highlighted-line' : ''}`}
+                                                        >
                                                             <span className="line-number">{currentLineNum + 1}</span>
                                                             <span className="line-content">{occurrence.sourceContent.content.split('\n')[currentLineNum]}</span>
                                                         </div>
