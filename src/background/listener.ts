@@ -1,15 +1,15 @@
 import { findSecrets } from './scanner';
 import { Finding } from 'src/types/findings.types';
 import { mergeFindings } from './utils/mergeFindings';
-import { retrieveFindings, storeFindings } from './utils/common';
+import { retrieveFindings, storeFindings, getSourceMapUrl } from './utils/common';
 
 chrome.webRequest.onCompleted.addListener(
     async (details) => {
         if (!details.url.startsWith("chrome-extension") && ((details.url.endsWith('.js') || details.url.endsWith('.mjs') || details.url.endsWith('.cjs')))) {
             try {
                 const response = await fetch(details.url);
-                const content = await response.text();
-                const newFindings = await findSecrets(content, details.url);
+                const bundleContent = await response.text();
+                const newFindings = await findSecrets(bundleContent, details.url);
                 const existingFindings: Finding[] = await retrieveFindings() || [];
                 const updatedFindings: Finding[] = await mergeFindings(existingFindings, newFindings, details.url);
                 const brandNewFindings = updatedFindings.filter(finding =>

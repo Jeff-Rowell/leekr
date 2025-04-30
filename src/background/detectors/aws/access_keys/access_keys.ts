@@ -3,9 +3,10 @@ import { isKnownFalsePositive, falsePositiveSecretPattern } from '../../../utils
 import { validateAWSCredentials } from '../../../utils/aws';
 import { AWS_RESOURCE_TYPES, DEFAULT_AWS_CONFIG } from '../../../config/aws';
 import { AWSOccurrence, AWSDetectorConfig, AWSSecretValue } from '../../../../types/aws.types';
-import { Occurrence, Finding } from '../../../../types/findings.types';
+import { Occurrence, Finding, SourceContent } from '../../../../types/findings.types';
 import { computeFingerprint } from '../../../utils/computeFingerprint';
-import { getExistingFindings } from '../../../utils/common';
+import { getExistingFindings, findSecretPosition, getSourceMapUrl } from '../../../utils/common';
+import * as sourceMap from '../../../libs/source-map';
 
 let awsConfig: AWSDetectorConfig = { ...DEFAULT_AWS_CONFIG };
 
@@ -70,6 +71,39 @@ export async function detectAwsAccessKeys(content: string, url: string): Promise
         for (const sKey of validSecretKeys) {
             const validationResult = await validateAWSCredentials(aKey, sKey);
             if (validationResult.valid) {
+                var newSourceContent: SourceContent = {
+                    content: JSON.stringify({
+                        access_key_id: aKey,
+                        secret_key_id: sKey
+                    }),
+                    contentFilename: url.split('/').pop() || "",
+                    contentStartLineNum: -1,
+                    contentEndLineNum: -1
+                }
+                const sourceMapUrl = getSourceMapUrl(url, content);
+                if (sourceMapUrl) {
+                    const sourceMapResponse = await fetch(sourceMapUrl);
+                    const sourceMapContent = await sourceMapResponse.text();
+                    sourceMap.SourceMapConsumer.initialize({
+                        "lib/mappings.wasm": chrome.runtime.getURL('libs/mappings.wasm'),
+                    });
+                    await sourceMap.SourceMapConsumer.with(sourceMapContent, null, (consumer: any) => {
+                        const secretPosition = findSecretPosition(content, aKey);
+                        const originalPosition = consumer.originalPositionFor({
+                            line: secretPosition.line,
+                            column: secretPosition.column
+                        });
+                        if (originalPosition.source) {
+                            const sourceContent = consumer.sourceContentFor(originalPosition.source);
+                            newSourceContent = {
+                                content: sourceContent,
+                                contentFilename: originalPosition.source,
+                                contentStartLineNum: originalPosition.line - 5,
+                                contentEndLineNum: originalPosition.line + 5
+                            };
+                        }
+                    });
+                }
                 const match: AWSOccurrence = {
                     secretType: "AWS Access & Secret Keys",
                     fingerprint: "",
@@ -81,7 +115,8 @@ export async function detectAwsAccessKeys(content: string, url: string): Promise
                     },
                     filePath: url.split('/').pop() || "",
                     url: url,
-                    resourceType: AWS_RESOURCE_TYPES[aKey.substring(0, 4)]
+                    resourceType: AWS_RESOURCE_TYPES[aKey.substring(0, 4)],
+                    sourceContent: newSourceContent
                 };
                 match.validity = "valid";
                 match.accountId = validationResult.accountId;

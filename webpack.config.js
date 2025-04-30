@@ -66,5 +66,9 @@ module.exports = {
         "@pages": path.resolve(__dirname, "src/pages"),
         "@utils": path.resolve(__dirname, "src/utils"),
     },
+    fallback: {
+        fs: false, // no polyfill for fs (block it)
+        path: require.resolve('path-browserify')
+    }
   },
 }
