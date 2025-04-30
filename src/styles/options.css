@@ -171,15 +171,9 @@ body {
 }
 
 .occurrence-path {
-    font-weight: 500;
+    font-weight: 800;
     color: var(--color-leek);
     margin-bottom: 4px;
-}
-
-.occurrence-line {
-    font-size: 12px;
-    color: var(--color-text-light);
-    margin-bottom: 8px;
 }
 
 .occurrence-context {
@@ -214,7 +208,7 @@ body {
     align-items: center;
     justify-content: center;
     padding: 48px;
-    color: var(--color-text-light);
+    color: var(--color-leek);
     text-align: center;
 }
 
@@ -757,4 +751,32 @@ th .sortable-header {
     .findings-table td {
         padding: 0.5rem;
     }
+}
+
+.code-with-line-numbers pre {
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+}
+
+.code-line {
+  display: flex;
+  font-family: monospace;
+  white-space: pre;
+}
+
+.line-number {
+  display: inline-block;
+  width: 3em;
+  text-align: right;
+  padding-right: 1em;
+  color: #888;
+  user-select: none;
+  border-right: 1px solid #ddd;
+  margin-right: 1em;
+  flex-shrink: 0;
+}
+
+.line-content {
+  flex-grow: 1;
 }

@@ -13,7 +13,7 @@ export interface Occurrence {
     secretValue: object;
     filePath: string;
     url: string;
-    sourceContent?: SourceContent
+    sourceContent: SourceContent
 }
 
 export interface Finding {

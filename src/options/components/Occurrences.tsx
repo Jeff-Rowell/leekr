@@ -34,7 +34,7 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
         <div className="tab-content">
             {selectedFinding && (
                 <div className="selected-finding-header">
-                    <h2>{selectedFinding.secretType}</h2>
+                    <h3>{selectedFinding.secretType}</h3>
                     <div className="finding-meta">
                         <span className={`validity-status validity-${selectedFinding.validity}`}>
                             {selectedFinding.validity.replace(/_/g, ' ')}
@@ -64,23 +64,56 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
                 {filteredFindings.length > 0 ? (
                     filteredFindings.map((finding) => (
                         Array.from(finding.occurrences).map((occurrence) => (
-                            <div key={occurrence.fingerprint} className="occurrence-item">
-                                <div className="occurrence-header">
-                                    <div className="occurrence-info">
-                                        <div className="occurrence-path">{occurrence.filePath}</div>
-                                        {/* <div className="occurrence-line">Line 69</div> TODO: reverse the bundle and find the line number */}
+                            occurrence.sourceContent && occurrence.sourceContent.contentStartLineNum > 0 ? (
+                                <div key={occurrence.fingerprint} className="occurrence-item">
+                                    <div className="occurrence-header">
+                                        <div className="occurrence-info">
+                                            <div className="occurrence-path">{occurrence.sourceContent.contentFilename}: Line {occurrence.sourceContent.contentStartLineNum + 5}</div>
+                                        </div>
+                                        {occurrence.url && (
+                                            <a href={occurrence.url} target="_blank" rel="noopener noreferrer"
+                                                className="occurrence-link" title="View JS Bundle">
+                                                View JS Bundle
+                                                <SquareArrowOutUpRight size={18} />
+                                            </a>
+                                        )}
                                     </div>
-                                    {occurrence.url && (
-                                        <a href={occurrence.url} target="_blank" rel="noopener noreferrer"
-                                            className="occurrence-link" title="View File">
-                                            <SquareArrowOutUpRight size={18} />
-                                        </a>
-                                    )}
+                                    <div className="occurrence-context code-with-line-numbers">
+                                        <pre>
+                                            {occurrence.sourceContent.content.split('\n').map((line, index) => {
+                                                const currentLineNum = occurrence.sourceContent.contentStartLineNum + index;
+                                                if (currentLineNum >= occurrence.sourceContent.contentStartLineNum &&
+                                                    currentLineNum <= occurrence.sourceContent.contentEndLineNum) {
+                                                    return (
+                                                        <div key={index} className="code-line">
+                                                            <span className="line-number">{currentLineNum + 1}</span>
+                                                            <span className="line-content">{occurrence.sourceContent.content.split('\n')[currentLineNum]}</span>
+                                                        </div>
+                                                    );
+                                                }
+                                                return null;
+                                            })}
+                                        </pre>
+                                    </div>
                                 </div>
-                                <div className="occurrence-context">
-                                    <pre>{JSON.stringify(occurrence.secretValue)}</pre>
+                            ) : (
+                                <div key={occurrence.fingerprint} className="occurrence-item">
+                                    <div className="occurrence-header">
+                                        <div className="occurrence-info">
+                                            <div className="occurrence-path">{occurrence.filePath}</div>
+                                        </div>
+                                        {occurrence.url && (
+                                            <a href={occurrence.url} target="_blank" rel="noopener noreferrer"
+                                                className="occurrence-link" title="View File">
+                                                <SquareArrowOutUpRight size={18} />
+                                            </a>
+                                        )}
+                                    </div>
+                                    <div className="occurrence-context">
+                                        <pre>{JSON.stringify(occurrence.secretValue)}</pre>
+                                    </div>
                                 </div>
-                            </div>
+                            )
                         ))
                     ))
                 ) : (
