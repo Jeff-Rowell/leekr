@@ -11,6 +11,11 @@ body {
     line-height: 1.6;
 }
 
+.link-text {
+    font-weight: 700;
+    color: var(--color-link-text);
+}
+
 /* Options Layout */
 .options-container {
     display: flex;
@@ -171,7 +176,7 @@ body {
 }
 
 .occurrence-path {
-    font-weight: 800;
+    font-weight: 700;
     color: var(--color-leek);
     margin-bottom: 4px;
 }

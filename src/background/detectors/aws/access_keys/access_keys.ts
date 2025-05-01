@@ -105,8 +105,12 @@ export async function detectAwsAccessKeys(content: string, url: string): Promise
                             newSourceContent = {
                                 content: sourceContent,
                                 contentFilename: accessKeyOriginalPosition.source,
-                                contentStartLineNum: accessKeyOriginalPosition.line - 5,
-                                contentEndLineNum: accessKeyOriginalPosition.line + 5,
+                                contentStartLineNum: accessKeyOriginalPosition.line < secretKeyOriginalPosition.line ?
+                                    accessKeyOriginalPosition.line - 5 :
+                                    secretKeyOriginalPosition.line - 5,
+                                contentEndLineNum: accessKeyOriginalPosition.line > secretKeyOriginalPosition.line ?
+                                    accessKeyOriginalPosition.line + 5 :
+                                    secretKeyOriginalPosition.line + 5,
                                 exactMatchNumbers: [accessKeyOriginalPosition.line, secretKeyOriginalPosition.line]
                             };
                         }
