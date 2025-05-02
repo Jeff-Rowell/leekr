@@ -185,7 +185,10 @@ body {
 .occurrence-path {
     font-weight: 700;
     color: var(--color-leek);
-    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-right: 3px;
 }
 
 .occurrence-context {
@@ -367,13 +370,7 @@ input:checked+.toggle-slider:before {
 }
 
 .occurrence-info {
-    flex: 1;
-}
-
-.occurrence-path {
-    font-weight: 500;
-    color: var(--color-leek);
-    margin-bottom: 4px;
+    display: flex;
 }
 
 .occurrence-line {
@@ -834,4 +831,23 @@ th .sortable-header {
 .expand-toggle-btn:hover {
   background-color: rgba(0, 0, 0, 0.05);
   color: #212529;
+}
+
+.findings-source-download-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  color: var(--color-leek);
+  transition: all 0.2s ease;
+}
+
+.occurrence-info:hover {
+  filter: brightness(75%);
+  color: var(--color-leek);
+  text-decoration: underline;
 }

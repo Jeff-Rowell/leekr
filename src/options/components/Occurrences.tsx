@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, SquareArrowOutUpRight, ShieldCheck, RotateCw, ChevronDown, ChevronUp } from 'lucide-react';
+import { AlertTriangle, SquareArrowOutUpRight, ShieldCheck, RotateCw, ChevronDown, ChevronUp, Download } from 'lucide-react';
 import { Finding } from '../../types/findings.types';
 import { useAppContext } from '../../popup/AppContext';
 import { awsValidityHelper } from '../../popup/components/utils/awsValidityHelper';
@@ -36,6 +36,19 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
             ...prev,
             [fingerprint]: !prev[fingerprint]
         }));
+    };
+
+    const downloadSourceContent = (content: string, filename: string, fingerprint: string) => {
+        const safeFilename = `${fingerprint}-${filename.replace(/[/\\?%*:|"<>]/g, '_')}`;
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = safeFilename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     };
 
     return (
@@ -80,6 +93,21 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
                                     >
                                         <div className="occurrence-info">
                                             <div className="occurrence-path">{occurrence.sourceContent.contentFilename}: Line {occurrence.sourceContent.contentStartLineNum + 5}</div>
+                                            <button
+                                                className="findings-source-download-btn"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    downloadSourceContent(
+                                                        occurrence.sourceContent.content,
+                                                        occurrence.sourceContent.contentFilename,
+                                                        occurrence.fingerprint
+                                                    );
+                                                }}
+                                                title="Download source code"
+                                                aria-label="Download source code"
+                                            >
+                                                <Download size={18} />
+                                            </button>
                                         </div>
                                         <div className="occurrence-header-actions">
                                             {occurrence.url && (
