@@ -869,6 +869,7 @@ th .sortable-header {
     padding: 0.25rem 0.5rem;
     outline: none;
     margin-left: 7px;
+    width: 500px;
 }
 
 .search-box svg {
