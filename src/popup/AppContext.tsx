@@ -1,16 +1,19 @@
 import React, { createContext, useContext, useReducer, useEffect, useState } from "react";
 import { Finding } from '../types/findings.types';
+import { Pattern } from '../types/patterns.types';
 import { retrieveFindings } from '../background/utils/common';
 
 interface AppState {
     activeTab: string;
     findings: Finding[];
+    patterns: Pattern[];
     notifications: string;
 }
 
 interface AppActions {
     setActiveTab: (tab: string) => void;
     setFindings: (findings: Finding[]) => void;
+    setPatterns: (findings: Finding[]) => void;
     setNotifications: (notifications: string) => void;
     clearNotifications: () => void;
 }
@@ -20,6 +23,7 @@ const AppContext = createContext<{ data: AppState; actions: AppActions } | undef
 const initialState: AppState = {
     activeTab: 'Findings',
     findings: [],
+    patterns: [],
     notifications: '',
 };
 
@@ -34,6 +38,11 @@ function appReducer(state: AppState, action: any): AppState {
             return {
                 ...state,
                 findings: action.payload
+            }
+        case 'SET_PATTERNS':
+            return {
+                ...state,
+                patterns: action.payload
             }
         case 'SET_NOTIFICATIONS':
             return {
@@ -57,6 +66,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const actions: AppActions = {
         setActiveTab: (tab) => dispatch({ type: 'SET_ACTIVE_TAB', payload: tab }),
         setFindings: (findings) => dispatch({ type: 'SET_FINDINGS', payload: findings }),
+        setPatterns: (patterns) => dispatch({ type: 'SET_PATTERNS', payload: patterns }),
         setNotifications: (notifications) => dispatch({ type: 'SET_NOTIFICATIONS', payload: notifications }),
         clearNotifications: () => dispatch({ type: 'CLEAR_NOTIFICATIONS', payload: '' })
     };

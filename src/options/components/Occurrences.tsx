@@ -103,8 +103,8 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
                                                         occurrence.fingerprint
                                                     );
                                                 }}
-                                                title="Download source code"
-                                                aria-label="Download source code"
+                                                title="Download Source Code"
+                                                aria-label="Download Source Code"
                                             >
                                                 <Download size={18} />
                                             </button>

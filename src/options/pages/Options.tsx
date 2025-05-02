@@ -5,10 +5,10 @@ import SettingsFont from '../../assets/settings-font.svg';
 import { SettingsTab } from '../components/SettingsTab';
 import { Occurrences } from '../components/Occurrences';
 import { Findings } from '../components/Findings';
+import { Patterns } from '../components/Patterns';
 
 // Tab components
 const General = () => <div className="tab-content">General</div>;
-const Patterns = () => <div className="tab-content">Detection Patterns</div>;
 const AboutTab = () => <div className="tab-content">About Leekr</div>;
 
 // Main Options component

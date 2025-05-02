@@ -852,3 +852,25 @@ th .sortable-header {
   color: var(--color-leek);
   text-decoration: underline;
 }
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 0.5rem;
+}
+
+.search-box input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0.25rem 0.5rem;
+    outline: none;
+    margin-left: 7px;
+}
+
+.search-box svg {
+    color: var(--text-muted);
+}
