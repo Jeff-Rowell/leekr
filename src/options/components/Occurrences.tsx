@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, SquareArrowOutUpRight, ShieldCheck, RotateCw } from 'lucide-react';
+import { AlertTriangle, SquareArrowOutUpRight, ShieldCheck, RotateCw, ChevronDown, ChevronUp } from 'lucide-react';
 import { Finding } from '../../types/findings.types';
 import { useAppContext } from '../../popup/AppContext';
 import { awsValidityHelper } from '../../popup/components/utils/awsValidityHelper';
@@ -9,6 +9,7 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
     const { data } = useAppContext();
     const [filteredFindings, setFilteredFindings] = useState<Finding[]>([]);
     const [selectedFinding, setSelectedFinding] = useState<Finding | null>(null);
+    const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
         if (filterFingerprint) {
@@ -28,6 +29,13 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
         if (finding.secretType === "AWS Access & Secret Keys") {
             awsValidityHelper(finding);
         }
+    };
+
+    const toggleExpand = (fingerprint: string) => {
+        setExpandedItems(prev => ({
+            ...prev,
+            [fingerprint]: !prev[fingerprint]
+        }));
     };
 
     return (
@@ -66,58 +74,102 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
                         Array.from(finding.occurrences).map((occurrence) => (
                             occurrence.sourceContent && occurrence.sourceContent.contentStartLineNum > 0 ? (
                                 <div key={occurrence.fingerprint} className="occurrence-item">
-                                    <div className="occurrence-header">
+                                    <div
+                                        className="occurrence-header"
+                                        onClick={() => toggleExpand(occurrence.fingerprint)}
+                                    >
                                         <div className="occurrence-info">
-                                            <div className="occurrence-path">{occurrence.sourceContent.contentFilename} - Line {occurrence.sourceContent.contentStartLineNum + 5}</div>
+                                            <div className="occurrence-path">{occurrence.sourceContent.contentFilename}: Line {occurrence.sourceContent.contentStartLineNum + 5}</div>
                                         </div>
-                                        {occurrence.url && (
-                                            <a href={occurrence.url} target="_blank" rel="noopener noreferrer"
-                                                className="occurrence-link" title="View JS Bundle">
-                                                <span className="link-text">View JS Bundle</span>
-                                                <SquareArrowOutUpRight size={18} />
-                                            </a>
-                                        )}
-                                    </div>
-                                    <div className="occurrence-context code-with-line-numbers">
-                                        <pre>
-                                            {occurrence.sourceContent.content.split('\n').map((line, index) => {
-                                                const currentLineNum = occurrence.sourceContent.contentStartLineNum + index;
-                                                const highlightLine = occurrence.sourceContent.exactMatchNumbers &&
-                                                    occurrence.sourceContent.exactMatchNumbers.includes(currentLineNum + 1);
-
-                                                if (currentLineNum >= occurrence.sourceContent.contentStartLineNum &&
-                                                    currentLineNum <= occurrence.sourceContent.contentEndLineNum) {
-                                                    return (
-                                                        <div
-                                                            key={index}
-                                                            className={`code-line ${highlightLine ? 'highlighted-line' : ''}`}
-                                                        >
-                                                            <span className="line-number">{currentLineNum + 1}</span>
-                                                            <span className="line-content">{occurrence.sourceContent.content.split('\n')[currentLineNum]}</span>
-                                                        </div>
-                                                    );
+                                        <div className="occurrence-header-actions">
+                                            {occurrence.url && (
+                                                <a
+                                                    href={occurrence.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="occurrence-link"
+                                                    title="View JS Bundle"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <span className="link-text">View JS Bundle</span>
+                                                    <SquareArrowOutUpRight size={18} />
+                                                </a>
+                                            )}
+                                            <button
+                                                className="expand-toggle-btn"
+                                                aria-label={expandedItems[occurrence.fingerprint] ? "Collapse code" : "Expand code"}
+                                            >
+                                                {expandedItems[occurrence.fingerprint] ?
+                                                    <ChevronUp size={18} /> :
+                                                    <ChevronDown size={18} />
                                                 }
-                                                return null;
-                                            })}
-                                        </pre>
+                                            </button>
+                                        </div>
                                     </div>
+                                    {expandedItems[occurrence.fingerprint] && (
+                                        <div className="occurrence-context code-with-line-numbers">
+                                            <pre>
+                                                {occurrence.sourceContent.content.split('\n').map((line, index) => {
+                                                    const currentLineNum = occurrence.sourceContent.contentStartLineNum + index;
+                                                    const highlightLine = occurrence.sourceContent.exactMatchNumbers &&
+                                                        occurrence.sourceContent.exactMatchNumbers.includes(currentLineNum + 1);
+
+                                                    if (currentLineNum >= occurrence.sourceContent.contentStartLineNum &&
+                                                        currentLineNum <= occurrence.sourceContent.contentEndLineNum) {
+                                                        return (
+                                                            <div
+                                                                key={index}
+                                                                className={`code-line ${highlightLine ? 'highlighted-line' : ''}`}
+                                                            >
+                                                                <span className="line-number">{currentLineNum + 1}</span>
+                                                                <span className="line-content">{occurrence.sourceContent.content.split('\n')[currentLineNum]}</span>
+                                                            </div>
+                                                        );
+                                                    }
+                                                    return null;
+                                                })}
+                                            </pre>
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
                                 <div key={occurrence.fingerprint} className="occurrence-item">
-                                    <div className="occurrence-header">
+                                    <div
+                                        className="occurrence-header"
+                                        onClick={() => toggleExpand(occurrence.fingerprint)}
+                                    >
                                         <div className="occurrence-info">
                                             <div className="occurrence-path">{occurrence.filePath}</div>
                                         </div>
-                                        {occurrence.url && (
-                                            <a href={occurrence.url} target="_blank" rel="noopener noreferrer"
-                                                className="occurrence-link" title="View File">
-                                                <SquareArrowOutUpRight size={18} />
-                                            </a>
-                                        )}
+                                        <div className="occurrence-header-actions">
+                                            {occurrence.url && (
+                                                <a
+                                                    href={occurrence.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="occurrence-link"
+                                                    title="View File"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <SquareArrowOutUpRight size={18} />
+                                                </a>
+                                            )}
+                                            <button
+                                                className="expand-toggle-btn"
+                                                aria-label={expandedItems[occurrence.fingerprint] ? "Collapse details" : "Expand details"}
+                                            >
+                                                {expandedItems[occurrence.fingerprint] ?
+                                                    <ChevronUp size={18} /> :
+                                                    <ChevronDown size={18} />
+                                                }
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div className="occurrence-context">
-                                        <pre>{JSON.stringify(occurrence.secretValue)}</pre>
-                                    </div>
+                                    {expandedItems[occurrence.fingerprint] && (
+                                        <div className="occurrence-context">
+                                            <pre>{JSON.stringify(occurrence.secretValue)}</pre>
+                                        </div>
+                                    )}
                                 </div>
                             )
                         ))
