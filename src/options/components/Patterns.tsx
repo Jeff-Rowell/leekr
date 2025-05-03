@@ -17,7 +17,7 @@ export const Patterns: React.FC = () => {
     const [filteredPatterns, setFilteredPatterns] = useState<Pattern[]>([]);
     const [sortField, setSortField] = useState<'name' | 'pattern' | 'entropy'>('name');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState<string>('');
 
     useEffect(() => {
         let patterns = [...data.patterns];
@@ -46,7 +46,7 @@ export const Patterns: React.FC = () => {
 
         setFilteredPatterns(patterns);
         setCurrentPage(1);
-    }, [data.patterns, sortDirection]);
+    }, [data.patterns, sortDirection, searchQuery]);
 
     const totalPages = Math.ceil(filteredPatterns.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
