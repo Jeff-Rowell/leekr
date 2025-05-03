@@ -70,31 +70,31 @@ export const Patterns: React.FC = () => {
                 </div>
             </div>
 
-            <div className="findings-table-container">
+            <div className="patterns-table-container">
                 {filteredPatterns.length > 0 ? (
                     <>
-                        <table className="findings-table">
+                        <table className="patterns-table">
                             <colgroup>
-                                <col style={{ width: '40%' }} />
-                                <col style={{ width: '30%' }} />
                                 <col style={{ width: '20%' }} />
+                                <col style={{ width: '65%' }} />
                                 <col style={{ width: '10%' }} />
+                                <col style={{ width: '5%' }} />
                             </colgroup>
                             <thead>
                                 <tr>
-                                    <th onClick={() => handleSortChange('name')}>
+                                    <th className="patterns-th" onClick={() => handleSortChange('name')}>
                                         <div className="sortable-header">
                                             <span>Name</span>
                                             {renderSortIcon('name')}
                                         </div>
                                     </th>
-                                    <th onClick={() => handleSortChange('pattern')}>
+                                    <th className="patterns-th" onClick={() => handleSortChange('pattern')}>
                                         <div className="sortable-header">
                                             <span>Pattern</span>
                                             {renderSortIcon('pattern')}
                                         </div>
                                     </th>
-                                    <th onClick={() => handleSortChange('entropy')}>
+                                    <th className="patterns-th" onClick={() => handleSortChange('entropy')}>
                                         <div className="sortable-header">
                                             <span>Entropy</span>
                                             {renderSortIcon('entropy')}
@@ -106,9 +106,9 @@ export const Patterns: React.FC = () => {
                             <tbody>
                                 {paginatedPatterns.map((pattern, index) => (
                                     <tr key={index}>
-                                        <td className="findings-td">{pattern.name}</td>
-                                        <td className="findings-td">{pattern.pattern.toString()}</td>
-                                        <td className="findings-td">{pattern.entropy}</td>
+                                        <td className="patterns-td">{pattern.name}</td>
+                                        <td className="patterns-td"><pre className='pattern-pre'>{pattern.pattern.source}</pre></td>
+                                        <td className="patterns-td">{pattern.entropy}</td>
                                     </tr>
                                 ))}
                             </tbody>
