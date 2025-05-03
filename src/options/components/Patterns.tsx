@@ -107,7 +107,7 @@ export const Patterns: React.FC = () => {
                                 {paginatedPatterns.map((pattern, index) => (
                                     <tr key={index}>
                                         <td className="findings-td">{pattern.name}</td>
-                                        <td className="findings-td">{pattern.pattern}</td>
+                                        <td className="findings-td">{pattern.pattern.toString()}</td>
                                         <td className="findings-td">{pattern.entropy}</td>
                                     </tr>
                                 ))}

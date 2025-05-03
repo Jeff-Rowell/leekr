@@ -4,15 +4,45 @@ import { validateAWSCredentials } from '../../../utils/aws';
 import { AWS_RESOURCE_TYPES, DEFAULT_AWS_CONFIG } from '../../../config/aws';
 import { AWSOccurrence, AWSDetectorConfig, AWSSecretValue } from '../../../../types/aws.types';
 import { Occurrence, Finding, SourceContent } from '../../../../types/findings.types';
+import { Pattern } from '../../../../types/patterns.types';
 import { computeFingerprint } from '../../../utils/computeFingerprint';
-import { getExistingFindings, findSecretPosition, getSourceMapUrl } from '../../../utils/common';
+import { getExistingFindings, findSecretPosition, getSourceMapUrl, getExistingPatterns, storePatterns } from '../../../utils/common';
 import * as sourceMap from '../../../libs/source-map';
 
 let awsConfig: AWSDetectorConfig = { ...DEFAULT_AWS_CONFIG };
 
 export async function detectAwsAccessKeys(content: string, url: string): Promise<Occurrence[]> {
-    const awsAccessKeyIdPattern = /\b((?:AKIA|ABIA|ACCA|AIDA)[A-Z0-9]{16})\b/g;
-    const awsSecretAccessKeyPattern = /"([A-Za-z0-9+/]{40})"|(?:[^A-Za-z0-9+/]|^)([A-Za-z0-9+/]{40})(?:[^A-Za-z0-9+/]|$)/g;
+    const defaultAccessKeyIdPattern = /\b((?:AKIA|ABIA|ACCA|AIDA)[A-Z0-9]{16})\b/g;
+    const defaultSecretAccessKeyPattern = /"([A-Za-z0-9+/]{40})"|(?:[^A-Za-z0-9+/]|^)([A-Za-z0-9+/]{40})(?:[^A-Za-z0-9+/]|$)/g;
+
+    const existingPatterns = await getExistingPatterns();
+    if (existingPatterns.length === 0) {
+        const newPatterns: Pattern[] = [];
+        const accessKeyPattern: Pattern = {
+            name: "AWS Access Key",
+            pattern: defaultAccessKeyIdPattern,
+            entropy: awsConfig.requiredIdEntropy,
+            isValidityCustomizable: false,
+            hasCustomValidity: false,
+            validityEndpoints: []
+        }
+        const secretKeyPattern: Pattern = {
+            name: "AWS Secret Key",
+            pattern: defaultSecretAccessKeyPattern,
+            entropy: awsConfig.requiredSecretEntropy,
+            isValidityCustomizable: false,
+            hasCustomValidity: false,
+            validityEndpoints: []
+        }
+        newPatterns.push(accessKeyPattern);
+        newPatterns.push(secretKeyPattern);
+        storePatterns(newPatterns);
+    }
+    const hasAccessKeyPattern = existingPatterns.find(pattern => pattern.name === 'AWS Access Key');
+    const hasSecretKeyPattern = existingPatterns.find(pattern => pattern.name === 'AWS Secret Key');
+
+    const awsAccessKeyIdPattern = hasAccessKeyPattern ? hasAccessKeyPattern.pattern : defaultAccessKeyIdPattern;
+    const awsSecretAccessKeyPattern = hasSecretKeyPattern ? hasSecretKeyPattern.pattern : defaultSecretAccessKeyPattern;
     const accessKeyMatches = content.match(awsAccessKeyIdPattern) || [];
 
     const secretKeyMatches: string[] = [];
@@ -32,7 +62,10 @@ export async function detectAwsAccessKeys(content: string, url: string): Promise
 
     const validAccessKeys = accessKeyMatches.filter(key => {
         const entropy = calculateShannonEntropy(key);
-        if (entropy < awsConfig.requiredIdEntropy) return false;
+        const accessKeyEntropyThreshold = existingPatterns.find(
+            pattern => pattern.name === "AWS Access Key")?.entropy ??
+            awsConfig.requiredIdEntropy;
+        if (entropy < accessKeyEntropyThreshold) return false;
 
         const [isFP] = isKnownFalsePositive(key);
         return !isFP;
@@ -40,7 +73,10 @@ export async function detectAwsAccessKeys(content: string, url: string): Promise
 
     const validSecretKeys = secretKeyMatches.filter(key => {
         const entropy = calculateShannonEntropy(key);
-        if (entropy < awsConfig.requiredSecretEntropy) return false;
+        const secretKeyEntropyThreshold = existingPatterns.find(
+            pattern => pattern.name === "AWS Secret Key")?.entropy ??
+            awsConfig.requiredSecretEntropy;
+        if (entropy < secretKeyEntropyThreshold) return false;
 
         const [isFP] = isKnownFalsePositive(key);
         if (isFP) return false;

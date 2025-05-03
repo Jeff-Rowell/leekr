@@ -1,4 +1,5 @@
 import { Finding } from "../../types/findings.types";
+import { Pattern } from "../../types/patterns.types";
 
 export function getExistingFindings(): Promise<Finding[]> {
     return new Promise(async (resolve) => {
@@ -93,4 +94,45 @@ export function findSecretPosition(bundleContent: string, secret: string): { lin
     }
 
     return { line, column };
+}
+
+export function serializePatterns(patterns: Pattern[]): any[] {
+    return patterns.map(pat => ({
+        ...pat,
+        pattern: pat.pattern.source
+    }));
+}
+
+export function deserializePatterns(serializedPatterns: any[]): Pattern[] {
+    return serializedPatterns.map(pat => ({
+        ...pat,
+        pattern: new RegExp(pat.pattern)
+    }));
+}
+
+export function retrievePatterns(): Promise<Pattern[]> {
+    return new Promise((resolve) => {
+        chrome.storage.local.get(['patterns'], (result) => {
+            if (result.patterns) {
+                const deserialized = deserializePatterns(result.patterns);
+                resolve(deserialized);
+            } else {
+                resolve([]);
+            }
+        });
+    });
+}
+
+export function getExistingPatterns(): Promise<Pattern[]> {
+    return new Promise(async (resolve) => {
+        const patterns = await retrievePatterns();
+        resolve(patterns || []);
+    });
+}
+
+export function storePatterns(patterns: Pattern[]): Promise<void> {
+    const serializedPatterns = serializePatterns(patterns)
+    return new Promise((resolve) => {
+        chrome.storage.local.set({ patterns: serializedPatterns }, resolve);
+    });
 }
