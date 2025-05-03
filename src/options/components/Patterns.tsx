@@ -15,7 +15,7 @@ export const Patterns: React.FC = () => {
     const { data } = useAppContext();
     const [currentPage, setCurrentPage] = useState(1);
     const [filteredPatterns, setFilteredPatterns] = useState<Pattern[]>([]);
-    const [sortField, setSortField] = useState<'name' | 'isValidityCustomizable' | 'hasCustomValidity'>('name');
+    const [sortField, setSortField] = useState<'name' | 'pattern' | 'entropy'>('name');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -35,7 +35,7 @@ export const Patterns: React.FC = () => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const paginatedPatterns = filteredPatterns.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-    const handleSortChange = (field: 'name' | 'isValidityCustomizable' | 'hasCustomValidity') => {
+    const handleSortChange = (field: 'name' | 'pattern' | 'entropy') => {
         if (sortField === field) {
             setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
         } else {
@@ -44,7 +44,7 @@ export const Patterns: React.FC = () => {
         }
     };
 
-    const renderSortIcon = (field: 'name' | 'isValidityCustomizable' | 'hasCustomValidity') => {
+    const renderSortIcon = (field: 'name' | 'pattern' | 'entropy') => {
         if (sortField === field) {
             return sortDirection === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />;
         }
@@ -84,20 +84,20 @@ export const Patterns: React.FC = () => {
                                 <tr>
                                     <th onClick={() => handleSortChange('name')}>
                                         <div className="sortable-header">
-                                            <span>Detector Name</span>
+                                            <span>Name</span>
                                             {renderSortIcon('name')}
                                         </div>
                                     </th>
-                                    <th onClick={() => handleSortChange('isValidityCustomizable')}>
+                                    <th onClick={() => handleSortChange('pattern')}>
                                         <div className="sortable-header">
-                                            <span>Customizable</span>
-                                            {renderSortIcon('isValidityCustomizable')}
+                                            <span>Pattern</span>
+                                            {renderSortIcon('pattern')}
                                         </div>
                                     </th>
-                                    <th onClick={() => handleSortChange('hasCustomValidity')}>
+                                    <th onClick={() => handleSortChange('entropy')}>
                                         <div className="sortable-header">
-                                            <span>Has Custom Endpoints</span>
-                                            {renderSortIcon('hasCustomValidity')}
+                                            <span>Entropy</span>
+                                            {renderSortIcon('entropy')}
                                         </div>
                                     </th>
                                     <th className="actions-cell">{/* Empty header for actions column */}</th>
@@ -107,8 +107,8 @@ export const Patterns: React.FC = () => {
                                 {paginatedPatterns.map((pattern, index) => (
                                     <tr key={index}>
                                         <td className="findings-td">{pattern.name}</td>
-                                        <td className="findings-td">{pattern.isValidityCustomizable}</td>
-                                        <td className="findings-td">{pattern.hasCustomValidity}</td>
+                                        <td className="findings-td">{pattern.pattern}</td>
+                                        <td className="findings-td">{pattern.entropy}</td>
                                     </tr>
                                 ))}
                             </tbody>
