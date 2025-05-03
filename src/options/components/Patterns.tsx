@@ -27,6 +27,23 @@ export const Patterns: React.FC = () => {
                 pattern.name.toLowerCase().includes(query)
             );
         }
+
+        patterns.sort((a, b) => {
+            if (sortField === 'name') {
+                return sortDirection === 'asc'
+                    ? a.name.localeCompare(b.name)
+                    : b.name.localeCompare(a.name);
+            } else if (sortField === 'pattern') {
+                return sortDirection === 'asc'
+                    ? a.pattern.source.localeCompare(b.pattern.source)
+                    : b.pattern.source.localeCompare(a.pattern.source);
+            } else {
+                return sortDirection === 'asc'
+                    ? a.entropy - b.entropy
+                    : b.entropy - a.entropy;
+            }
+        });
+
         setFilteredPatterns(patterns);
         setCurrentPage(1);
     }, [data.patterns, sortDirection]);
