@@ -4,6 +4,6 @@ export interface Pattern {
     isValidityCustomizable: boolean;
     hasCustomValidity: boolean;
     validityEndpoints: string[];
-    pattern: string;
+    pattern: RegExp;
     entropy: number;
 }
