@@ -2,6 +2,7 @@
     /* Global Colors and Fonts */
     --color-bg-dark: hsl(60, 2.7%, 7.6%);
     --color-bg-dark-transparent: hsl(60 2.7% 7.6% / 85%);
+    --color-bg-dark-transparent-hover: hsl(60 2.7% 7.6% / 70%);
     --color-bg-hover: #2A2A2A;
     --color-link-text: hsl(210 70.9% 51.6%);
     --color-link-text-border: hsl(210 70.9% 25.8%);
