@@ -3,7 +3,8 @@ import {
     ChevronDown,
     ChevronUp,
     AlertTriangle,
-    Search
+    Search,
+    SquareArrowRight
 } from 'lucide-react';
 import { Pattern } from '../../types/patterns.types';
 import { useAppContext } from '../../popup/AppContext';
@@ -126,6 +127,15 @@ export const Patterns: React.FC = () => {
                                         <td className="patterns-td">{pattern.name}</td>
                                         <td className="patterns-td"><pre className='pattern-pre'>{pattern.pattern.source}</pre></td>
                                         <td className="patterns-td">{pattern.entropy}</td>
+                                        <td className="actions-cell">
+                                            <button
+                                                className="view-button"
+                                                onClick={() => console.log(pattern)}
+                                                title="Edit Pattern"
+                                            >
+                                                <SquareArrowRight size={18} />
+                                            </button>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>

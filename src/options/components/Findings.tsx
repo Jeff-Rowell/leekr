@@ -212,7 +212,7 @@ export const Findings: React.FC = () => {
                                         <td className="findings-td">{finding.numOccurrences}</td>
                                         <td className="actions-cell">
                                             <button
-                                                className="view-occurrences-button"
+                                                className="view-button"
                                                 onClick={() => handleViewOccurrences(finding)}
                                                 title="View Occurrences"
                                             >
