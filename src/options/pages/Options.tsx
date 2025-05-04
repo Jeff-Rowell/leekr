@@ -8,12 +8,11 @@ import { Findings } from '../components/Findings';
 import { Patterns } from '../components/Patterns';
 
 // Tab components
-const General = () => <div className="tab-content">General</div>;
 const AboutTab = () => <div className="tab-content">About Leekr</div>;
 
 // Main Options component
 const Options: React.FC = () => {
-    const [activeTab, setActiveTab] = useState('general');
+    const [activeTab, setActiveTab] = useState('findings');
     const [filterFingerprint, setFilterFingerprint] = useState<string | undefined>(undefined);
 
     useEffect(() => {
@@ -33,8 +32,6 @@ const Options: React.FC = () => {
 
     const renderTabContent = () => {
         switch (activeTab) {
-            case 'general':
-                return <General />;
             case 'patterns':
                 return <Patterns />;
             case 'findings':
@@ -48,7 +45,7 @@ const Options: React.FC = () => {
             case 'about':
                 return <AboutTab />;
             default:
-                return <General />;
+                return <Findings />;
         }
     };
 
@@ -66,12 +63,6 @@ const Options: React.FC = () => {
                 <aside className="sidebar">
                     <nav>
                         <ul>
-                            <li className={activeTab === 'general' ? 'active' : ''}>
-                                <button onClick={() => setActiveTab('general')}>
-                                    <Boxes size={18} />
-                                    <span>General</span>
-                                </button>
-                            </li>
                             <li className={activeTab === 'findings' ? 'active' : ''}>
                                 <button onClick={() => {
                                     setActiveTab('findings');
