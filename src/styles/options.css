@@ -820,12 +820,11 @@ th .sortable-header {
   justify-content: center;
   padding: 4px;
   border-radius: 4px;
-  color: #6c757d;
 }
 
 .expand-toggle-btn:hover {
   background-color: rgba(0, 0, 0, 0.05);
-  color: #212529;
+  color: var(--color-leek);
 }
 
 .findings-source-download-btn {
