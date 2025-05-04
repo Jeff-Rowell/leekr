@@ -49,7 +49,8 @@ export async function detectAwsAccessKeys(content: string, url: string): Promise
     const secretKeyMatches: string[] = [];
     const matches = content.match(awsSecretAccessKeyPattern)
     matches?.forEach(match => {
-        const singleMatchPattern = /"([A-Za-z0-9+/]{40})"|(?:[^A-Za-z0-9+/]|^)([A-Za-z0-9+/]{40})(?:[^A-Za-z0-9+/]|$)/;
+        // Removes the global flag if its set 
+        const singleMatchPattern = awsSecretAccessKeyPattern.global ? new RegExp(awsSecretAccessKeyPattern.source) : awsSecretAccessKeyPattern
         const result = match.match(singleMatchPattern);
         if (result) {
             const secretKey = result[1] || result[2];
