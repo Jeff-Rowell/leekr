@@ -184,12 +184,16 @@
 }
 
 .occurrence-context {
-  padding: 16px;
   background-color: var(--color-bg-dark);
-  border: 1px solid #e9ecef;
   border-top: none;
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  overflow-x: auto;
+  clear: both;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .occurrence-context pre {
@@ -344,16 +348,18 @@ input:checked+.toggle-slider:before {
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background-color: var(--color-bg-dark-transparent);
-  border-radius: 8px;
+  background-color: var(--color-bg-dark);
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
   cursor: pointer;
   border-bottom: 1px solid #2c2c33;
-  /* transition: background-color 0.2s ease; */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .occurrence-header:hover {
-  background-color: var(--color-bg-dark-transparent-hover);
+  background-color: var(--color-bg-dark-transparent);
 }
 
 .occurrence-header-actions {
@@ -388,15 +394,6 @@ input:checked+.toggle-slider:before {
 .occurrence-icon-link:hover {
     background-color: rgba(0, 0, 0, 0.05);
     color: var(--color-leek);
-}
-
-.occurrence-context {
-    background-color: var(--color-bg-dark);
-    padding: 12px;
-    border-radius: 4px;
-    margin-bottom: 12px;
-    overflow-x: auto;
-    clear: both;
 }
 
 h3 {
