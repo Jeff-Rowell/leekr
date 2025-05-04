@@ -106,7 +106,7 @@ export function serializePatterns(patterns: Pattern[]): any[] {
 export function deserializePatterns(serializedPatterns: any[]): Pattern[] {
     return serializedPatterns.map(pat => ({
         ...pat,
-        pattern: new RegExp(pat.pattern)
+        pattern: pat.global ? new RegExp(pat.pattern, "g") : new RegExp(pat.pattern)
     }));
 }
 

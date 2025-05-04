@@ -6,4 +6,5 @@ export interface Pattern {
     validityEndpoints: string[];
     pattern: RegExp;
     entropy: number;
+    global: boolean;
 }

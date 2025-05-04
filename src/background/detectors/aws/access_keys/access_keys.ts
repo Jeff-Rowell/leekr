@@ -24,7 +24,8 @@ export async function detectAwsAccessKeys(content: string, url: string): Promise
             entropy: awsConfig.requiredIdEntropy,
             isValidityCustomizable: false,
             hasCustomValidity: false,
-            validityEndpoints: []
+            validityEndpoints: [],
+            global: true
         }
         const secretKeyPattern: Pattern = {
             name: "AWS Secret Key",
@@ -32,7 +33,8 @@ export async function detectAwsAccessKeys(content: string, url: string): Promise
             entropy: awsConfig.requiredSecretEntropy,
             isValidityCustomizable: false,
             hasCustomValidity: false,
-            validityEndpoints: []
+            validityEndpoints: [],
+            global: true
         }
         newPatterns.push(accessKeyPattern);
         newPatterns.push(secretKeyPattern);
@@ -40,7 +42,6 @@ export async function detectAwsAccessKeys(content: string, url: string): Promise
     }
     const hasAccessKeyPattern = existingPatterns.find(pattern => pattern.name === 'AWS Access Key');
     const hasSecretKeyPattern = existingPatterns.find(pattern => pattern.name === 'AWS Secret Key');
-
     const awsAccessKeyIdPattern = hasAccessKeyPattern ? hasAccessKeyPattern.pattern : defaultAccessKeyIdPattern;
     const awsSecretAccessKeyPattern = hasSecretKeyPattern ? hasSecretKeyPattern.pattern : defaultSecretAccessKeyPattern;
     const accessKeyMatches = content.match(awsAccessKeyIdPattern) || [];
