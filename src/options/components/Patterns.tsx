@@ -58,7 +58,7 @@ export const Patterns: React.FC = () => {
             setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
         } else {
             setSortField(field);
-            setSortDirection('asc');
+            setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
         }
     };
 
