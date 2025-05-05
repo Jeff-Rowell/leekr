@@ -72,7 +72,7 @@ export const Patterns: React.FC = () => {
     return (
         <div className="tab-content">
             <h3>Patterns</h3>
-            <div className="filter-container">
+            <div className="search-container">
                 <div className="filter-row">
                     <div className="filter-item">
                         <div className="search-box">
