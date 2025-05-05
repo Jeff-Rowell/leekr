@@ -125,7 +125,7 @@ export const Patterns: React.FC = () => {
                                 {paginatedPatterns.map((pattern, index) => (
                                     <tr key={index}>
                                         <td className="patterns-td">{pattern.name}</td>
-                                        <td className="patterns-td"><pre className='pattern-pre'>{pattern.pattern.source}</pre></td>
+                                        <td className="patterns-td"><pre className='pattern-pre'>{pattern.global ? "/" + pattern.pattern.source + "/g" : pattern.pattern.source}</pre></td>
                                         <td className="patterns-td">{pattern.entropy}</td>
                                         <td className="actions-cell">
                                             <button
