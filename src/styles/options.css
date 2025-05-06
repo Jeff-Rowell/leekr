@@ -881,7 +881,7 @@ th .sortable-header {
 
 .patterns-table th:first-child,
 .patterns-table td:first-child {
-    width: 20%;
+    width: 25%;
 }
 
 .patterns-table th:nth-child(2),

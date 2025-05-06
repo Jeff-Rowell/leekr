@@ -3,8 +3,7 @@ import {
     ChevronDown,
     ChevronUp,
     AlertTriangle,
-    Search,
-    SquareArrowRight
+    Search
 } from 'lucide-react';
 import { Pattern } from '../../types/patterns.types';
 import { useAppContext } from '../../popup/AppContext';
@@ -93,10 +92,9 @@ export const Patterns: React.FC = () => {
                     <>
                         <table className="patterns-table">
                             <colgroup>
-                                <col style={{ width: '20%' }} />
+                                <col style={{ width: '25%' }} />
                                 <col style={{ width: '65%' }} />
                                 <col style={{ width: '10%' }} />
-                                <col style={{ width: '5%' }} />
                             </colgroup>
                             <thead>
                                 <tr>
@@ -118,7 +116,6 @@ export const Patterns: React.FC = () => {
                                             {renderSortIcon('entropy')}
                                         </div>
                                     </th>
-                                    <th className="actions-cell">{/* Empty header for actions column */}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -127,15 +124,6 @@ export const Patterns: React.FC = () => {
                                         <td className="patterns-td">{pattern.name}</td>
                                         <td className="patterns-td"><pre className='pattern-pre'>{pattern.global ? "/" + pattern.pattern.source + "/g" : pattern.pattern.source}</pre></td>
                                         <td className="patterns-td">{pattern.entropy}</td>
-                                        <td className="actions-cell">
-                                            <button
-                                                className="view-button"
-                                                onClick={() => console.log(pattern)}
-                                                title="Edit Pattern"
-                                            >
-                                                <SquareArrowRight size={18} />
-                                            </button>
-                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
