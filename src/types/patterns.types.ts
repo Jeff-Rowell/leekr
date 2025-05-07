@@ -1,6 +1,7 @@
 
 export interface Pattern {
     name: string;
+    familyName: string;
     isValidityCustomizable: boolean;
     hasCustomValidity: boolean;
     validityEndpoints: string[];

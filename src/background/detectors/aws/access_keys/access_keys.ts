@@ -118,7 +118,7 @@ export async function detectAwsAccessKeys(content: string, url: string): Promise
                     });
                 }
                 const match: AWSOccurrence = {
-                    secretType: "AWS Access & Secret Keys",
+                    secretType: patterns['AWS Secret Key'].familyName,
                     fingerprint: "",
                     secretValue: {
                         match: {

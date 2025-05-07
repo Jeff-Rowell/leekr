@@ -881,17 +881,22 @@ th .sortable-header {
 
 .patterns-table th:first-child,
 .patterns-table td:first-child {
-    width: 25%;
+    width: 15%;
 }
 
 .patterns-table th:nth-child(2),
 .patterns-table td:nth-child(2) {
-    width: 65%;
+    width: 15%;
 }
 
 .patterns-table th:nth-child(3),
 .patterns-table td:nth-child(3) {
-    width: 10%;
+    width: 65%;
+}
+
+.patterns-table th:nth-child(4),
+.patterns-table td:nth-child(4) {
+    width: 5%;
 }
 
 .patterns-table-container {

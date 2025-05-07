@@ -14,12 +14,14 @@ const AboutTab = () => <div className="tab-content">About Leekr</div>;
 const Options: React.FC = () => {
     const [activeTab, setActiveTab] = useState('findings');
     const [filterFingerprint, setFilterFingerprint] = useState<string | undefined>(undefined);
+    const [filterFamilyname, setFilterFamilyname] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         // Parse URL parameters to get the active tab and filters
         const searchParams = new URLSearchParams(window.location.search);
         const tabParam = searchParams.get('tab');
         const fingerprintParam = searchParams.get('fingerprint');
+        const familynameParam = searchParams.get('familyname');
 
         if (tabParam) {
             setActiveTab(tabParam);
@@ -28,12 +30,18 @@ const Options: React.FC = () => {
         if (fingerprintParam) {
             setFilterFingerprint(fingerprintParam);
         }
+
+        if (familynameParam) {
+            setFilterFamilyname(familynameParam);
+        }
     }, []);
 
     const renderTabContent = () => {
         switch (activeTab) {
             case 'detectors':
-                return <Detectors />;
+                return filterFamilyname ?
+                    <Detectors familyname={filterFamilyname} /> :
+                    <Detectors familyname='' />;
             case 'findings':
                 // If we have a fingerprint, show occurrences for that fingerprint
                 // Otherwise show the findings tab
