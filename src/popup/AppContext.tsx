@@ -1,19 +1,19 @@
 import React, { createContext, useContext, useReducer, useEffect, useState } from "react";
 import { Finding } from '../types/findings.types';
-import { Pattern } from '../types/patterns.types';
+import { PatternsObj } from '../types/patterns.types';
 import { retrieveFindings, retrievePatterns } from '../background/utils/common';
 
 interface AppState {
     activeTab: string;
     findings: Finding[];
-    patterns: Pattern[];
+    patterns: PatternsObj;
     notifications: string;
 }
 
 interface AppActions {
     setActiveTab: (tab: string) => void;
     setFindings: (findings: Finding[]) => void;
-    setPatterns: (findings: Finding[]) => void;
+    setPatterns: (patterns: PatternsObj[]) => void;
     setNotifications: (notifications: string) => void;
     clearNotifications: () => void;
 }
@@ -23,7 +23,7 @@ const AppContext = createContext<{ data: AppState; actions: AppActions } | undef
 const initialState: AppState = {
     activeTab: 'Findings',
     findings: [],
-    patterns: [],
+    patterns: {},
     notifications: '',
 };
 
@@ -78,7 +78,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             }
         })
         retrievePatterns().then((resultPatterns) => {
-            if (resultPatterns && resultPatterns.length > 0) {
+            if (resultPatterns && Object.keys(resultPatterns).length > 0) {
                 dispatch({ type: "SET_PATTERNS", payload: resultPatterns });
             }
         })

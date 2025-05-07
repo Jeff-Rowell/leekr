@@ -8,3 +8,7 @@ export interface Pattern {
     entropy: number;
     global: boolean;
 }
+
+export interface PatternsObj {
+    [key: string]: Pattern
+}

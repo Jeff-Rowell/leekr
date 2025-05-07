@@ -20,7 +20,7 @@ export const Patterns: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState<string>('');
 
     useEffect(() => {
-        let patterns = [...data.patterns];
+        let patterns = [...Object.values(data.patterns)];
         if (searchQuery) {
             const query = searchQuery.toLowerCase();
             patterns = patterns.filter(pattern =>

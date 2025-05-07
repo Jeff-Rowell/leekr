@@ -1,5 +1,6 @@
 import { Finding } from "../../types/findings.types";
-import { Pattern } from "../../types/patterns.types";
+import { Pattern, PatternsObj } from "../../types/patterns.types";
+import { patterns } from "./patterns";
 
 export function getExistingFindings(): Promise<Finding[]> {
     return new Promise(async (resolve) => {
@@ -96,41 +97,49 @@ export function findSecretPosition(bundleContent: string, secret: string): { lin
     return { line, column };
 }
 
-export function serializePatterns(patterns: Pattern[]): any[] {
-    return patterns.map(pat => ({
-        ...pat,
-        pattern: pat.pattern.source
-    }));
+export function serializePatterns(patterns: PatternsObj): Record<string, Omit<Pattern, 'pattern'> & { pattern: string }> {
+    const serialized: Record<string, Omit<Pattern, 'pattern'> & { pattern: string }> = {};
+    Object.entries(patterns).forEach(([key, value]) => {
+        serialized[key] = {
+            ...value,
+            pattern: value.pattern.source
+        };
+    });
+    return serialized;
 }
 
-export function deserializePatterns(serializedPatterns: any[]): Pattern[] {
-    return serializedPatterns.map(pat => ({
-        ...pat,
-        pattern: pat.global ? new RegExp(pat.pattern, "g") : new RegExp(pat.pattern)
-    }));
+export function deserializePatterns(serializedPatterns: Record<string, Omit<Pattern, 'pattern'> & { pattern: string }>): PatternsObj {
+    const deserialized: PatternsObj = {};
+    Object.entries(serializedPatterns).forEach(([key, value]) => {
+        deserialized[key] = {
+            ...value,
+            pattern: value.global ? new RegExp(value.pattern, "g") : new RegExp(value.pattern)
+        };
+    });
+    return deserialized;
 }
 
-export function retrievePatterns(): Promise<Pattern[]> {
+export function retrievePatterns(): Promise<PatternsObj> {
     return new Promise((resolve) => {
         chrome.storage.local.get(['patterns'], (result) => {
             if (result.patterns) {
                 const deserialized = deserializePatterns(result.patterns);
                 resolve(deserialized);
             } else {
-                resolve([]);
+                resolve({});
             }
         });
     });
 }
 
-export function getExistingPatterns(): Promise<Pattern[]> {
+export function getExistingPatterns(): Promise<PatternsObj> {
     return new Promise(async (resolve) => {
         const patterns = await retrievePatterns();
-        resolve(patterns || []);
+        resolve(patterns || {});
     });
 }
 
-export function storePatterns(patterns: Pattern[]): Promise<void> {
+export function storePatterns(patterns: PatternsObj): Promise<void> {
     const serializedPatterns = serializePatterns(patterns)
     return new Promise((resolve) => {
         chrome.storage.local.set({ patterns: serializedPatterns }, resolve);
