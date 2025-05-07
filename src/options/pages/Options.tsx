@@ -5,7 +5,7 @@ import SettingsFont from '../../assets/settings-font.svg';
 import { SettingsTab } from '../components/SettingsTab';
 import { Occurrences } from '../components/Occurrences';
 import { Findings } from '../components/Findings';
-import { Patterns } from '../components/Patterns';
+import { Detectors } from '../components/Detectors';
 
 // Tab components
 const AboutTab = () => <div className="tab-content">About Leekr</div>;
@@ -32,8 +32,8 @@ const Options: React.FC = () => {
 
     const renderTabContent = () => {
         switch (activeTab) {
-            case 'patterns':
-                return <Patterns />;
+            case 'detectors':
+                return <Detectors />;
             case 'findings':
                 // If we have a fingerprint, show occurrences for that fingerprint
                 // Otherwise show the findings tab
@@ -72,10 +72,10 @@ const Options: React.FC = () => {
                                     <span>Findings</span>
                                 </button>
                             </li>
-                            <li className={activeTab === 'patterns' ? 'active' : ''}>
-                                <button onClick={() => setActiveTab('patterns')}>
+                            <li className={activeTab === 'detectors' ? 'active' : ''}>
+                                <button onClick={() => setActiveTab('detectors')}>
                                     <Shield size={18} />
-                                    <span>Patterns</span>
+                                    <span>Detectors</span>
                                 </button>
                             </li>
                             <li className={activeTab === 'settings' ? 'active' : ''}>

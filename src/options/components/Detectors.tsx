@@ -11,7 +11,7 @@ import { useAppContext } from '../../popup/AppContext';
 // Pagination constants
 const ITEMS_PER_PAGE = 10;
 
-export const Patterns: React.FC = () => {
+export const Detectors: React.FC = () => {
     const { data } = useAppContext();
     const [currentPage, setCurrentPage] = useState(1);
     const [filteredPatterns, setFilteredPatterns] = useState<Pattern[]>([]);
@@ -70,7 +70,7 @@ export const Patterns: React.FC = () => {
 
     return (
         <div className="tab-content">
-            <h3>Patterns</h3>
+            <h3>Detectors</h3>
             <div className="search-container">
                 <div className="filter-row">
                     <div className="filter-item">
@@ -78,7 +78,7 @@ export const Patterns: React.FC = () => {
                             <Search size={20} />
                             <input
                                 type="text"
-                                placeholder="Search patterns..."
+                                placeholder="Search detectors..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
@@ -132,7 +132,7 @@ export const Patterns: React.FC = () => {
                 ) : (
                     <div className="empty-state">
                         <AlertTriangle size={48} />
-                        <p>No patterns match your search.</p>
+                        <p>No detectors match your search.</p>
                     </div>
                 )}
             </div>
@@ -140,4 +140,4 @@ export const Patterns: React.FC = () => {
     );
 };
 
-export default Patterns;
+export default Detectors;
