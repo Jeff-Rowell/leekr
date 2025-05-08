@@ -237,9 +237,10 @@
     justify-content: space-between;
     align-items: center;
     padding: 16px;
-    background-color: white;
-    border: 1px solid var(--color-border);
+    background-color: var(--color-bg-dark-transparent);
     border-radius: var(--border-radius);
+    border: 1px solid #2c2c33;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     margin-bottom: 12px;
 }
 
@@ -276,7 +277,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #ccc;
+    background-color: var(--color-tooltip-bg-dark);
     transition: .4s;
     border-radius: 34px;
     pointer-events: none;
@@ -574,7 +575,7 @@ h3 {
 }
 
 .findings-table tr:hover {
-    background-color: #34343c;
+    background-color: var(--color-bg-dark-header);
 }
 
 .sortable-header {
@@ -945,7 +946,7 @@ th .sortable-header {
 }
 
 .patterns-table tr:hover {
-    background-color: #34343c;
+    background-color: var(--color-bg-dark-header);
 }
 
 .patterns-table th .sortable-header {
