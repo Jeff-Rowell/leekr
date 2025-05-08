@@ -41,7 +41,6 @@ const FindingsTab: React.FC = () => {
             case 'valid': return 'validity-valid';
             case 'invalid': return 'validity-invalid';
             case 'failed_to_check': return 'validity-failed';
-            case 'no_checker': return 'validity-no-checker';
             case 'unknown':
             default: return 'validity-unknown';
         }

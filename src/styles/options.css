@@ -156,7 +156,6 @@
 }
 
 .validity-badge.unknown,
-.validity-badge.no_checker,
 .validity-badge.failed_to_check {
     background-color: rgba(255, 159, 10, 0.2);
     color: #b36d00;

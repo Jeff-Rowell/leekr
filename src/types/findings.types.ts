@@ -1,4 +1,4 @@
-export type ValidityStatus = 'valid' | 'invalid' | 'failed_to_check' | 'no_checker' | 'unknown';
+export type ValidityStatus = 'valid' | 'invalid' | 'failed_to_check' | 'unknown';
 
 export interface SourceContent {
     content: string;

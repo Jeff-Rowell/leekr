@@ -201,11 +201,6 @@ a:hover {
     color: var(--color-valitity-failed);
 }
 
-.validity-no-checker {
-    background-color: rgba(156, 163, 175, 0.1);
-    color: var(--color-validity-no-checker-color);
-}
-
 .validity-unknown {
     background-color: rgba(107, 114, 128, 0.1);
     color: var(--color-validity-unknown);
