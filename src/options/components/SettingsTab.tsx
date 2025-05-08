@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 export const SettingsTab = () => {
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-    const [autoScan, setAutoScan] = useState(true);
+    const [customSuffixesEnabled, setCustomSuffixesEnabled] = useState(false);
 
     const handleToggleClick = (setter: React.Dispatch<React.SetStateAction<boolean>>, currentValue: boolean) => (e: React.MouseEvent) => {
         e.preventDefault();
@@ -15,7 +15,7 @@ export const SettingsTab = () => {
                 <h3>Notifications</h3>
                 <div className="setting-item">
                     <div className="setting-label">
-                        Enable Notifications
+                        <strong className="setting-label-strong">Enable Notifications</strong>
                         <span className="setting-description">
                             Get pop-up notifications when secrets are found
                         </span>
@@ -36,16 +36,16 @@ export const SettingsTab = () => {
                 <h3>Scanning</h3>
                 <div className="setting-item">
                     <div className="setting-label">
-                        Auto Scan
+                        <strong className="setting-label-strong">Enable Custom Scan Suffixes</strong>
                         <span className="setting-description">
-                            Automatically scan pages for secrets
+                            Customize the file suffixes that Leekr scans (Default: .js, .mjs, .cjs)
                         </span>
                     </div>
-                    <div className="toggle-switch" onClick={handleToggleClick(setAutoScan, autoScan)}>
+                    <div className="toggle-switch" onClick={handleToggleClick(setCustomSuffixesEnabled, customSuffixesEnabled)}>
                         <input
                             type="checkbox"
-                            id="auto-scan-toggle"
-                            checked={autoScan}
+                            id="custom-suffixes-toggle"
+                            checked={customSuffixesEnabled}
                             onChange={() => { }}
                         />
                         <span className="toggle-slider"></span>
