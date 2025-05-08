@@ -4,25 +4,28 @@ export const SettingsTab = () => {
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [autoScan, setAutoScan] = useState(true);
 
+    const handleToggleClick = (setter: React.Dispatch<React.SetStateAction<boolean>>, currentValue: boolean) => (e: React.MouseEvent) => {
+        e.preventDefault();
+        setter(!currentValue);
+    };
+
     return (
         <div className="tab-content">
-            <h2>Settings</h2>
-
             <div className="settings-section">
                 <h3>Notifications</h3>
                 <div className="setting-item">
-                    <label htmlFor="notifications-toggle">
+                    <div className="setting-label">
                         Enable Notifications
                         <span className="setting-description">
-                            Get notified when secrets are detected
+                            Get pop-up notifications when secrets are found
                         </span>
-                    </label>
-                    <div className="toggle-switch">
+                    </div>
+                    <div className="toggle-switch" onClick={handleToggleClick(setNotificationsEnabled, notificationsEnabled)}>
                         <input
                             type="checkbox"
                             id="notifications-toggle"
                             checked={notificationsEnabled}
-                            onChange={() => setNotificationsEnabled(!notificationsEnabled)}
+                            onChange={() => { }}
                         />
                         <span className="toggle-slider"></span>
                     </div>
@@ -32,18 +35,18 @@ export const SettingsTab = () => {
             <div className="settings-section">
                 <h3>Scanning</h3>
                 <div className="setting-item">
-                    <label htmlFor="auto-scan-toggle">
+                    <div className="setting-label">
                         Auto Scan
                         <span className="setting-description">
                             Automatically scan pages for secrets
                         </span>
-                    </label>
-                    <div className="toggle-switch">
+                    </div>
+                    <div className="toggle-switch" onClick={handleToggleClick(setAutoScan, autoScan)}>
                         <input
                             type="checkbox"
                             id="auto-scan-toggle"
                             checked={autoScan}
-                            onChange={() => setAutoScan(!autoScan)}
+                            onChange={() => { }}
                         />
                         <span className="toggle-slider"></span>
                     </div>

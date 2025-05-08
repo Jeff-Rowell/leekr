@@ -243,7 +243,7 @@
     margin-bottom: 12px;
 }
 
-.setting-item label {
+.setting-label {
     display: flex;
     flex-direction: column;
 }
@@ -260,17 +260,18 @@
     display: inline-block;
     width: 52px;
     height: 26px;
+    cursor: pointer;
 }
 
 .toggle-switch input {
     opacity: 0;
     width: 0;
     height: 0;
+    position: absolute;
 }
 
 .toggle-slider {
     position: absolute;
-    cursor: pointer;
     top: 0;
     left: 0;
     right: 0;
@@ -278,6 +279,7 @@
     background-color: #ccc;
     transition: .4s;
     border-radius: 34px;
+    pointer-events: none;
 }
 
 .toggle-slider:before {
@@ -290,6 +292,7 @@
     background-color: white;
     transition: .4s;
     border-radius: 50%;
+    pointer-events: none;
 }
 
 input:checked+.toggle-slider {
