@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect, useState } from "react";
 import { Finding } from '../types/findings.types';
 import { PatternsObj } from '../types/patterns.types';
+import { Suffix } from '../types/suffix.types';
 import { retrieveFindings, retrievePatterns } from '../background/utils/common';
 
 interface AppState {
@@ -8,6 +9,8 @@ interface AppState {
     findings: Finding[];
     patterns: PatternsObj;
     notifications: string;
+    suffixes: Suffix[];
+    customSuffixesEnabled: boolean;
 }
 
 interface AppActions {
@@ -15,6 +18,8 @@ interface AppActions {
     setFindings: (findings: Finding[]) => void;
     setPatterns: (patterns: PatternsObj[]) => void;
     setNotifications: (notifications: string) => void;
+    setSuffixes: (suffixes: Suffix[]) => void;
+    setCustomSuffixesEnabled: (enabled: boolean) => void;
     clearNotifications: () => void;
 }
 
@@ -25,6 +30,12 @@ const initialState: AppState = {
     findings: [],
     patterns: {},
     notifications: '',
+    suffixes: [
+        { id: crypto.randomUUID(), value: '.js', isDefault: true },
+        { id: crypto.randomUUID(), value: '.mjs', isDefault: true },
+        { id: crypto.randomUUID(), value: '.cjs', isDefault: true }
+    ],
+    customSuffixesEnabled: false
 };
 
 function appReducer(state: AppState, action: any): AppState {
@@ -49,6 +60,18 @@ function appReducer(state: AppState, action: any): AppState {
                 ...state,
                 notifications: action.payload
             }
+        case 'SET_SUFFIXES':
+            chrome.storage.local.set({ suffixes: action.payload });
+            return {
+                ...state,
+                suffixes: action.payload
+            }
+        case 'SET_CUSTOM_SUFFIXES_ENABLED':
+            chrome.storage.local.set({ customSuffixesEnabled: action.payload });
+            return {
+                ...state,
+                customSuffixesEnabled: action.payload
+            }
         case 'CLEAR_NOTIFICATIONS':
             return {
                 ...state,
@@ -68,6 +91,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         setFindings: (findings) => dispatch({ type: 'SET_FINDINGS', payload: findings }),
         setPatterns: (patterns) => dispatch({ type: 'SET_PATTERNS', payload: patterns }),
         setNotifications: (notifications) => dispatch({ type: 'SET_NOTIFICATIONS', payload: notifications }),
+        setSuffixes: (suffixes) => dispatch({ type: 'SET_SUFFIXES', payload: suffixes }),
+        setCustomSuffixesEnabled: (enabled) => dispatch({ type: 'SET_CUSTOM_SUFFIXES_ENABLED', payload: enabled }),
         clearNotifications: () => dispatch({ type: 'CLEAR_NOTIFICATIONS', payload: '' })
     };
 
@@ -91,6 +116,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
                 chrome.action.setBadgeText({ text: '' });
             }
             setIsInitialized(true);
+        });
+
+        chrome.storage.local.get(['suffixes'], function (results) {
+            if (results.suffixes) {
+                dispatch({ type: 'SET_SUFFIXES', payload: results.suffixes });
+            } else {
+                dispatch({ type: 'SET_SUFFIXES', payload: initialState.suffixes });
+            }
+        });
+
+        chrome.storage.local.get(['customSuffixesEnabled'], function (results) {
+            if (results.customSuffixesEnabled) {
+                dispatch({ type: 'SET_CUSTOM_SUFFIXES_ENABLED', payload: results.customSuffixesEnabled });
+            } else {
+                dispatch({ type: 'SET_CUSTOM_SUFFIXES_ENABLED', payload: false });
+            }
         });
 
         const handleStorageChange = (changes: { [key: string]: chrome.storage.StorageChange }, area: string) => {

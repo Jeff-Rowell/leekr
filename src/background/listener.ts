@@ -2,10 +2,19 @@ import { findSecrets } from './scanner';
 import { Finding } from 'src/types/findings.types';
 import { mergeFindings } from './utils/mergeFindings';
 import { retrieveFindings, storeFindings } from './utils/common';
+import { Suffix } from '../types/suffix.types';
+
 
 chrome.webRequest.onCompleted.addListener(
     async (details) => {
-        if (!details.url.startsWith("chrome-extension") && ((details.url.endsWith('.js') || details.url.endsWith('.mjs') || details.url.endsWith('.cjs')))) {
+        const results = await chrome.storage.local.get(['suffixes']);
+        var suffixValues;
+        if (results.suffixes) {
+            suffixValues = results.suffixes.map((suffix: Suffix) => suffix.value);
+        } else {
+            suffixValues = [];
+        }
+        if (!details.url.startsWith("chrome-extension") && suffixValues.some((suffix: string) => details.url.endsWith(suffix))) {
             try {
                 const response = await fetch(details.url);
                 const bundleContent = await response.text();
