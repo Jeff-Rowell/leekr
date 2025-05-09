@@ -1,7 +1,7 @@
 import { findSecrets } from './scanner';
 import { Finding } from 'src/types/findings.types';
 import { mergeFindings } from './utils/mergeFindings';
-import { retrieveFindings, storeFindings, getSourceMapUrl } from './utils/common';
+import { retrieveFindings, storeFindings } from './utils/common';
 
 chrome.webRequest.onCompleted.addListener(
     async (details) => {
