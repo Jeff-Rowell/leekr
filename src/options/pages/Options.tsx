@@ -6,11 +6,8 @@ import { SettingsTab } from '../components/SettingsTab';
 import { Occurrences } from '../components/Occurrences';
 import { Findings } from '../components/Findings';
 import { Detectors } from '../components/Detectors';
+import { AboutTab } from '../components/About';
 
-// Tab components
-const AboutTab = () => <div className="tab-content">About Leekr</div>;
-
-// Main Options component
 const Options: React.FC = () => {
     const [activeTab, setActiveTab] = useState('findings');
     const [filterFingerprint, setFilterFingerprint] = useState<string | undefined>(undefined);
