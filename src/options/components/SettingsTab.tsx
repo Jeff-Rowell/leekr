@@ -3,14 +3,8 @@ import { useAppContext } from '../../popup/AppContext';
 
 export const SettingsTab = () => {
     const { data: { suffixes, customSuffixesEnabled }, actions: { setSuffixes, setCustomSuffixesEnabled } } = useAppContext();
-    const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [newSuffix, setNewSuffix] = useState('');
     const [error, setError] = useState('');
-
-    const handleToggleClick = (setter: React.Dispatch<React.SetStateAction<boolean>>, currentValue: boolean) => async (e: React.MouseEvent) => {
-        e.preventDefault();
-        setter(!currentValue);
-    };
 
     const handleCustomSuffixesToggle = async (e: React.MouseEvent) => {
         e.preventDefault();
@@ -51,27 +45,6 @@ export const SettingsTab = () => {
 
     return (
         <div className="tab-content">
-            <div className="settings-section">
-                <h3>Notifications</h3>
-                <div className="setting-item">
-                    <div className="setting-label">
-                        <strong className="setting-label-strong">Enable Notifications</strong>
-                        <span className="setting-description">
-                            Get pop-up notifications when secrets are found
-                        </span>
-                    </div>
-                    <div className="toggle-switch" onClick={handleToggleClick(setNotificationsEnabled, notificationsEnabled)}>
-                        <input
-                            type="checkbox"
-                            id="notifications-toggle"
-                            checked={notificationsEnabled}
-                            onChange={() => { }}
-                        />
-                        <span className="toggle-slider"></span>
-                    </div>
-                </div>
-            </div>
-
             <div className="settings-section">
                 <h3>Scanning</h3>
                 <div className="setting-item">
