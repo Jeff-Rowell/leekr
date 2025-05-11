@@ -1,21 +1,28 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Download } from 'lucide-react';
+import { Download, Settings } from 'lucide-react';
 import { useAppContext } from '../../AppContext';
 import LeekrIcon from '../../../../public/icons/leekr_icon_128x128.png';
 import LeekrFont from '../../../assets/leekr-font.svg';
 import ModalHeader from '../../../components/ui/Modalheader';
-import { Occurrence } from '../../../types/findings.types';
 import './style.css';
 
 const Header: React.FC = () => {
     const { data: { findings } } = useAppContext();
     const [showDownloadOptions, setShowDownloadOptions] = useState<boolean>(false);
+    const [showConfigOptions, setShowConfigOptions] = useState<boolean>(false);
     const [redactSecrets, setRedactSecrets] = useState<boolean>(true);
     const downloadOptionsRef = useRef<HTMLDivElement>(null);
     const downloadButtonRef = useRef<HTMLButtonElement>(null);
+    const configOptionsRef = useRef<HTMLDivElement>(null);
+    const configButtonRef = useRef<HTMLButtonElement>(null);
+    const [configDropdownPosition, setConfigDropdownPosition] = useState({ top: 0, left: 0 });
 
-    const closeModal = () => {
+    const closeDownloadModal = () => {
         setShowDownloadOptions(false);
+    };
+
+    const closeConfigModal = () => {
+        setShowConfigOptions(false);
     };
 
     const downloadData = (format: 'csv' | 'json') => {
@@ -113,6 +120,37 @@ const Header: React.FC = () => {
 
     const toggleDownloadOptions = () => {
         setShowDownloadOptions(!showDownloadOptions);
+        if (showConfigOptions) setShowConfigOptions(false);
+    };
+
+    const toggleConfigOptions = (e: React.MouseEvent) => {
+        e.stopPropagation();
+
+        if (showConfigOptions) {
+            setShowConfigOptions(false);
+        } else {
+            if (showDownloadOptions) setShowDownloadOptions(false);
+
+            const buttonElement = configButtonRef.current;
+            if (buttonElement) {
+                const rect = buttonElement.getBoundingClientRect();
+                setConfigDropdownPosition({
+                    top: rect.bottom + window.scrollY,
+                    left: rect.right - 250 + window.scrollX
+                });
+            }
+            setShowConfigOptions(true);
+        }
+    };
+
+    const handleConfigOptionClick = (option: string) => {
+        if (option === "Configure Settings") {
+            const url = chrome.runtime.getURL("options.html") + "?tab=settings";
+            chrome.tabs.create({ url });
+        } else if (option === "Configure HotKeys") {
+            chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+        }
+        setShowConfigOptions(false);
     };
 
     useEffect(() => {
@@ -126,16 +164,26 @@ const Header: React.FC = () => {
             ) {
                 setShowDownloadOptions(false);
             }
+
+            if (
+                showConfigOptions &&
+                configOptionsRef.current &&
+                configButtonRef.current &&
+                !configOptionsRef.current.contains(event.target as Node) &&
+                !configButtonRef.current.contains(event.target as Node)
+            ) {
+                setShowConfigOptions(false);
+            }
         };
 
-        if (showDownloadOptions) {
+        if (showDownloadOptions || showConfigOptions) {
             document.addEventListener('mousedown', handleClickOutside);
         }
 
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [showDownloadOptions]);
+    }, [showDownloadOptions, showConfigOptions]);
 
     return (
         <header className="flex items-center mr-3 p-2 leekr-header">
@@ -161,7 +209,7 @@ const Header: React.FC = () => {
 
                     {showDownloadOptions && (
                         <div className="download-options absolute top-full mt-1 shadow-md rounded border p-2 z-10" ref={downloadOptionsRef}>
-                            <ModalHeader title="Findings Download" onClose={closeModal} />
+                            <ModalHeader title="Findings Download" onClose={closeDownloadModal} />
                             <div className="format-buttons">
                                 <button onClick={() => downloadData('csv')}>CSV</button>
                                 <button onClick={() => downloadData('json')}>JSON</button>
@@ -179,6 +227,39 @@ const Header: React.FC = () => {
                     )}
                 </div>
             </div>
+
+            <div className="ml-auto">
+                <button
+                    ref={configButtonRef}
+                    className="settings-button"
+                    onClick={toggleConfigOptions}
+                    aria-label="Configure Leekr"
+                >
+                    <Settings size={16} className="settings-icon mr-1" />
+                    Configure Leekr
+                </button>
+            </div>
+
+            {showConfigOptions && (
+                <div
+                    className="download-options settings-dropdown shadow-md rounded border z-10"
+                    ref={configOptionsRef}
+                    style={{
+                        top: `${configDropdownPosition.top}px`,
+                        left: `${configDropdownPosition.left}px`
+                    }}
+                >
+                    <ModalHeader title="Configure Options" onClose={closeConfigModal} />
+                    <div className="settings-options">
+                        <button onClick={() => handleConfigOptionClick("Configure Settings")}>
+                            Configure Settings
+                        </button>
+                        <button onClick={() => handleConfigOptionClick("Configure HotKeys")}>
+                            Configure HotKeys
+                        </button>
+                    </div>
+                </div>
+            )}
         </header >
     );
 };
