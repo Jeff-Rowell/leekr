@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Download, Settings } from 'lucide-react';
+import { Download, Menu } from 'lucide-react';
 import { useAppContext } from '../../AppContext';
 import LeekrIcon from '../../../../public/icons/leekr_icon_128x128.png';
 import LeekrFont from '../../../assets/leekr-font.svg';
@@ -228,15 +228,14 @@ const Header: React.FC = () => {
                 </div>
             </div>
 
-            <div className="ml-auto">
+            <div className="absolute top-2 right-2">
                 <button
                     ref={configButtonRef}
-                    className="settings-button"
+                    className="menu-button"
                     onClick={toggleConfigOptions}
                     aria-label="Configure Leekr"
                 >
-                    <Settings size={16} className="settings-icon mr-1" />
-                    Configure Leekr
+                    <Menu size={20} />
                 </button>
             </div>
 

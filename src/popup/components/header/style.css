@@ -156,3 +156,19 @@
 .format-buttons button:hover {
     background-color: var(--color-bg-hover);
 }
+
+.menu-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.menu-button:hover {
+    background-color: var(--color-bg-hover);
+}
