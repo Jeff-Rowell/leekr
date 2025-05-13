@@ -149,6 +149,15 @@ const Header: React.FC = () => {
             chrome.tabs.create({ url });
         } else if (option === "Configure HotKeys") {
             chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+        } else if (option === "All Findings") {
+            const url = chrome.runtime.getURL("options.html") + "?tab=findings";
+            chrome.tabs.create({ url });
+        } else if (option === "Detectors") {
+            const url = chrome.runtime.getURL("options.html") + "?tab=detectors";
+            chrome.tabs.create({ url });
+        } else if (option === "About") {
+            const url = chrome.runtime.getURL("options.html") + "?tab=about";
+            chrome.tabs.create({ url });
         }
         setShowConfigOptions(false);
     };
@@ -248,13 +257,22 @@ const Header: React.FC = () => {
                         left: `${configDropdownPosition.left}px`
                     }}
                 >
-                    <ModalHeader title="Configure Options" onClose={closeConfigModal} />
+                    <ModalHeader title="Options" onClose={closeConfigModal} />
                     <div className="settings-options">
+                        <button onClick={() => handleConfigOptionClick("All Findings")}>
+                            All Findings
+                        </button>
+                        <button onClick={() => handleConfigOptionClick("Detectors")}>
+                            Detectors
+                        </button>
                         <button onClick={() => handleConfigOptionClick("Configure Settings")}>
-                            Configure Settings
+                            Settings
                         </button>
                         <button onClick={() => handleConfigOptionClick("Configure HotKeys")}>
-                            Configure HotKeys
+                            HotKeys
+                        </button>
+                        <button onClick={() => handleConfigOptionClick("About")}>
+                            About
                         </button>
                     </div>
                 </div>
