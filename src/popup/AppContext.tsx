@@ -11,6 +11,7 @@ interface AppState {
     notifications: string;
     suffixes: Suffix[];
     customSuffixesEnabled: boolean;
+    isExtensionEnabled: boolean;
 }
 
 interface AppActions {
@@ -22,6 +23,7 @@ interface AppActions {
     setCustomSuffixesEnabled: (enabled: boolean) => void;
     clearNotifications: () => void;
     clearAllFindings: () => void;
+    toggleExtension: () => void;
 }
 
 const AppContext = createContext<{ data: AppState; actions: AppActions } | undefined>(undefined);
@@ -36,7 +38,8 @@ const initialState: AppState = {
         { id: crypto.randomUUID(), value: '.mjs', isDefault: true },
         { id: crypto.randomUUID(), value: '.cjs', isDefault: true }
     ],
-    customSuffixesEnabled: false
+    customSuffixesEnabled: false,
+    isExtensionEnabled: true
 };
 
 function appReducer(state: AppState, action: any): AppState {
@@ -84,6 +87,15 @@ function appReducer(state: AppState, action: any): AppState {
                 ...state,
                 findings: []
             }
+        case 'TOGGLE_EXTENSION':
+            const newIsEnabled = !state.isExtensionEnabled;
+            if (chrome.storage) {
+                chrome.storage.local.set({ isExtensionEnabled: newIsEnabled });
+            }
+            return {
+                ...state,
+                isExtensionEnabled: newIsEnabled
+            }
         default:
             return state;
     }
@@ -91,6 +103,7 @@ function appReducer(state: AppState, action: any): AppState {
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
     const [state, dispatch] = useReducer(appReducer, initialState);
+    const [data, setData] = useState({ isExtensionEnabled: true });
     const [isInitialized, setIsInitialized] = useState(false);
 
     const actions: AppActions = {
@@ -101,7 +114,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         setSuffixes: (suffixes) => dispatch({ type: 'SET_SUFFIXES', payload: suffixes }),
         setCustomSuffixesEnabled: (enabled) => dispatch({ type: 'SET_CUSTOM_SUFFIXES_ENABLED', payload: enabled }),
         clearNotifications: () => dispatch({ type: 'CLEAR_NOTIFICATIONS', payload: '' }),
-        clearAllFindings: () => dispatch({ type: 'CLEAR_FINDINGS' })
+        clearAllFindings: () => dispatch({ type: 'CLEAR_FINDINGS' }),
+        toggleExtension: () => dispatch({ type: 'TOGGLE_EXTENSION' })
     };
 
     useEffect(() => {
@@ -140,6 +154,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             } else {
                 dispatch({ type: 'SET_CUSTOM_SUFFIXES_ENABLED', payload: false });
             }
+        });
+
+        chrome.storage.local.get(['isExtensionEnabled'], function (results) {
+            setData({
+                isExtensionEnabled: results.isExtensionEnabled !== undefined ? results.isExtensionEnabled : true
+            })
         });
 
         const handleStorageChange = (changes: { [key: string]: chrome.storage.StorageChange }, area: string) => {

@@ -24,6 +24,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 20px;
 }
 
 .more-tab-card-content {
@@ -93,4 +94,41 @@
     font-size: 12px;
     color: var(--color-text-light);
     margin: 0;
+}
+
+.toggle-button {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 16px;
+    border: 1px solid;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.toggle-button.enabled {
+    color: var(--color-valitity-valid);
+    border-color: var(--color-valitity-valid);
+    background-color: rgba(0, 168, 70, 0.1);
+}
+
+.toggle-button.disabled {
+    color: var(--color-validity-invalid);
+    border-color: var(--color-validity-invalid);
+    background-color: rgba(230, 57, 70, 0.1);
+}
+
+.toggle-button.enabled:hover {
+    background-color: rgba(0, 168, 70, 0.2);
+}
+
+.toggle-button.disabled:hover {
+    background-color: rgba(230, 57, 70, 0.2);
+}
+
+.toggle-status {
+    margin-left: 6px;
 }
