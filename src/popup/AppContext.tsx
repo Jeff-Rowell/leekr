@@ -21,6 +21,7 @@ interface AppActions {
     setSuffixes: (suffixes: Suffix[]) => void;
     setCustomSuffixesEnabled: (enabled: boolean) => void;
     clearNotifications: () => void;
+    clearAllFindings: () => void;
 }
 
 const AppContext = createContext<{ data: AppState; actions: AppActions } | undefined>(undefined);
@@ -77,6 +78,12 @@ function appReducer(state: AppState, action: any): AppState {
                 ...state,
                 notifications: ''
             }
+        case 'CLEAR_FINDINGS':
+            chrome.storage.local.set({ findings: [] });
+            return {
+                ...state,
+                findings: []
+            }
         default:
             return state;
     }
@@ -93,7 +100,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         setNotifications: (notifications) => dispatch({ type: 'SET_NOTIFICATIONS', payload: notifications }),
         setSuffixes: (suffixes) => dispatch({ type: 'SET_SUFFIXES', payload: suffixes }),
         setCustomSuffixesEnabled: (enabled) => dispatch({ type: 'SET_CUSTOM_SUFFIXES_ENABLED', payload: enabled }),
-        clearNotifications: () => dispatch({ type: 'CLEAR_NOTIFICATIONS', payload: '' })
+        clearNotifications: () => dispatch({ type: 'CLEAR_NOTIFICATIONS', payload: '' }),
+        clearAllFindings: () => dispatch({ type: 'CLEAR_FINDINGS' })
     };
 
     useEffect(() => {
