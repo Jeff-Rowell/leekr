@@ -20,7 +20,7 @@ const MoreTab: React.FC = () => {
                         <div className="more-tab-card-text">
                             <h4 className="more-tab-card-title">Delete All Findings</h4>
                             <p className="more-tab-card-description">
-                                Permanently deletes all findings from storage. This action cannot be undone.
+                                Permanently deletes findings from storage. This cannot be undone.
                             </p>
                         </div>
                     </div>
