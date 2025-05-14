@@ -19,6 +19,7 @@ const Navbar: React.FC = () => {
                         key={tab}
                         className={`tab-button ${data.activeTab === tab ? 'active' : ''}`}
                         onClick={() => handleTabClick(tab)}
+                        disabled={!data.isExtensionEnabled}
                     >
                         {tab}
                     </button>

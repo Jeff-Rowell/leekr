@@ -8,7 +8,7 @@ const Layout: React.FC = () => {
     const { data } = useAppContext();
 
     return (
-        <div className="content">
+        <div className={"content" + (data.isExtensionEnabled ? "" : "-disabled")}>
             <Header />
             <Navbar />
             <TabContent activeTab={data.activeTab} />

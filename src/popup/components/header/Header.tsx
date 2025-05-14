@@ -7,7 +7,7 @@ import ModalHeader from '../../../components/ui/Modalheader';
 import './style.css';
 
 const Header: React.FC = () => {
-    const { data: { findings } } = useAppContext();
+    const { data: { findings, isExtensionEnabled } } = useAppContext();
     const [showDownloadOptions, setShowDownloadOptions] = useState<boolean>(false);
     const [showConfigOptions, setShowConfigOptions] = useState<boolean>(false);
     const [redactSecrets, setRedactSecrets] = useState<boolean>(true);
@@ -210,7 +210,7 @@ const Header: React.FC = () => {
                             </h1>
                         )}
                         {findings.length > 0 && (
-                            <button type="button" className="download-button" onClick={toggleDownloadOptions} ref={downloadButtonRef}>
+                            <button type="button" className="download-button" onClick={toggleDownloadOptions} ref={downloadButtonRef} disabled={!isExtensionEnabled}>
                                 <Download className="download-component" size={18} />
                             </button>
                         )}
@@ -243,6 +243,7 @@ const Header: React.FC = () => {
                     className="menu-button"
                     onClick={toggleConfigOptions}
                     aria-label="Configure Leekr"
+                    disabled={!isExtensionEnabled}
                 >
                     <Menu size={20} />
                 </button>
@@ -259,19 +260,19 @@ const Header: React.FC = () => {
                 >
                     <ModalHeader title="Options" onClose={closeConfigModal} />
                     <div className="settings-options">
-                        <button onClick={() => handleConfigOptionClick("All Findings")}>
+                        <button onClick={() => handleConfigOptionClick("All Findings")} disabled={!isExtensionEnabled}>
                             All Findings
                         </button>
-                        <button onClick={() => handleConfigOptionClick("Detectors")}>
+                        <button onClick={() => handleConfigOptionClick("Detectors")} disabled={!isExtensionEnabled}>
                             Detectors
                         </button>
-                        <button onClick={() => handleConfigOptionClick("Configure Settings")}>
+                        <button onClick={() => handleConfigOptionClick("Configure Settings")} disabled={!isExtensionEnabled}>
                             Settings
                         </button>
-                        <button onClick={() => handleConfigOptionClick("Configure HotKeys")}>
+                        <button onClick={() => handleConfigOptionClick("Configure HotKeys")} disabled={!isExtensionEnabled}>
                             HotKeys
                         </button>
-                        <button onClick={() => handleConfigOptionClick("About")}>
+                        <button onClick={() => handleConfigOptionClick("About")} disabled={!isExtensionEnabled}>
                             About
                         </button>
                     </div>

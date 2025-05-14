@@ -12,9 +12,13 @@ const MoreTab: React.FC = () => {
         }
     };
 
+    const handleToggle = () => {
+        toggleExtension(!isExtensionEnabled);
+    };
+
     return (
-        <section className="more-tab">
-            <div className="more-tab-section">
+        <section className="more-tab leekr-extension-toggle">
+            <div className="more-tab-section leekr-extension-toggle">
                 <div className="more-tab-card">
                     <div className="more-tab-card-content">
                         <div className="more-tab-card-text">
@@ -28,18 +32,18 @@ const MoreTab: React.FC = () => {
                         <Trash2 size={20} onClick={handleClearFindings} />
                     </div>
                 </div>
-                <div className="more-tab-card">
-                    <div className="more-tab-card-content">
-                        <div className="more-tab-card-text">
-                            <h4 className="more-tab-card-title">{isExtensionEnabled ? 'Disable Extension' : 'Enable Extension'}</h4>
-                            <p className="more-tab-card-description">
+                <div className="more-tab-card leekr-extension-toggle">
+                    <div className="more-tab-card-content leekr-extension-toggle">
+                        <div className="more-tab-card-text leekr-extension-toggle">
+                            <h4 className="leekr-extension-toggle more-tab-card-title">{isExtensionEnabled ? 'Disable Extension' : 'Enable Extension'}</h4>
+                            <p className="leekr-extension-toggle more-tab-card-description">
                                 Enable or disable Leekr from scanning.
                             </p>
                         </div>
                     </div>
-                    <div className={`toggle-button ${isExtensionEnabled ? 'disabled' : 'enabled'}`} >
-                        <Power size={20} onClick={toggleExtension} />
-                        <span className="toggle-status" onClick={toggleExtension}>{isExtensionEnabled ? 'Turn Off' : 'Turn On'}</span>
+                    <div className={`leekr-extension-toggle toggle-button ${isExtensionEnabled ? 'disabled' : 'enabled'}`} >
+                        <Power size={20} onClick={handleToggle} className="leekr-extension-toggle" />
+                        <span className="toggle-status leekr-extension-toggle" onClick={handleToggle}>{isExtensionEnabled ? 'Turn Off' : 'Turn On'}</span>
                     </div>
                 </div>
             </div>
