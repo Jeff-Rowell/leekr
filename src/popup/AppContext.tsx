@@ -23,7 +23,7 @@ interface AppActions {
     setCustomSuffixesEnabled: (enabled: boolean) => void;
     clearNotifications: () => void;
     clearAllFindings: () => void;
-    toggleExtension: () => void;
+    toggleExtension: (enabled: boolean) => void;
 }
 
 const AppContext = createContext<{ data: AppState; actions: AppActions } | undefined>(undefined);
@@ -88,13 +88,11 @@ function appReducer(state: AppState, action: any): AppState {
                 findings: []
             }
         case 'TOGGLE_EXTENSION':
-            const newIsEnabled = !state.isExtensionEnabled;
-            if (chrome.storage) {
-                chrome.storage.local.set({ isExtensionEnabled: newIsEnabled });
-            }
+            chrome.storage.local.set({ isExtensionEnabled: action.payload });
             return {
                 ...state,
-                isExtensionEnabled: newIsEnabled
+                activeTab: !action.payload ? "More" : state.activeTab,
+                isExtensionEnabled: action.payload
             }
         default:
             return state;
@@ -103,7 +101,6 @@ function appReducer(state: AppState, action: any): AppState {
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
     const [state, dispatch] = useReducer(appReducer, initialState);
-    const [data, setData] = useState({ isExtensionEnabled: true });
     const [isInitialized, setIsInitialized] = useState(false);
 
     const actions: AppActions = {
@@ -115,7 +112,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         setCustomSuffixesEnabled: (enabled) => dispatch({ type: 'SET_CUSTOM_SUFFIXES_ENABLED', payload: enabled }),
         clearNotifications: () => dispatch({ type: 'CLEAR_NOTIFICATIONS', payload: '' }),
         clearAllFindings: () => dispatch({ type: 'CLEAR_FINDINGS' }),
-        toggleExtension: () => dispatch({ type: 'TOGGLE_EXTENSION' })
+        toggleExtension: (enabled) => dispatch({ type: 'TOGGLE_EXTENSION', payload: enabled })
     };
 
     useEffect(() => {
@@ -157,9 +154,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         });
 
         chrome.storage.local.get(['isExtensionEnabled'], function (results) {
-            setData({
-                isExtensionEnabled: results.isExtensionEnabled !== undefined ? results.isExtensionEnabled : true
-            })
+            const enabled = results.isExtensionEnabled !== undefined ? results.isExtensionEnabled : true;
+            dispatch({ type: "TOGGLE_EXTENSION", payload: enabled })
         });
 
         const handleStorageChange = (changes: { [key: string]: chrome.storage.StorageChange }, area: string) => {
