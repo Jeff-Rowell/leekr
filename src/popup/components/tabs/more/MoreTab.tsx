@@ -7,8 +7,10 @@ const MoreTab: React.FC = () => {
     const { data: { isExtensionEnabled }, actions: { clearAllFindings, toggleExtension } } = useAppContext();
 
     const handleClearFindings = () => {
-        if (window.confirm('Are you sure you want to clear all findings? This action cannot be undone.')) {
-            clearAllFindings();
+        if (isExtensionEnabled) {
+            if (window.confirm('Are you sure you want to clear all findings? This action cannot be undone.')) {
+                clearAllFindings();
+            }
         }
     };
 
