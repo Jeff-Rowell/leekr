@@ -2,15 +2,15 @@ import React, { useState, useRef, useEffect } from 'react';
 import './style.css';
 import { useAppContext } from '../../../AppContext';
 import { RotateCw, Settings, ShieldCheck } from 'lucide-react';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger
-} from "../../../../components/ui/tooltip";
+// import {
+//     Tooltip,
+//     TooltipContent,
+//     TooltipProvider,
+//     TooltipTrigger
+// } from "../../../../components/ui/tooltip";
 import { Finding, ValidityStatus } from 'src/types/findings.types';
 import { awsValidityHelper } from '../../utils/awsValidityHelper';
-import ModalHeader from '../../../../components/ui/Modalheader';
+import ModalHeader from '../../ModalHeader/ModalHeader';
 import { retrieveFindings, storeFindings } from '../../../../background/utils/common';
 
 const FindingsTab: React.FC = () => {
@@ -145,28 +145,19 @@ const FindingsTab: React.FC = () => {
                                             {finding.validity.replace(/_/g, ' ')}
 
                                             {finding.validatedAt && (
-                                                <TooltipProvider>
-                                                    <Tooltip>
-                                                        <TooltipTrigger asChild>
-                                                            <div className="validity-info">
-                                                                <ShieldCheck size={18} />
-                                                            </div>
-                                                        </TooltipTrigger>
-                                                        <TooltipContent>
-                                                            <div className="validity-tooltip-div">
-                                                                Last Checked: {new Date(finding.validatedAt).toLocaleString()}
-                                                                <button
-                                                                    className="recheck-button"
-                                                                    onClick={() => handleValidityCheck(finding)}
-                                                                    aria-label="Recheck validity"
-                                                                    title="Recheck validity"
-                                                                >
-                                                                    <RotateCw size={16} />
-                                                                </button>
-                                                            </div>
-                                                        </TooltipContent>
-                                                    </Tooltip>
-                                                </TooltipProvider>
+                                                <div className="validity-info tooltip">
+                                                    <ShieldCheck size={16} />
+                                                    <span className="tooltip-text">
+                                                        Last Checked: {new Date(finding.validatedAt).toLocaleString()}
+                                                        <button
+                                                            className="recheck-button"
+                                                            onClick={() => handleValidityCheck(finding)}
+                                                            aria-label="Recheck validity"
+                                                        >
+                                                            <RotateCw size={14} />
+                                                        </button>
+                                                    </span>
+                                                </div>
                                             )}
 
                                         </div>

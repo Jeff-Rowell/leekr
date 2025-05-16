@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Settings, Eye, Info, Boxes } from 'lucide-react';
-import LeekrFont from '../../assets/leekr-font.svg';
-import SettingsFont from '../../assets/settings-font.svg';
+import { Shield, Settings, Eye, Info } from 'lucide-react';
+import LeekrFont from '../../../public/assets/leekr-font.svg';
 import { SettingsTab } from '../components/SettingsTab';
 import { Occurrences } from '../components/Occurrences';
 import { Findings } from '../components/Findings';
@@ -60,7 +59,6 @@ const Options: React.FC = () => {
                 <div className="logo-container">
                     <img src="icons/leekr_head_icon_trimmed_128x128.png" alt="Leekr Logo" className="logo" />
                     <LeekrFont className="h-10 leekr-svg" />
-                    {/* <SettingsFont className="h-10 settings-svg" /> */}
                 </div>
             </header>
 

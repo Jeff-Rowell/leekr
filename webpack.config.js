@@ -8,7 +8,6 @@ module.exports = {
   entry: {
     popup: path.resolve(__dirname, "src/popup/index.tsx"),
     background: path.resolve(__dirname, "src/background/listener.ts"),
-    content: path.resolve(__dirname, "src/content/index.ts"),
     options: path.resolve(__dirname, "src/options/index.tsx"),
   },
   output: {

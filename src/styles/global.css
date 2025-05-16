@@ -4,16 +4,47 @@
 
 @custom-variant dark (&:is(.dark *));
 
+.tooltip {
+    position: relative;
+}
+
 .tooltip-text {
-    color: var(--color-tooltip-text);
+    visibility: hidden;
+    position: absolute;
+    z-index: 100;
+    width: 275px;
+    background-color: #242429;
+    color: #e0e0e0;
+    text-align: center;
+    border-radius: 6px;
+    bottom: 125%;
+    left: -125%;
+    margin-left: -110px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    border: 1px solid #3a3a45;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    font-size: 0.75rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
 }
 
-.bg-tooltip-background {
-    background-color: var(--color-tooltip-bg-dark);
+.tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #242429 transparent transparent transparent;
 }
 
-.bg-tooltip-arrow-background {
-    fill: var(--color-tooltip-bg-dark);
+.tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
 }
 
 .content {

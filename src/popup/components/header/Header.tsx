@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Download, Menu } from 'lucide-react';
 import { useAppContext } from '../../AppContext';
 import LeekrIcon from '../../../../public/icons/leekr_icon_128x128.png';
-import LeekrFont from '../../../assets/leekr-font.svg';
-import ModalHeader from '../../../components/ui/Modalheader';
+import LeekrFont from '../../../../public/assets/leekr-font.svg';
+import ModalHeader from '../ModalHeader/ModalHeader';
 import './style.css';
 
 const Header: React.FC = () => {
