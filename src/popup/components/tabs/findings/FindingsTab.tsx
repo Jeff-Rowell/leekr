@@ -2,12 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import './style.css';
 import { useAppContext } from '../../../AppContext';
 import { RotateCw, Settings, ShieldCheck } from 'lucide-react';
-// import {
-//     Tooltip,
-//     TooltipContent,
-//     TooltipProvider,
-//     TooltipTrigger
-// } from "../../../../components/ui/tooltip";
 import { Finding, ValidityStatus } from 'src/types/findings.types';
 import { awsValidityHelper } from '../../utils/awsValidityHelper';
 import ModalHeader from '../../ModalHeader/ModalHeader';
