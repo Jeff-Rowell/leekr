@@ -1,0 +1,13 @@
+import type { Config } from 'jest';
+
+const config: Config = {
+    transform: {
+        '^.+\\.(ts|tsx|js|jsx)$': 'ts-jest',
+    },
+    testEnvironment: 'jsdom',
+    setupFilesAfterEnv: ['<rootDir>/setupTests.ts'],
+    testMatch: ['<rootDir>/**/*.test.{ts,tsx}'],
+    moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+};
+
+export default config;
