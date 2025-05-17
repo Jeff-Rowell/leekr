@@ -1,6 +1,6 @@
 import { Finding } from "../../types/findings.types";
 import { Pattern, PatternsObj } from "../../types/patterns.types";
-import { patterns } from "./patterns";
+import { patterns } from "../../config/patterns";
 
 export function getExistingFindings(): Promise<Finding[]> {
     return new Promise(async (resolve) => {

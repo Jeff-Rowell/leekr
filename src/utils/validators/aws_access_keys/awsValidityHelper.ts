@@ -1,6 +1,6 @@
 import { Finding } from "src/types/findings.types";
-import { validateAWSCredentials } from "../../../background/utils/aws";
-import { retrieveFindings, storeFindings } from "../../../background/utils/common";
+import { validateAWSCredentials } from "./aws";
+import { retrieveFindings, storeFindings } from "../../helpers/common";
 
 export async function awsValidityHelper(finding: Finding): Promise<void> {
     for (const awsOccurrence of Object.values(finding.secretValue)) {

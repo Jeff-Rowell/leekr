@@ -1,12 +1,12 @@
-import { calculateShannonEntropy } from '../../../utils/entropy';
-import { isKnownFalsePositive, falsePositiveSecretPattern } from '../../../utils/falsePositives';
-import { validateAWSCredentials } from '../../../utils/aws';
-import { AWS_RESOURCE_TYPES, DEFAULT_AWS_CONFIG } from '../../../config/aws';
+import { calculateShannonEntropy } from '../../../../utils/accuracy/entropy';
+import { isKnownFalsePositive, falsePositiveSecretPattern } from '../../../../utils/accuracy/falsePositives';
+import { validateAWSCredentials } from '../../../../utils/validators/aws_access_keys/aws';
+import { AWS_RESOURCE_TYPES, DEFAULT_AWS_CONFIG } from '../../../../config/detectors/aws/aws_access_keys/aws';
 import { AWSOccurrence, AWSDetectorConfig, AWSSecretValue } from '../../../../types/aws.types';
 import { Occurrence, Finding, SourceContent } from '../../../../types/findings.types';
-import { patterns } from '../../../utils/patterns';
-import { computeFingerprint } from '../../../utils/computeFingerprint';
-import { getExistingFindings, findSecretPosition, getSourceMapUrl, getExistingPatterns, storePatterns } from '../../../utils/common';
+import { patterns } from '../../../../config/patterns'
+import { computeFingerprint } from '../../../../utils/helpers/computeFingerprint';
+import { getExistingFindings, findSecretPosition, getSourceMapUrl, getExistingPatterns, storePatterns } from '../../../../utils/helpers/common';
 import * as sourceMap from '../../../libs/source-map';
 
 let awsConfig: AWSDetectorConfig = { ...DEFAULT_AWS_CONFIG };

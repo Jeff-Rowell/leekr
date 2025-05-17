@@ -3,9 +3,9 @@ import './style.css';
 import { useAppContext } from '../../../AppContext';
 import { RotateCw, Settings, ShieldCheck } from 'lucide-react';
 import { Finding, ValidityStatus } from 'src/types/findings.types';
-import { awsValidityHelper } from '../../utils/awsValidityHelper';
-import ModalHeader from '../../ModalHeader/ModalHeader';
-import { retrieveFindings, storeFindings } from '../../../../background/utils/common';
+import { awsValidityHelper } from '../../../../utils/validators/aws_access_keys/awsValidityHelper';
+import ModalHeader from '../../modalheader/ModalHeader';
+import { retrieveFindings, storeFindings } from '../../../../utils/helpers/common';
 
 const FindingsTab: React.FC = () => {
     const { data: { findings } } = useAppContext();

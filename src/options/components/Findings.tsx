@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { Finding, ValidityStatus } from '../../types/findings.types';
 import { useAppContext } from '../../popup/AppContext';
-import { awsValidityHelper } from '../../popup/components/utils/awsValidityHelper';
+import { awsValidityHelper } from '../../utils/validators/aws_access_keys/awsValidityHelper'
 
 // Pagination constants
 const ITEMS_PER_PAGE = 10;

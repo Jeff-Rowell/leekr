@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AlertTriangle, SquareArrowOutUpRight, ShieldCheck, RotateCw, ChevronDown, ChevronUp, Download } from 'lucide-react';
 import { Finding } from '../../types/findings.types';
 import { useAppContext } from '../../popup/AppContext';
-import { awsValidityHelper } from '../../popup/components/utils/awsValidityHelper';
+import { awsValidityHelper } from '../../utils/validators/aws_access_keys/awsValidityHelper';
 
 
 export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFingerprint }) => {

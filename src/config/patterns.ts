@@ -1,7 +1,7 @@
-import { PatternsObj } from '../../types/patterns.types';
-import { DEFAULT_AWS_CONFIG } from '../config/aws';
-import { AWSDetectorConfig } from '../../types/aws.types';
-import { storePatterns } from '../utils/common';
+import { PatternsObj } from '../types/patterns.types';
+import { DEFAULT_AWS_CONFIG } from './detectors/aws/aws_access_keys/aws';
+import { AWSDetectorConfig } from '../types/aws.types';
+import { storePatterns } from '../utils/helpers/common';
 
 const awsConfig: AWSDetectorConfig = { ...DEFAULT_AWS_CONFIG };
 export const patterns: PatternsObj = {

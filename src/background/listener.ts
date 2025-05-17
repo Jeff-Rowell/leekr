@@ -1,7 +1,7 @@
 import { findSecrets } from './scanner';
 import { Finding } from 'src/types/findings.types';
-import { mergeFindings } from './utils/mergeFindings';
-import { retrieveFindings, storeFindings } from './utils/common';
+import { mergeFindings } from '../utils/helpers/mergeFindings';
+import { retrieveFindings, storeFindings } from '../utils/helpers/common';
 import { Suffix } from '../types/suffix.types';
 
 

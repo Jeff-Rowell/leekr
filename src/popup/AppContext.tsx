@@ -2,7 +2,7 @@ import React, { createContext, useContext, useReducer, useEffect, useState } fro
 import { Finding } from '../types/findings.types';
 import { PatternsObj } from '../types/patterns.types';
 import { Suffix } from '../types/suffix.types';
-import { retrieveFindings, retrievePatterns } from '../background/utils/common';
+import { retrieveFindings, retrievePatterns } from '../utils/helpers/common';
 
 interface AppState {
     activeTab: string;
