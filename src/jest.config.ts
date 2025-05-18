@@ -8,6 +8,9 @@ const config: Config = {
     setupFilesAfterEnv: ['<rootDir>/setupTests.ts'],
     testMatch: ['<rootDir>/**/*.test.{ts,tsx}'],
     moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+    moduleNameMapper: {
+        "\\.(css)$": "<rootDir>/__mocks__/styleMock.js"
+    },
 };
 
 export default config;
