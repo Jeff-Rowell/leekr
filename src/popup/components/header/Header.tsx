@@ -63,21 +63,21 @@ const Header: React.FC = () => {
                     const row: string[] = [];
                     headers.forEach(header => {
                         if (header === 'secretType') {
-                            row.push(finding.secretType || '');
+                            row.push(finding.secretType);
                         } else if (header === 'validity') {
-                            row.push(finding.validity || '');
+                            row.push(finding.validity);
                         } else if (header === 'validatedAt') {
                             row.push(finding.validatedAt || '');
                         } else if (header === 'fingerprint') {
-                            row.push(finding.fingerprint || '');
+                            row.push(finding.fingerprint);
                         } else if (!redactSecrets && header === 'secretValue') {
-                            row.push(redactSecrets ? '********' : `"${JSON.stringify(finding.secretValue).replace(/"/g, "'")}"`);
+                            row.push(`"${JSON.stringify(finding.secretValue).replace(/"/g, "'")}"`);
                         } else if (header.startsWith('occurrence.')) {
                             const occField = header.replace('occurrence.', '');
                             let value: string = "";
                             if (occField in occurrence && occField !== 'secretValue') {
                                 const fieldValue = (occurrence as any)[occField];
-                                value = fieldValue !== undefined && fieldValue !== null ? String(fieldValue) : '';
+                                value = String(fieldValue);
                             }
                             row.push(value);
                         }
@@ -120,7 +120,6 @@ const Header: React.FC = () => {
 
     const toggleDownloadOptions = () => {
         setShowDownloadOptions(!showDownloadOptions);
-        if (showConfigOptions) setShowConfigOptions(false);
     };
 
     const toggleConfigOptions = (e: React.MouseEvent) => {
@@ -129,8 +128,6 @@ const Header: React.FC = () => {
         if (showConfigOptions) {
             setShowConfigOptions(false);
         } else {
-            if (showDownloadOptions) setShowDownloadOptions(false);
-
             const buttonElement = configButtonRef.current;
             if (buttonElement) {
                 const rect = buttonElement.getBoundingClientRect();
@@ -172,16 +169,6 @@ const Header: React.FC = () => {
                 !downloadButtonRef.current.contains(event.target as Node)
             ) {
                 setShowDownloadOptions(false);
-            }
-
-            if (
-                showConfigOptions &&
-                configOptionsRef.current &&
-                configButtonRef.current &&
-                !configOptionsRef.current.contains(event.target as Node) &&
-                !configButtonRef.current.contains(event.target as Node)
-            ) {
-                setShowConfigOptions(false);
             }
         };
 
