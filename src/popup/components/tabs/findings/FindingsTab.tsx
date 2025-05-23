@@ -109,14 +109,6 @@ const FindingsTab: React.FC = () => {
         setActiveSettingsMenu(null);
     };
 
-    // Ensure we have enough refs for all findings
-    useEffect(() => {
-        settingsButtonRefs.current = settingsButtonRefs.current.slice(0, findings.length);
-        while (settingsButtonRefs.current.length < findings.length) {
-            settingsButtonRefs.current.push(null);
-        }
-    }, [findings.length]);
-
     return (
         <section className="findings-tab">
             <div className="findings-section">

@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import FindingsTab from './FindingsTab';
 import { useAppContext } from '../../../AppContext';
@@ -404,6 +403,20 @@ describe('FindingsTab', () => {
         });
     });
 
+    test('handles sendMessage rejection in useEffect catch block', () => {
+        const mockError = new Error('Connection failed');
+        (chrome.runtime.sendMessage as jest.Mock).mockReturnValue(Promise.reject(mockError));
+
+        render(<FindingsTab />);
+
+        expect(chrome.action.setBadgeText).toHaveBeenCalledWith({ text: '' });
+        expect(chrome.storage.local.set).toHaveBeenCalledWith({ "notifications": '' }, expect.any(Function));
+        expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({
+            type: 'CLEAR_NOTIFICATIONS',
+            payload: ''
+        });
+    });
+
     test('closes settings menu when clicking outside', async () => {
         render(<FindingsTab />);
 
@@ -418,5 +431,4 @@ describe('FindingsTab', () => {
             expect(screen.queryByText('Finding Options')).not.toBeInTheDocument();
         });
     });
-
 });
