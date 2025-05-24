@@ -24,7 +24,7 @@ export const Detectors: React.FC<{ familyname: string }> = ({ familyname }) => {
         const hasSearchQuery = searchQuery && searchQuery.trim() !== "" ? true : false;
         const hasFamilyNameQuery = familyname && familyname.trim() !== "" ? true : false;
         if (hasSearchQuery || hasFamilyNameQuery) {
-            const query = hasSearchQuery ? searchQuery.toLowerCase() : hasFamilyNameQuery ? familyname.toLowerCase() : "";
+            const query = hasSearchQuery ? searchQuery.toLowerCase() : familyname.toLowerCase();
             patterns = patterns.filter(pattern =>
                 pattern.name.toLowerCase().includes(query) ||
                 pattern.familyName.toLowerCase().includes(query)
