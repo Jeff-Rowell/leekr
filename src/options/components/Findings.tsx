@@ -183,8 +183,8 @@ export const Findings: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {paginatedFindings.map((finding, index) => (
-                                    <tr key={finding.fingerprint || index}>
+                                {paginatedFindings.map((finding) => (
+                                    <tr key={finding.fingerprint}>
                                         <td className="findings-td">{finding.secretType}</td>
                                         <td className="validity-cell">
                                             <div className={`validity-status ${getValidityColorClass(finding.validity)}`}>
@@ -207,7 +207,7 @@ export const Findings: React.FC = () => {
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="findings-td">{finding.numOccurrences}</td>
+                                        <td className="occurrence-td">{finding.numOccurrences}</td>
                                         <td className="actions-cell">
                                             <button
                                                 className="view-button"
