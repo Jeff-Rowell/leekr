@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAppContext } from '../../popup/AppContext';
 
 export const SettingsTab = () => {
@@ -59,7 +59,6 @@ export const SettingsTab = () => {
                             type="checkbox"
                             id="custom-suffixes-toggle"
                             checked={customSuffixesEnabled}
-                            onChange={() => { }}
                         />
                         <span className="toggle-slider"></span>
                     </div>
