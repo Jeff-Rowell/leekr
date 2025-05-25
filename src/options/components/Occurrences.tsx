@@ -85,121 +85,80 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
                 {filteredFindings.length > 0 ? (
                     filteredFindings.map((finding) => (
                         Array.from(finding.occurrences).map((occurrence) => (
-                            occurrence.sourceContent && occurrence.sourceContent.contentStartLineNum > 0 ? (
-                                <div key={occurrence.fingerprint} className="occurrence-item">
-                                    <div
-                                        className="occurrence-header"
-                                        onClick={() => toggleExpand(occurrence.fingerprint)}
-                                    >
-                                        <div className="occurrence-info">
-                                            <div className="occurrence-path">{occurrence.sourceContent.contentFilename}: Line {occurrence.sourceContent.contentStartLineNum + 5}</div>
-                                            <button
-                                                className="findings-source-download-btn"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    downloadSourceContent(
-                                                        occurrence.sourceContent.content,
-                                                        occurrence.sourceContent.contentFilename,
-                                                        occurrence.fingerprint
-                                                    );
-                                                }}
-                                                title="Download Source Code"
-                                                aria-label="Download Source Code"
-                                            >
-                                                <Download size={18} />
-                                            </button>
-                                        </div>
-                                        <div className="occurrence-header-actions">
-                                            {occurrence.url && (
-                                                <a
-                                                    href={occurrence.url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="occurrence-link"
-                                                    title="View JS Bundle"
-                                                    onClick={(e) => e.stopPropagation()}
-                                                >
-                                                    <span className="link-text">View JS Bundle</span>
-                                                    <SquareArrowOutUpRight size={18} />
-                                                </a>
-                                            )}
-                                            <button
-                                                className="expand-toggle-btn"
-                                                aria-label={expandedItems[occurrence.fingerprint] ? "Collapse code" : "Expand code"}
-                                            >
-                                                {expandedItems[occurrence.fingerprint] ?
-                                                    <ChevronUp size={18} /> :
-                                                    <ChevronDown size={18} />
-                                                }
-                                            </button>
-                                        </div>
+                            <div key={occurrence.fingerprint} className="occurrence-item">
+                                <div
+                                    className="occurrence-header"
+                                    onClick={() => toggleExpand(occurrence.fingerprint)}
+                                >
+                                    <div className="occurrence-info">
+                                        <div className="occurrence-path">{occurrence.sourceContent.contentFilename}: Line {occurrence.sourceContent.contentStartLineNum + 5}</div>
+                                        <button
+                                            className="findings-source-download-btn"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                downloadSourceContent(
+                                                    occurrence.sourceContent.content,
+                                                    occurrence.sourceContent.contentFilename,
+                                                    occurrence.fingerprint
+                                                );
+                                            }}
+                                            title="Download Source Code"
+                                            aria-label="Download Source Code"
+                                        >
+                                            <Download size={18} />
+                                        </button>
                                     </div>
-                                    {expandedItems[occurrence.fingerprint] && (
-                                        <div className="occurrence-context code-with-line-numbers">
-                                            <pre>
-                                                {occurrence.sourceContent.content.split('\n').map((line, index) => {
-                                                    const currentLineNum = occurrence.sourceContent.contentStartLineNum + index;
-                                                    const highlightLine = occurrence.sourceContent.exactMatchNumbers &&
-                                                        occurrence.sourceContent.exactMatchNumbers.includes(currentLineNum + 1);
+                                    <div className="occurrence-header-actions">
+                                        {occurrence.url && (
+                                            <a
+                                                href={occurrence.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="occurrence-link"
+                                                title="View JS Bundle"
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                <span className="link-text">View JS Bundle</span>
+                                                <SquareArrowOutUpRight size={18} />
+                                            </a>
+                                        )}
+                                        <button
+                                            className="expand-toggle-btn"
+                                            aria-label={expandedItems[occurrence.fingerprint] ? "Collapse code" : "Expand code"}
+                                        >
+                                            {expandedItems[occurrence.fingerprint] ?
+                                                <ChevronUp size={18} /> :
+                                                <ChevronDown size={18} />
+                                            }
+                                        </button>
+                                    </div>
+                                </div>
+                                {expandedItems[occurrence.fingerprint] && (
+                                    <div className="occurrence-context code-with-line-numbers">
+                                        <pre>
+                                            {occurrence.sourceContent.content.split('\n').map((line, index) => {
+                                                const currentLineNum = occurrence.sourceContent.contentStartLineNum + index;
+                                                const highlightLine = occurrence.sourceContent.exactMatchNumbers &&
+                                                    occurrence.sourceContent.exactMatchNumbers.includes(currentLineNum + 1);
 
-                                                    if (currentLineNum >= occurrence.sourceContent.contentStartLineNum &&
-                                                        currentLineNum <= occurrence.sourceContent.contentEndLineNum) {
-                                                        return (
-                                                            <div
-                                                                key={index}
-                                                                className={`code-line ${highlightLine ? 'highlighted-line' : ''}`}
-                                                            >
-                                                                <span className="line-number">{currentLineNum + 1}</span>
-                                                                <span className="line-content">{occurrence.sourceContent.content.split('\n')[currentLineNum]}</span>
-                                                            </div>
-                                                        );
-                                                    }
-                                                    return null;
-                                                })}
-                                            </pre>
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <div key={occurrence.fingerprint} className="occurrence-item">
-                                    <div
-                                        className="occurrence-header"
-                                        onClick={() => toggleExpand(occurrence.fingerprint)}
-                                    >
-                                        <div className="occurrence-info">
-                                            <div className="occurrence-path">{occurrence.filePath}</div>
-                                        </div>
-                                        <div className="occurrence-header-actions">
-                                            {occurrence.url && (
-                                                <a
-                                                    href={occurrence.url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="occurrence-link"
-                                                    title="View File"
-                                                    onClick={(e) => e.stopPropagation()}
-                                                >
-                                                    <SquareArrowOutUpRight size={18} />
-                                                </a>
-                                            )}
-                                            <button
-                                                className="expand-toggle-btn"
-                                                aria-label={expandedItems[occurrence.fingerprint] ? "Collapse details" : "Expand details"}
-                                            >
-                                                {expandedItems[occurrence.fingerprint] ?
-                                                    <ChevronUp size={18} /> :
-                                                    <ChevronDown size={18} />
+                                                if (currentLineNum >= occurrence.sourceContent.contentStartLineNum &&
+                                                    currentLineNum <= occurrence.sourceContent.contentEndLineNum) {
+                                                    return (
+                                                        <div
+                                                            key={index}
+                                                            className={`code-line ${highlightLine ? 'highlighted-line' : ''}`}
+                                                        >
+                                                            <span className="line-number">{currentLineNum + 1}</span>
+                                                            <span className="line-content">{occurrence.sourceContent.content.split('\n')[currentLineNum]}</span>
+                                                        </div>
+                                                    );
                                                 }
-                                            </button>
-                                        </div>
+                                                return null;
+                                            })}
+                                        </pre>
                                     </div>
-                                    {expandedItems[occurrence.fingerprint] && (
-                                        <div className="occurrence-context">
-                                            <pre>{JSON.stringify(occurrence.secretValue)}</pre>
-                                        </div>
-                                    )}
-                                </div>
-                            )
+                                )}
+                            </div>
                         ))
                     ))
                 ) : (
