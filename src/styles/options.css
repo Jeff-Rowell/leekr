@@ -405,7 +405,7 @@ h3 {
 }
 
 /* Findings Tab */
-.findings-td .patterns-td {
+.findings-td .patterns-td .occurrence-td {
     font-size: 0.875rem;
     color: #e0e0e0;
 }
