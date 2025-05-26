@@ -127,7 +127,7 @@ describe('SettingsTab Component', () => {
         const toggle = screen.getByRole('checkbox');
 
         fireEvent.click(toggle.parentElement!);
-
+        fireEvent.click(toggle);
         expect(mockSetCustomSuffixesEnabled).toHaveBeenCalledWith(true);
     });
 });

@@ -59,6 +59,7 @@ export const SettingsTab = () => {
                             type="checkbox"
                             id="custom-suffixes-toggle"
                             checked={customSuffixesEnabled}
+                            onChange={() => { }}
                         />
                         <span className="toggle-slider"></span>
                     </div>
