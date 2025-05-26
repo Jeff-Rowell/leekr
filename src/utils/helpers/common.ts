@@ -1,11 +1,10 @@
 import { Finding } from "../../types/findings.types";
 import { Pattern, PatternsObj } from "../../types/patterns.types";
-import { patterns } from "../../config/patterns";
 
 export function getExistingFindings(): Promise<Finding[]> {
     return new Promise(async (resolve) => {
         const findings = await retrieveFindings();
-        resolve(findings || []);
+        resolve(findings);
     });
 }
 
@@ -23,13 +22,21 @@ export function deserializeFindings(serializedFindings: any[]): Finding[] {
     }));
 }
 
-
-export function storeFindings(findings: Finding[]): Promise<void> {
-    const serialized = serializeFindings(findings);
-    return new Promise((resolve) => {
-        chrome.storage.local.set({ findings: serialized }, resolve);
-    });
-}
+export const storeFindings = async (findings: Finding[]) => {
+    try {
+        await new Promise<void>((resolve, reject) => {
+            chrome.storage.local.set({ findings: serializeFindings(findings) }, () => {
+                if (chrome.runtime?.lastError) {
+                    reject(chrome.runtime.lastError);
+                } else {
+                    resolve();
+                }
+            });
+        });
+    } catch (err) {
+        console.error('storeFindings failed:', err);
+    }
+};
 
 export function retrieveFindings(): Promise<Finding[]> {
     return new Promise((resolve) => {
@@ -135,7 +142,7 @@ export function retrievePatterns(): Promise<PatternsObj> {
 export function getExistingPatterns(): Promise<PatternsObj> {
     return new Promise(async (resolve) => {
         const patterns = await retrievePatterns();
-        resolve(patterns || {});
+        resolve(patterns);
     });
 }
 
