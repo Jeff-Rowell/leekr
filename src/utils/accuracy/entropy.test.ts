@@ -1,4 +1,4 @@
-import { calculateShannonEntropy } from './entropy'; // Adjust import path as needed
+import { calculateShannonEntropy } from './entropy';
 
 describe('calculateShannonEntropy', () => {
     test('calculates entropy for uniform distribution', () => {
