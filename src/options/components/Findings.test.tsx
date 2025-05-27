@@ -663,7 +663,6 @@ describe('Findings Component', () => {
             ];
 
             sortableHeaders.forEach(header => {
-                console.log(header)
                 expect(header).toHaveClass('sortable-header');
             });
         });
