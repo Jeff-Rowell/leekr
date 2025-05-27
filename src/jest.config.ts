@@ -4,6 +4,9 @@ const config: Config = {
     transform: {
         '^.+\\.(ts|tsx|js|jsx)$': 'ts-jest',
     },
+    transformIgnorePatterns: [
+        'node_modules/(?!(object-sha)/)'
+    ],
     testEnvironment: 'jsdom',
     setupFilesAfterEnv: ['<rootDir>/setupTests.ts'],
     testMatch: ['<rootDir>/**/*.test.{ts,tsx}'],
