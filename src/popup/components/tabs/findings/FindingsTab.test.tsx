@@ -91,7 +91,7 @@ describe('FindingsTab', () => {
         accountId: "876123456789",
         arn: "arn:aws:iam::876123456789:user/leekr",
         filePath: "main.foobar.js",
-        fingerprint: "fp1",
+        fingerprint: "fp2",
         resourceType: "Access Key",
         secretType: "AWS Access & Secret Keys",
         secretValue: {
@@ -111,7 +111,27 @@ describe('FindingsTab', () => {
         accountId: "987654321876",
         arn: "arn:aws:iam::987654321876:user/leekr",
         filePath: "main.foobar.js",
-        fingerprint: "fp1",
+        fingerprint: "fp3",
+        resourceType: "Access Key",
+        secretType: "AWS Access & Secret Keys",
+        secretValue: {
+            match: { access_key_id: "lol", secret_key_id: "wut" }
+        },
+        sourceContent: {
+            content: "foobar",
+            contentEndLineNum: 35,
+            contentFilename: "App.js",
+            contentStartLineNum: 18,
+            exactMatchNumbers: [23, 30]
+        },
+        url: "http://localhost:3000/static/js/main.foobar.js",
+    };
+
+    const mockOccurrenceFour: AWSOccurrence = {
+        accountId: "987654321876",
+        arn: "arn:aws:iam::987654321876:user/leekr",
+        filePath: "main.foobar.js",
+        fingerprint: "fp4",
         resourceType: "Access Key",
         secretType: "AWS Access & Secret Keys",
         secretValue: {
@@ -128,8 +148,9 @@ describe('FindingsTab', () => {
     };
 
     const mockOccurrencesOne: Set<Occurrence> = new Set([mockOccurrenceOne]);
-    const mockOccurrencesTwo: Set<Occurrence> = new Set([mockOccurrenceOne, mockOccurrenceTwo]);
-    const mockOccurrencesThree: Set<Occurrence> = new Set([mockOccurrenceOne, mockOccurrenceTwo, mockOccurrenceThree]);
+    const mockOccurrencesTwo: Set<Occurrence> = new Set([mockOccurrenceTwo]);
+    const mockOccurrencesThree: Set<Occurrence> = new Set([mockOccurrenceThree]);
+    const mockOccurrencesFour: Set<Occurrence> = new Set([mockOccurrenceFour]);
 
     const mockFindings: Finding[] = [
         {
@@ -146,7 +167,7 @@ describe('FindingsTab', () => {
             }
         },
         {
-            fingerprint: "fp1",
+            fingerprint: "fp2",
             numOccurrences: mockOccurrencesTwo.size,
             occurrences: mockOccurrencesTwo,
             validity: "invalid",
@@ -158,7 +179,7 @@ describe('FindingsTab', () => {
             }
         },
         {
-            fingerprint: "fp1",
+            fingerprint: "fp3",
             numOccurrences: mockOccurrencesThree.size,
             occurrences: mockOccurrencesThree,
             validity: "unknown",
@@ -170,9 +191,9 @@ describe('FindingsTab', () => {
             }
         },
         {
-            fingerprint: "fp1",
-            numOccurrences: mockOccurrencesThree.size,
-            occurrences: mockOccurrencesThree,
+            fingerprint: "fp4",
+            numOccurrences: mockOccurrencesFour.size,
+            occurrences: mockOccurrencesFour,
             validity: "failed_to_check",
             secretType: "AWS Access & Secret Keys",
             secretValue: {
@@ -226,15 +247,15 @@ describe('FindingsTab', () => {
 
         expect(rows[2]).toHaveTextContent('AWS Access & Secret Keys');
         expect(rows[2]).toHaveTextContent('invalid');
-        expect(rows[2]).toHaveTextContent('2');
+        expect(rows[2]).toHaveTextContent('1');
 
         expect(rows[3]).toHaveTextContent('AWS Access & Secret Keys');
         expect(rows[3]).toHaveTextContent('unknown');
-        expect(rows[3]).toHaveTextContent('3');
+        expect(rows[3]).toHaveTextContent('1');
 
         expect(rows[4]).toHaveTextContent('AWS Access & Secret Keys');
         expect(rows[4]).toHaveTextContent('failed to check');
-        expect(rows[4]).toHaveTextContent('3');
+        expect(rows[4]).toHaveTextContent('1');
     });
 
     test('applies correct validity color classes', () => {
