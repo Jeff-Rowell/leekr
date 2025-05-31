@@ -62,7 +62,7 @@ const mockOccurrenceTwo: AWSOccurrence = {
     accountId: "876123456789",
     arn: "arn:aws:iam::876123456789:user/leekr",
     filePath: "main.foobar.js",
-    fingerprint: "fp1",
+    fingerprint: "fp2",
     resourceType: "Access Key",
     secretType: "AWS Access & Secret Keys",
     secretValue: {
@@ -82,7 +82,27 @@ const mockOccurrenceThree: AWSOccurrence = {
     accountId: "987654321876",
     arn: "arn:aws:iam::987654321876:user/leekr",
     filePath: "main.foobar.js",
-    fingerprint: "fp1",
+    fingerprint: "fp3",
+    resourceType: "Access Key",
+    secretType: "AWS Access & Secret Keys",
+    secretValue: {
+        match: { access_key_id: "lol", secret_key_id: "wut" }
+    },
+    sourceContent: {
+        content: "foobar",
+        contentEndLineNum: 35,
+        contentFilename: "App.js",
+        contentStartLineNum: 18,
+        exactMatchNumbers: [23, 30]
+    },
+    url: "http://localhost:3000/static/js/main.foobar.js",
+};
+
+const mockOccurrenceFour: AWSOccurrence = {
+    accountId: "987654321876",
+    arn: "arn:aws:iam::987654321876:user/leekr",
+    filePath: "main.foobar.js",
+    fingerprint: "fp4",
     resourceType: "Access Key",
     secretType: "AWS Access & Secret Keys",
     secretValue: {
@@ -99,8 +119,9 @@ const mockOccurrenceThree: AWSOccurrence = {
 };
 
 const mockOccurrencesOne: Set<Occurrence> = new Set([mockOccurrenceOne]);
-const mockOccurrencesTwo: Set<Occurrence> = new Set([mockOccurrenceOne, mockOccurrenceTwo]);
-const mockOccurrencesThree: Set<Occurrence> = new Set([mockOccurrenceOne, mockOccurrenceTwo, mockOccurrenceThree]);
+const mockOccurrencesTwo: Set<Occurrence> = new Set([mockOccurrenceTwo]);
+const mockOccurrencesThree: Set<Occurrence> = new Set([mockOccurrenceThree]);
+const mockOccurrencesFour: Set<Occurrence> = new Set([mockOccurrenceFour]);
 
 const mockFindings: Finding[] = [
     {
@@ -108,7 +129,7 @@ const mockFindings: Finding[] = [
         numOccurrences: mockOccurrencesOne.size,
         occurrences: mockOccurrencesOne,
         validity: "valid",
-        validatedAt: "2025-05-13T18:16:16.870Z",
+        validatedAt: "2025-05-17T18:16:16.870Z",
         secretType: "AWS Access & Secret Keys",
         secretValue: {
             match: { access_key_id: "lol", secret_key_id: "wut" },
@@ -117,33 +138,33 @@ const mockFindings: Finding[] = [
         }
     },
     {
-        fingerprint: "fp1",
+        fingerprint: "fp2",
         numOccurrences: mockOccurrencesTwo.size,
         occurrences: mockOccurrencesTwo,
         validity: "invalid",
         secretType: "AWS Access & Secret Keys",
         secretValue: {
             match: { access_key_id: "lol", secret_key_id: "wut" },
-            validatedAt: "2025-05-14T18:16:16.870Z",
+            validatedAt: "2025-05-17T18:16:16.870Z",
             validity: "invalid"
         }
     },
     {
-        fingerprint: "fp1",
+        fingerprint: "fp3",
         numOccurrences: mockOccurrencesThree.size,
         occurrences: mockOccurrencesThree,
         validity: "unknown",
         secretType: "AWS Access & Secret Keys",
         secretValue: {
             match: { access_key_id: "lol", secret_key_id: "wut" },
-            validatedAt: "2025-05-15T18:16:16.870Z",
+            validatedAt: "2025-05-17T18:16:16.870Z",
             validity: "unknown"
         }
     },
     {
-        fingerprint: "fp1",
-        numOccurrences: mockOccurrencesThree.size,
-        occurrences: mockOccurrencesThree,
+        fingerprint: "fp4",
+        numOccurrences: mockOccurrencesFour.size,
+        occurrences: mockOccurrencesFour,
         validity: "failed_to_check",
         secretType: "AWS Access & Secret Keys",
         secretValue: {
@@ -408,7 +429,7 @@ describe('Findings Component', () => {
             await user.click(occurrencesHeader);
             const descRows = screen.getAllByRole('row');
             const descFirstDataRow = descRows[1];
-            expect(descFirstDataRow).toHaveTextContent('3');
+            expect(descFirstDataRow).toHaveTextContent('1');
 
             await user.click(occurrencesHeader);
             const ascRows2 = screen.getAllByRole('row');
