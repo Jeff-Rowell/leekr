@@ -69,7 +69,7 @@ describe('Header Component', () => {
         accountId: "876123456789",
         arn: "arn:aws:iam::876123456789:user/leekr",
         filePath: "main.foobar.js",
-        fingerprint: "fp1",
+        fingerprint: "fp2",
         resourceType: "Access Key",
         secretType: "AWS Access & Secret Keys",
         secretValue: {
@@ -103,7 +103,7 @@ describe('Header Component', () => {
             }
         },
         {
-            fingerprint: "fp1",
+            fingerprint: "fp2",
             numOccurrences: mockOccurrencesTwo.size,
             occurrences: mockOccurrencesTwo,
             validity: "invalid",
