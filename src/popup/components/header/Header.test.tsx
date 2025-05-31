@@ -9,7 +9,10 @@ jest.mock('../../AppContext', () => ({
     useAppContext: jest.fn(),
 }));
 
-jest.mock('../../../../public/icons/leekr_icon_128x128.png', () => 'test-leekr-icon.png');
+jest.mock('../../../../public/icons/leekr_icon_128x128.png', () => ({
+    __esModule: true,
+    default: 'test-leekr-icon.png',
+}));
 
 jest.mock('../../../../public/assets/leekr-font.svg', () => {
     return {

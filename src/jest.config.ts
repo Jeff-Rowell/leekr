@@ -12,8 +12,10 @@ const config: Config = {
     testMatch: ['<rootDir>/**/*.test.{ts,tsx}'],
     moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
     moduleNameMapper: {
-        "\\.(css)$": "<rootDir>/__mocks__/styleMock.js",
-        '\\.(svg|png)$': 'jest-transform-stub',
+        '\\.(css)$': '<rootDir>/__mocks__/styleMock.js',
+        '\\.(svg)$': 'jest-transform-stub',
+        '\\.(png|jpg|jpeg|gif)$': '<rootDir>/__mocks__/fileMock.js',
+
     },
 };
 
