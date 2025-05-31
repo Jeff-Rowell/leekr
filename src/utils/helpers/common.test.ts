@@ -176,11 +176,17 @@ describe('Findings Utilities', () => {
         });
 
         test('should not crash if chrome storage fails to set', async () => {
+            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+
             mockChromeStorage.local.set.mockImplementationOnce((data, callback) => {
                 throw new Error('Failed to store');
             });
 
             await expect(storeFindings(mockFindings)).resolves.toBeUndefined();
+
+            expect(consoleSpy).toHaveBeenCalledWith('storeFindings failed:', new Error('Failed to store'));
+
+            consoleSpy.mockRestore();
         });
 
         test('should handle chrome.runtime.lastError and not crash', async () => {
@@ -303,12 +309,19 @@ describe('Source Map Utilities', () => {
         });
 
         test('should handle malformed URLs gracefully', () => {
+            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+
             const bundleUrl = 'invalid-url';
             const bundleContent = 'console.log("test");\n//# sourceMappingURL=main.js.map';
 
             const result = getSourceMapUrl(bundleUrl, bundleContent);
 
             expect(result).toBeNull();
+
+            expect(consoleSpy).toHaveBeenCalledWith('Error resolving source map URL:', expect.objectContaining({
+                message: 'Invalid URL: invalid-url'
+            }));
+            consoleSpy.mockRestore();
         });
     });
 
