@@ -12,3 +12,12 @@ if (typeof globalThis.crypto.randomUUID !== 'function') {
             return v.toString(16);
         }) as `${string}-${string}-${string}-${string}-${string}`;
 }
+
+global.chrome = {
+    storage: {
+        local: {
+            set: jest.fn(),
+            get: jest.fn()
+        }
+    }
+} as any;
