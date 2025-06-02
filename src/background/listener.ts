@@ -8,13 +8,17 @@ import { Suffix } from '../types/suffix.types';
 chrome.webRequest.onCompleted.addListener(
     async (details) => {
         const results = await chrome.storage.local.get(['suffixes', 'isExtensionEnabled']);
-        var suffixValues;
-        if (results.suffixes) {
+
+        var suffixValues: string[] = [];
+        if (results && results.suffixes && Array.isArray(results.suffixes)) {
             suffixValues = results.suffixes.map((suffix: Suffix) => suffix.value);
-        } else {
-            suffixValues = [];
         }
-        if (results.isExtensionEnabled && !details.url.startsWith("chrome-extension") && suffixValues.some((suffix: string) => details.url.endsWith(suffix))) {
+
+        const isExtensionEnabled = results && results.isExtensionEnabled;
+        const isNotChromeExtension = !details.url.startsWith("chrome-extension");
+        const matchesSuffix = suffixValues.length > 0 && suffixValues.some((suffix: string) => details.url.endsWith(suffix));
+
+        if (isExtensionEnabled && isNotChromeExtension && matchesSuffix) {
             try {
                 const response = await fetch(details.url);
                 const bundleContent = await response.text();
