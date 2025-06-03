@@ -6,7 +6,7 @@ import { AWSOccurrence, AWSDetectorConfig, AWSSecretValue } from '../../../../ty
 import { Occurrence, Finding, SourceContent } from '../../../../types/findings.types';
 import { patterns } from '../../../../config/patterns'
 import { computeFingerprint } from '../../../../utils/helpers/computeFingerprint';
-import { getExistingFindings, findSecretPosition, getSourceMapUrl, getExistingPatterns, storePatterns } from '../../../../utils/helpers/common';
+import { getExistingFindings, findSecretPosition, getSourceMapUrl } from '../../../../utils/helpers/common';
 import * as sourceMap from '../../../libs/source-map';
 
 let awsConfig: AWSDetectorConfig = { ...DEFAULT_AWS_CONFIG };
