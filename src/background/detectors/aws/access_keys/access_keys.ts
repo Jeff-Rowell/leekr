@@ -30,23 +30,31 @@ export async function detectAwsAccessKeys(content: string, url: string): Promise
     }
 
     const validAccessKeys = accessKeyMatches.filter(key => {
-        const entropy = calculateShannonEntropy(key);
-        const accessKeyEntropyThreshold = patterns["AWS Access Key"].entropy;
-        if (entropy < accessKeyEntropyThreshold) return false;
+        if (key) {
+            const entropy = calculateShannonEntropy(key);
+            const accessKeyEntropyThreshold = patterns["AWS Access Key"].entropy;
+            if (entropy < accessKeyEntropyThreshold) return false;
 
-        const [isFP] = isKnownFalsePositive(key);
-        return !isFP;
+            const [isFP] = isKnownFalsePositive(key);
+            return !isFP;
+        } else {
+            return false
+        }
     });
 
     const validSecretKeys = secretKeyMatches.filter(key => {
-        const entropy = calculateShannonEntropy(key);
-        const secretKeyEntropyThreshold = patterns["AWS Secret Key"].entropy;
-        if (entropy < secretKeyEntropyThreshold) return false;
+        if (key) {
+            const entropy = calculateShannonEntropy(key);
+            const secretKeyEntropyThreshold = patterns["AWS Secret Key"].entropy;
+            if (entropy < secretKeyEntropyThreshold) return false;
 
-        const [isFP] = isKnownFalsePositive(key);
-        if (isFP) return false;
+            const [isFP] = isKnownFalsePositive(key);
+            if (isFP) return false;
 
-        return !falsePositiveSecretPattern.test(key);
+            return !falsePositiveSecretPattern.test(key);
+        } else {
+            return false
+        }
     });
 
     if (validAccessKeys.length === 0 || validSecretKeys.length === 0) {
