@@ -17,10 +17,10 @@ export async function detectAwsAccessKeys(content: string, url: string): Promise
     const matches = content.match(patterns['AWS Secret Key'].pattern)
     matches?.forEach(match => {
         // Removes the global flag if its set 
-        const singleMatchPattern = patterns['AWS Secret Key'].global ? new RegExp(patterns['AWS Secret Key'].pattern.source) : patterns['AWS Secret Key'].pattern
+        const singleMatchPattern = new RegExp(patterns['AWS Secret Key'].pattern.source)
         const result = match.match(singleMatchPattern);
         if (result) {
-            const secretKey = result[1] || result[2];
+            const secretKey = result[1];
             secretKeyMatches.push(secretKey);
         }
     })

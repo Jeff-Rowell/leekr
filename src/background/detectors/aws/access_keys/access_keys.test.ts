@@ -9,18 +9,17 @@ jest.mock('../../../../utils/accuracy/entropy');
 jest.mock('../../../../utils/accuracy/falsePositives');
 jest.mock('../../../../utils/validators/aws_access_keys/aws');
 jest.mock('../../../../utils/helpers/common');
-jest.mock('../../../libs/source-map');
+jest.mock('../../../../../external/source-map');
 
 global.fetch = jest.fn();
 
 describe('detectAwsAccessKeys', () => {
-    const fakeAccessKey = 'lol';
-    const fakeSecretKey = 'wut';
+    const fakeAccessKey = 'AKIAIOSFODNN7EXAMPLE';
+    const fakeSecretKey = 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY';
     const fakeUrl = 'https://example.com/app.js';
 
     beforeEach(() => {
         jest.resetAllMocks();
-        jest.spyOn(entropyUtils, 'calculateShannonEntropy').mockReturnValue(6.0);
         jest.spyOn(falsePositiveUtils, 'isKnownFalsePositive').mockReturnValue([false, ""]);
         jest.spyOn(common, 'getExistingFindings').mockResolvedValue([]);
         jest.spyOn(helpers, 'computeFingerprint').mockResolvedValue('mocked-fingerprint');
@@ -44,7 +43,7 @@ describe('detectAwsAccessKeys', () => {
     });
 
     test('returns empty array if access key entropy is too low', async () => {
-        (entropyUtils.calculateShannonEntropy as jest.Mock).mockReturnValueOnce(2.0); // low entropy
+        jest.spyOn(entropyUtils, 'calculateShannonEntropy').mockReturnValue(2.0);
         const content = `${fakeAccessKey} "${fakeSecretKey}"`;
         const result = await detectAwsAccessKeys(content, fakeUrl);
         expect(result).toEqual([]);
@@ -53,6 +52,13 @@ describe('detectAwsAccessKeys', () => {
     test('returns empty array if secret key is a false positive', async () => {
         (falsePositiveUtils.isKnownFalsePositive as jest.Mock).mockReturnValueOnce([false]).mockReturnValueOnce([true]);
         const content = `${fakeAccessKey} "${fakeSecretKey}"`;
+        const result = await detectAwsAccessKeys(content, fakeUrl);
+        expect(result).toEqual([]);
+    });
+
+    test('returns empty array if secret key entropy is too low', async () => {
+        jest.spyOn(entropyUtils, 'calculateShannonEntropy').mockReturnValue(4.0);
+        const content = `${fakeAccessKey} "GetCustomVerificationEmailTemplateResult"`;
         const result = await detectAwsAccessKeys(content, fakeUrl);
         expect(result).toEqual([]);
     });
