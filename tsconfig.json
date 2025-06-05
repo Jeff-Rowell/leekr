@@ -33,7 +33,8 @@
     },
     "include": [
         "src",
-        "@/src/lib"
+        "@/src/lib",
+        "external/source-map.js"
     ],
     "exclude": [
         "node_modules",
