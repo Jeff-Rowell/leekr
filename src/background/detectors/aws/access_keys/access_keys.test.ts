@@ -4,6 +4,7 @@ import * as falsePositiveUtils from '../../../../utils/accuracy/falsePositives';
 import * as awsValidator from '../../../../utils/validators/aws_access_keys/aws';
 import * as helpers from '../../../../utils/helpers/computeFingerprint';
 import * as common from '../../../../utils/helpers/common';
+import { patterns } from '../../../../config/patterns';
 
 jest.mock('../../../../utils/accuracy/entropy');
 jest.mock('../../../../utils/accuracy/falsePositives');
@@ -82,4 +83,40 @@ describe('detectAwsAccessKeys', () => {
         const result = await detectAwsAccessKeys(content, fakeUrl);
         expect(result).toEqual([]);
     });
+
+    test('returns a valid occurrence when credentials are valid and not in existing findings', async () => {
+        const content = `some code with ${fakeAccessKey} and "${fakeSecretKey}" inside`;
+
+        jest.spyOn(entropyUtils, 'calculateShannonEntropy').mockReturnValue(5.0);
+        jest.spyOn(falsePositiveUtils, 'isKnownFalsePositive').mockReturnValue([false, '']);
+        Object.defineProperty(falsePositiveUtils, 'falsePositiveSecretPattern', {
+            value: /NOTHING_WILL_MATCH_THIS_PATTERN/,
+            writable: true,
+        });
+
+        jest.spyOn(awsValidator, 'validateAWSCredentials').mockResolvedValue({
+            valid: true,
+            accountId: '123456789012',
+            arn: 'arn:aws:iam::123456789012:user/TestUser',
+        });
+
+        jest.spyOn(common, 'getExistingFindings').mockResolvedValue([]);
+        jest.spyOn(helpers, 'computeFingerprint').mockResolvedValue('mocked-fingerprint');
+
+        const result = await detectAwsAccessKeys(content, 'https://github.com/org/repo/blob/main/app.js');
+
+        expect(result).toHaveLength(1);
+        expect(result[0]).toMatchObject({
+            secretValue: {
+                match: {
+                    access_key_id: fakeAccessKey,
+                    secret_key_id: fakeSecretKey,
+                }
+            },
+            validity: 'valid',
+            accountId: '123456789012',
+            arn: 'arn:aws:iam::123456789012:user/TestUser',
+            fingerprint: 'mocked-fingerprint',
+        });
+      });
 });
