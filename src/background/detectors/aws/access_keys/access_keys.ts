@@ -9,8 +9,6 @@ import { computeFingerprint } from '../../../../utils/helpers/computeFingerprint
 import { getExistingFindings, findSecretPosition, getSourceMapUrl } from '../../../../utils/helpers/common';
 import * as sourceMap from '../../../../../external/source-map'
 
-let awsConfig: AWSDetectorConfig = { ...DEFAULT_AWS_CONFIG };
-
 export async function detectAwsAccessKeys(content: string, url: string): Promise<Occurrence[]> {
     const accessKeyMatches = content.match(patterns['AWS Access Key'].pattern) || [];
     const secretKeyMatches: string[] = [];
