@@ -63,10 +63,13 @@ export async function detectAwsAccessKeys(content: string, url: string): Promise
     const filteredAccessKeys = await Promise.all(
         validAccessKeys.map(async (aKey) => {
             const alreadyFound = existingFindings.some(
-                (finding: Finding) =>
-                    Object.values(finding.secretValue).some(
-                        (match: AWSSecretValue) => Object.values(match).includes(aKey)
-                    )
+                (finding: Finding) => {
+                    return Object.values(finding.secretValue).some(
+                        (match: AWSSecretValue) => {
+                            return Object.values(match).includes(aKey);
+                        }
+                    );
+                }
             );
             return alreadyFound ? null : aKey;
         })
