@@ -207,4 +207,149 @@ describe('detectAwsAccessKeys', () => {
 
         expect(result).toHaveLength(0);
     });
+
+    test('tests sourcemap is reversed to original js with accurate line numbers (access key line > secret key line)', async () => {
+        (global as any).chrome = {
+            runtime: {
+                getURL: jest.fn().mockImplementation((path: string) => `mocked-extension-url/${path}`)
+            }
+        };
+
+        const content = `some code with ${fakeAccessKey} and "${fakeSecretKey}" inside`;
+
+        jest.spyOn(entropyUtils, 'calculateShannonEntropy').mockReturnValue(5.0);
+        jest.spyOn(falsePositiveUtils, 'isKnownFalsePositive').mockReturnValue([false, '']);
+        Object.defineProperty(falsePositiveUtils, 'falsePositiveSecretPattern', {
+            value: /NOTHING_WILL_MATCH_THIS_PATTERN/,
+            writable: true,
+        });
+
+        jest.spyOn(awsValidator, 'validateAWSCredentials').mockResolvedValue({
+            valid: true,
+            accountId: '123456789012',
+            arn: 'arn:aws:iam::123456789012:user/TestUser',
+        });
+
+        jest.spyOn(common, 'getExistingFindings').mockResolvedValue([]);
+
+        const mockSourceMapUrl = new URL('https://example.com/app.js.map');
+        jest.spyOn(common, 'getSourceMapUrl').mockReturnValue(mockSourceMapUrl);
+
+        jest.spyOn(common, 'findSecretPosition').mockImplementation((content, key) => {
+            if (key === fakeAccessKey) {
+                return { line: 25, column: 4 }; // accessKey line > secretKey line
+            } else {
+                return { line: 20, column: 2 };
+            }
+        });
+
+        (fetch as jest.Mock).mockResolvedValue({
+            text: () => Promise.resolve('{"version":3,"sources":["App.tsx"],"sourcesContent":["console.log(\'hello\');"]}'),
+        });
+
+        const originalPositionMock = {
+            source: 'App.tsx',
+            line: 100,
+            column: 5,
+        };
+        const sourceContent = 'console.log("hello")';
+        const withMock = jest.fn((_content, _null, callback) => {
+            callback({
+                originalPositionFor: jest.fn((position) => {
+                    if (position.line === 25) {
+                        return { source: 'App.tsx', line: 100, column: 5 };
+                    } else if (position.line === 20) {
+                        return { source: 'App.tsx', line: 90, column: 2 };
+                    }
+                    return { source: null, line: null, column: null };
+                }),
+                sourceContentFor: jest.fn().mockReturnValue(sourceContent),
+            });
+        });
+
+        const sourceMapModule = require('../../../../../external/source-map');
+        sourceMapModule.SourceMapConsumer.with = withMock;
+        sourceMapModule.SourceMapConsumer.initialize = jest.fn();
+
+        const result = await detectAwsAccessKeys(content, fakeUrl);
+
+        expect(result).toHaveLength(1);
+        expect(result[0].sourceContent).toMatchObject({
+            content: sourceContent,
+            contentFilename: 'App.tsx',
+            exactMatchNumbers: [100, 90],
+            contentStartLineNum: 85,
+            contentEndLineNum: 105,
+        });
+    });
+
+    test('tests sourcemap is reversed to original js with accurate line numbers (access key line < secret key line)', async () => {
+        (global as any).chrome = {
+            runtime: {
+                getURL: jest.fn().mockImplementation((path: string) => `mocked-extension-url/${path}`)
+            }
+        };
+
+        const content = `some code with ${fakeAccessKey} and "${fakeSecretKey}" inside`;
+
+        jest.spyOn(entropyUtils, 'calculateShannonEntropy').mockReturnValue(5.0);
+        jest.spyOn(falsePositiveUtils, 'isKnownFalsePositive').mockReturnValue([false, '']);
+        Object.defineProperty(falsePositiveUtils, 'falsePositiveSecretPattern', {
+            value: /NOTHING_WILL_MATCH_THIS_PATTERN/,
+            writable: true,
+        });
+
+        jest.spyOn(awsValidator, 'validateAWSCredentials').mockResolvedValue({
+            valid: true,
+            accountId: '123456789012',
+            arn: 'arn:aws:iam::123456789012:user/TestUser',
+        });
+
+        jest.spyOn(common, 'getExistingFindings').mockResolvedValue([]);
+
+        const mockSourceMapUrl = new URL('https://example.com/app.js.map');
+        jest.spyOn(common, 'getSourceMapUrl').mockReturnValue(mockSourceMapUrl);
+
+        jest.spyOn(common, 'findSecretPosition').mockImplementation((content, key) => {
+            if (key === fakeAccessKey) {
+                return { line: 20, column: 4 }; // accessKey line < secretKey line
+            } else {
+                return { line: 25, column: 2 };
+            }
+        });
+
+        (fetch as jest.Mock).mockResolvedValue({
+            text: () => Promise.resolve('{"version":3,"sources":["App.tsx"],"sourcesContent":["console.log(\'hello\');"]}'),
+        });
+
+        const sourceContent = 'console.log("hello")';
+        const withMock = jest.fn((_content, _null, callback) => {
+            callback({
+                originalPositionFor: jest.fn((position) => {
+                    if (position.line === 20) {
+                        return { source: 'App.tsx', line: 90, column: 5 };
+                    } else if (position.line === 25) {
+                        return { source: 'App.tsx', line: 100, column: 2 };
+                    }
+                    return { source: null, line: null, column: null };
+                }),
+                sourceContentFor: jest.fn().mockReturnValue(sourceContent),
+            });
+        });
+
+        const sourceMapModule = require('../../../../../external/source-map');
+        sourceMapModule.SourceMapConsumer.with = withMock;
+        sourceMapModule.SourceMapConsumer.initialize = jest.fn();
+
+        const result = await detectAwsAccessKeys(content, fakeUrl);
+
+        expect(result).toHaveLength(1);
+        expect(result[0].sourceContent).toMatchObject({
+            content: sourceContent,
+            contentFilename: 'App.tsx',
+            exactMatchNumbers: [90, 100],
+            contentStartLineNum: 85,
+            contentEndLineNum: 105,
+        });
+    });
 });
