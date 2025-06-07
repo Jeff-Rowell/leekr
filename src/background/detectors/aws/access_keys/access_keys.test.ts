@@ -247,11 +247,6 @@ describe('detectAwsAccessKeys', () => {
             text: () => Promise.resolve('{"version":3,"sources":["App.tsx"],"sourcesContent":["console.log(\'hello\');"]}'),
         });
 
-        const originalPositionMock = {
-            source: 'App.tsx',
-            line: 100,
-            column: 5,
-        };
         const sourceContent = 'console.log("hello")';
         const withMock = jest.fn((_content, _null, callback) => {
             callback({
