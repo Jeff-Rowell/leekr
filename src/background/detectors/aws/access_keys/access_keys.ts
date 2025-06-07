@@ -28,16 +28,12 @@ export async function detectAwsAccessKeys(content: string, url: string): Promise
     }
 
     const validAccessKeys = accessKeyMatches.filter(key => {
-        if (key) {
-            const entropy = calculateShannonEntropy(key);
-            const accessKeyEntropyThreshold = patterns["AWS Access Key"].entropy;
-            if (entropy < accessKeyEntropyThreshold) return false;
+        const entropy = calculateShannonEntropy(key);
+        const accessKeyEntropyThreshold = patterns["AWS Access Key"].entropy;
+        if (entropy < accessKeyEntropyThreshold) return false;
 
-            const [isFP] = isKnownFalsePositive(key);
-            return !isFP;
-        } else {
-            return false
-        }
+        const [isFP] = isKnownFalsePositive(key);
+        return !isFP;
     });
 
     const validSecretKeys = secretKeyMatches.filter(key => {
