@@ -183,4 +183,28 @@ describe('detectAwsAccessKeys', () => {
 
         expect(result).toHaveLength(0);
     });
+
+    test('returns empty array when secret key pattern returns undefined matches', async () => {
+        const content = `some code with ${fakeAccessKey} and "-31/distributionsByOriginRequestPolicyId/{" inside`;
+
+        jest.spyOn(entropyUtils, 'calculateShannonEntropy').mockReturnValue(5.0);
+        jest.spyOn(falsePositiveUtils, 'isKnownFalsePositive').mockReturnValue([false, '']);
+        Object.defineProperty(falsePositiveUtils, 'falsePositiveSecretPattern', {
+            value: /NOTHING_WILL_MATCH_THIS_PATTERN/,
+            writable: true,
+        });
+
+        jest.spyOn(awsValidator, 'validateAWSCredentials').mockResolvedValue({
+            valid: true,
+            accountId: '123456789012',
+            arn: 'arn:aws:iam::123456789012:user/TestUser',
+        });
+
+        jest.spyOn(common, 'getExistingFindings').mockResolvedValue(mockFindings);
+        jest.spyOn(helpers, 'computeFingerprint').mockResolvedValue('mocked-fingerprint');
+
+        const result = await detectAwsAccessKeys(content, 'https://github.com/org/repo/blob/main/app.js');
+
+        expect(result).toHaveLength(0);
+    });
 });
