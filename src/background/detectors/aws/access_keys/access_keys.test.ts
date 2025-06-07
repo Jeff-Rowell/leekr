@@ -232,7 +232,7 @@ describe('detectAwsAccessKeys', () => {
 
         jest.spyOn(common, 'getExistingFindings').mockResolvedValue([]);
 
-        const mockSourceMapUrl = new URL('https://example.com/app.js.map');
+        const mockSourceMapUrl = new URL(fakeUrl);
         jest.spyOn(common, 'getSourceMapUrl').mockReturnValue(mockSourceMapUrl);
 
         jest.spyOn(common, 'findSecretPosition').mockImplementation((content, key) => {
@@ -352,4 +352,31 @@ describe('detectAwsAccessKeys', () => {
             contentEndLineNum: 105,
         });
     });
+
+    test('sets contentFilename to empty string when url is empty', async () => {
+        const url = '';
+
+        const content = `some code with ${fakeAccessKey} and "${fakeSecretKey}" inside`;
+
+        jest.spyOn(entropyUtils, 'calculateShannonEntropy').mockReturnValue(5.0);
+        jest.spyOn(falsePositiveUtils, 'isKnownFalsePositive').mockReturnValue([false, '']);
+        Object.defineProperty(falsePositiveUtils, 'falsePositiveSecretPattern', {
+            value: /NOTHING_WILL_MATCH_THIS_PATTERN/,
+            writable: true,
+        });
+
+        jest.spyOn(awsValidator, 'validateAWSCredentials').mockResolvedValue({
+            valid: true,
+            accountId: '123456789012',
+            arn: 'arn:aws:iam::123456789012:user/TestUser',
+        });
+
+        jest.spyOn(common, 'getExistingFindings').mockResolvedValue([]);
+
+        const result = await detectAwsAccessKeys(content, url);
+
+        expect(result).toHaveLength(1);
+        expect(result[0].sourceContent.contentFilename).toBe("");
+    });
+
 });
