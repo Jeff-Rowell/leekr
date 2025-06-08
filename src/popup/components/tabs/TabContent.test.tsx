@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import TabContent from './TabContent';
-import FindingsTab from './findings/FindingsTab';
 import DetectorsTab from './detectors/DetectorsTab';
+import FindingsTab from './findings/FindingsTab';
 import MoreTab from './more/MoreTab';
 
 jest.mock('./findings/FindingsTab', () => {

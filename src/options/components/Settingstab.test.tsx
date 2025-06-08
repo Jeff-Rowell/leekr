@@ -1,6 +1,6 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { SettingsTab } from './SettingsTab';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { useAppContext } from '../../popup/AppContext';
+import { SettingsTab } from './SettingsTab';
 
 jest.mock('../../popup/AppContext');
 

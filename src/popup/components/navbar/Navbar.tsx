@@ -1,6 +1,6 @@
 import React from 'react';
-import './style.css';
 import { useAppContext } from '../../AppContext';
+import './style.css';
 
 const Navbar: React.FC = () => {
     const { data, actions } = useAppContext();

@@ -1,9 +1,9 @@
 import React from 'react';
-import Layout from './pages/Layout';
-import '../styles/index.css';
 import '../styles/global.css';
+import '../styles/index.css';
 import '../styles/variables.css';
 import { AppProvider } from './AppContext';
+import Layout from './pages/Layout';
 
 const App: React.FC = () => {
     return (

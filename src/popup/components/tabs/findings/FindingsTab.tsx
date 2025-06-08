@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
-import './style.css';
-import { useAppContext } from '../../../AppContext';
 import { RotateCw, Settings, ShieldCheck } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Finding, ValidityStatus } from 'src/types/findings.types';
-import { awsValidityHelper } from '../../../../utils/validators/aws_access_keys/awsValidityHelper';
-import ModalHeader from '../../modalheader/ModalHeader';
 import { retrieveFindings, storeFindings } from '../../../../utils/helpers/common';
+import { awsValidityHelper } from '../../../../utils/validators/aws_access_keys/awsValidityHelper';
+import { useAppContext } from '../../../AppContext';
+import ModalHeader from '../../modalheader/ModalHeader';
+import './style.css';
 
 const FindingsTab: React.FC = () => {
     const { data: { findings } } = useAppContext();

@@ -1,8 +1,8 @@
-import React from 'react';
-import './style.css';
-import { useAppContext } from '../../../AppContext';
 import { SquareArrowRight } from 'lucide-react';
+import React from 'react';
 import { Pattern } from 'src/types/patterns.types';
+import { useAppContext } from '../../../AppContext';
+import './style.css';
 
 
 const DetectorsTab: React.FC = () => {

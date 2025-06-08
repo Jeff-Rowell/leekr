@@ -1,7 +1,7 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { Detectors } from './Detectors';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { useAppContext } from '../../popup/AppContext';
 import { Pattern } from '../../types/patterns.types';
+import { Detectors } from './Detectors';
 
 jest.mock('lucide-react', () => ({
     ChevronDown: () => <div data-testid="chevron-down" />,

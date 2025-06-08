@@ -1,9 +1,9 @@
 import '@testing-library/jest-dom';
-import Header from './Header';
-import { Finding, Occurrence } from '../../../types/findings.types';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { AWSOccurrence } from 'src/types/aws.types';
+import { Finding, Occurrence } from '../../../types/findings.types';
 import { useAppContext } from '../../AppContext';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import Header from './Header';
 
 jest.mock('../../AppContext', () => ({
     useAppContext: jest.fn(),

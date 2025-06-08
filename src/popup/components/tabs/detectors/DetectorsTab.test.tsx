@@ -1,10 +1,9 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import DetectorsTab from './DetectorsTab';
-import { useAppContext } from '../../../AppContext';
-import { Pattern } from 'src/types/patterns.types';
-import { Occurrence } from 'src/types/findings.types';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { AWSOccurrence } from 'src/types/aws.types';
-import { Finding } from 'src/types/findings.types';
+import { Finding, Occurrence } from 'src/types/findings.types';
+import { Pattern } from 'src/types/patterns.types';
+import { useAppContext } from '../../../AppContext';
+import DetectorsTab from './DetectorsTab';
 
 jest.mock('./style.css', () => ({}));
 

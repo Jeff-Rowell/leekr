@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
 import { Download, Menu } from 'lucide-react';
-import { useAppContext } from '../../AppContext';
-import LeekrIcon from '../../../../public/icons/leekr_icon_128x128.png';
+import React, { useEffect, useRef, useState } from 'react';
 import LeekrFont from '../../../../public/assets/leekr-font.svg';
+import LeekrIcon from '../../../../public/icons/leekr_icon_128x128.png';
+import { useAppContext } from '../../AppContext';
 import ModalHeader from '../modalheader/ModalHeader';
 import './style.css';
 

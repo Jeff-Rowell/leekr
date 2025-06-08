@@ -1,8 +1,8 @@
 import React from 'react';
+import { useAppContext } from '../AppContext';
 import Header from '../components/header/Header';
 import Navbar from '../components/navbar/Navbar';
 import TabContent from '../components/tabs/TabContent';
-import { useAppContext } from '../AppContext';
 
 const Layout: React.FC = () => {
     const { data } = useAppContext();

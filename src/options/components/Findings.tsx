@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
 import {
-    ShieldCheck,
-    SquareArrowRight,
-    RotateCw,
+    AlertTriangle,
     ChevronDown,
     ChevronUp,
-    AlertTriangle
+    RotateCw,
+    ShieldCheck,
+    SquareArrowRight
 } from 'lucide-react';
-import { Finding, ValidityStatus } from '../../types/findings.types';
+import React, { useEffect, useState } from 'react';
 import { useAppContext } from '../../popup/AppContext';
-import { awsValidityHelper } from '../../utils/validators/aws_access_keys/awsValidityHelper'
+import { Finding, ValidityStatus } from '../../types/findings.types';
+import { awsValidityHelper } from '../../utils/validators/aws_access_keys/awsValidityHelper';
 
 // Pagination constants
 const ITEMS_PER_PAGE = 10;

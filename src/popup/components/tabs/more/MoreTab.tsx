@@ -1,5 +1,5 @@
+import { Power, Trash2 } from 'lucide-react';
 import React from 'react';
-import { Trash2, Power } from 'lucide-react';
 import { useAppContext } from '../../../AppContext';
 import './style.css';
 

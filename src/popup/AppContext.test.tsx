@@ -1,10 +1,10 @@
+import { act, render, renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
-import { render, renderHook, act, waitFor } from '@testing-library/react';
-import { AppProvider, useAppContext } from './AppContext';
 import { Finding } from '../types/findings.types';
 import { PatternsObj } from '../types/patterns.types';
 import { Suffix } from '../types/suffix.types';
 import * as helpers from '../utils/helpers/common';
+import { AppProvider, useAppContext } from './AppContext';
 
 jest.mock('../utils/helpers/common', () => ({
     retrieveFindings: jest.fn(),

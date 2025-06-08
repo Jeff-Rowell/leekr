@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
 import {
+    AlertTriangle,
     ChevronDown,
     ChevronUp,
-    AlertTriangle,
     Search
 } from 'lucide-react';
-import { Pattern } from '../../types/patterns.types';
+import React, { useEffect, useState } from 'react';
 import { useAppContext } from '../../popup/AppContext';
+import { Pattern } from '../../types/patterns.types';
 
 // Pagination constants
 const ITEMS_PER_PAGE = 10;

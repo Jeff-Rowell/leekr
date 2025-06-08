@@ -1,4 +1,4 @@
-import * as objectSha from 'object-sha'
+import * as objectSha from 'object-sha';
 
 export const computeFingerprint = async <T extends object>(
     target: T,

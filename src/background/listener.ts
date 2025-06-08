@@ -1,8 +1,8 @@
-import { findSecrets } from './scanner';
 import { Finding } from 'src/types/findings.types';
-import { mergeFindings } from '../utils/helpers/mergeFindings';
-import { retrieveFindings, storeFindings } from '../utils/helpers/common';
 import { Suffix } from '../types/suffix.types';
+import { retrieveFindings, storeFindings } from '../utils/helpers/common';
+import { mergeFindings } from '../utils/helpers/mergeFindings';
+import { findSecrets } from './scanner';
 
 
 chrome.webRequest.onCompleted.addListener(

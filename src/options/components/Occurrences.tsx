@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { AlertTriangle, SquareArrowOutUpRight, ShieldCheck, RotateCw, ChevronDown, ChevronUp, Download } from 'lucide-react';
-import { Finding } from '../../types/findings.types';
+import { AlertTriangle, ChevronDown, ChevronUp, Download, RotateCw, ShieldCheck, SquareArrowOutUpRight } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { useAppContext } from '../../popup/AppContext';
+import { Finding } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws_access_keys/awsValidityHelper';
 
 

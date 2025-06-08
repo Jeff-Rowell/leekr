@@ -1,5 +1,5 @@
-import { computeFingerprint } from './computeFingerprint';
 import * as objectSha from 'object-sha';
+import { computeFingerprint } from './computeFingerprint';
 
 
 jest.mock('object-sha');

@@ -1,6 +1,6 @@
-import { mergeFindings } from './mergeFindings';
-import { Finding, Occurrence } from "../../types/findings.types";
 import { AWSOccurrence } from "../../types/aws.types";
+import { Finding, Occurrence } from "../../types/findings.types";
+import { mergeFindings } from './mergeFindings';
 
 
 describe('mergeFindings', () => {

@@ -1,9 +1,9 @@
 import React from 'react';
-import Options from './pages/Options';
+import { AppProvider } from '../popup/AppContext';
+import '../styles/global.css';
 import '../styles/options.css';
 import '../styles/variables.css';
-import '../styles/global.css';
-import { AppProvider } from '../popup/AppContext';
+import Options from './pages/Options';
 
 const OptionsApp: React.FC = () => {
     return (

@@ -1,5 +1,5 @@
-import { detectAwsAccessKeys } from './detectors/aws/access_keys/access_keys';
 import { Finding, Occurrence } from '../types/findings.types';
+import { detectAwsAccessKeys } from './detectors/aws/access_keys/access_keys';
 
 export async function findSecrets(content: string, url: string): Promise<Finding[]> {
     const findings: Finding[] = [];

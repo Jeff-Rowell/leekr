@@ -1,8 +1,8 @@
 import {
     DefaultFalsePositives,
     falsePositiveSecretPattern,
-    isLikelyUUID,
-    isKnownFalsePositive
+    isKnownFalsePositive,
+    isLikelyUUID
 } from './falsePositives';
 
 describe('DefaultFalsePositives', () => {

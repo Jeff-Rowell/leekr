@@ -1,9 +1,9 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { Occurrences } from './Occurrences';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { useAppContext } from '../../popup/AppContext';
-import { awsValidityHelper } from '../../utils/validators/aws_access_keys/awsValidityHelper';
-import { Finding, Occurrence } from '../../types/findings.types';
 import { AWSOccurrence } from '../../types/aws.types';
+import { Finding, Occurrence } from '../../types/findings.types';
+import { awsValidityHelper } from '../../utils/validators/aws_access_keys/awsValidityHelper';
+import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
     useAppContext: jest.fn()

@@ -1,12 +1,11 @@
-import { detectAwsAccessKeys } from './access_keys';
+import { AWSOccurrence } from 'src/types/aws.types';
+import { Finding, Occurrence } from 'src/types/findings.types';
 import * as entropyUtils from '../../../../utils/accuracy/entropy';
 import * as falsePositiveUtils from '../../../../utils/accuracy/falsePositives';
-import * as awsValidator from '../../../../utils/validators/aws_access_keys/aws';
-import * as helpers from '../../../../utils/helpers/computeFingerprint';
 import * as common from '../../../../utils/helpers/common';
-import { Finding, Occurrence } from 'src/types/findings.types';
-import { AWSOccurrence } from 'src/types/aws.types';
-import { patterns } from '../../../../config/patterns';
+import * as helpers from '../../../../utils/helpers/computeFingerprint';
+import * as awsValidator from '../../../../utils/validators/aws_access_keys/aws';
+import { detectAwsAccessKeys } from './access_keys';
 
 jest.mock('../../../../utils/accuracy/entropy');
 jest.mock('../../../../utils/accuracy/falsePositives');

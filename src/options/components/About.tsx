@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Github, ExternalLink, Shield } from 'lucide-react';
+import { ExternalLink, Github, Shield } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 export const AboutTab: React.FC = () => {
     const [version, setVersion] = useState<string>('1.0.0');

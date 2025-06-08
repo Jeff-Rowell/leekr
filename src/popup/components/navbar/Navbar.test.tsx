@@ -1,7 +1,7 @@
-import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import Navbar from './Navbar';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { useAppContext } from '../../AppContext';
+import Navbar from './Navbar';
 
 
 jest.mock('../../AppContext', () => ({

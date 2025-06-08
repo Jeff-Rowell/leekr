@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Shield, Settings, Eye, Info } from 'lucide-react';
+import { Eye, Info, Settings, Shield } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import LeekrFont from '../../../public/assets/leekr-font.svg';
-import { SettingsTab } from '../components/SettingsTab';
-import { Occurrences } from '../components/Occurrences';
-import { Findings } from '../components/Findings';
-import { Detectors } from '../components/Detectors';
 import { AboutTab } from '../components/About';
+import { Detectors } from '../components/Detectors';
+import { Findings } from '../components/Findings';
+import { Occurrences } from '../components/Occurrences';
+import { SettingsTab } from '../components/SettingsTab';
 
 const Options: React.FC = () => {
     const [activeTab, setActiveTab] = useState('findings');

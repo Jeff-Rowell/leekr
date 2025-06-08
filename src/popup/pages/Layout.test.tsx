@@ -1,7 +1,7 @@
-import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import Layout from './Layout';
+import { render, screen } from '@testing-library/react';
 import { useAppContext } from '../AppContext';
+import Layout from './Layout';
 
 jest.mock('../AppContext', () => ({
     useAppContext: jest.fn()

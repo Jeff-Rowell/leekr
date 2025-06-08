@@ -1,8 +1,8 @@
-import { awsValidityHelper } from './awsValidityHelper';
-import { validateAWSCredentials } from './aws';
-import { retrieveFindings, storeFindings } from '../../helpers/common';
-import { Finding, Occurrence } from 'src/types/findings.types';
 import { AWSOccurrence } from 'src/types/aws.types';
+import { Finding, Occurrence } from 'src/types/findings.types';
+import { retrieveFindings, storeFindings } from '../../helpers/common';
+import { validateAWSCredentials } from './aws';
+import { awsValidityHelper } from './awsValidityHelper';
 
 jest.mock('./aws');
 jest.mock('../../helpers/common');

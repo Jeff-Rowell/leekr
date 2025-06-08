@@ -1,6 +1,6 @@
 import React from 'react';
+import DetectorsTab from './detectors/DetectorsTab';
 import FindingsTab from './findings/FindingsTab';
-import DetectorsTab from './detectors/DetectorsTab'
 import MoreTab from './more/MoreTab';
 
 interface TabContentProps {

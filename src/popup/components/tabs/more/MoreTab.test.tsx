@@ -1,8 +1,8 @@
 
-import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import MoreTab from './MoreTab';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { useAppContext } from '../../../AppContext';
+import MoreTab from './MoreTab';
 
 jest.mock('../../../AppContext', () => ({
     useAppContext: jest.fn(),

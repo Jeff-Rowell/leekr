@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useReducer, useState } from "react";
 import { Finding } from '../types/findings.types';
 import { PatternsObj } from '../types/patterns.types';
 import { Suffix } from '../types/suffix.types';

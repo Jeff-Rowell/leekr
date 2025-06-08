@@ -1,15 +1,15 @@
 import {
-    getExistingFindings,
-    serializeFindings,
     deserializeFindings,
-    storeFindings,
-    retrieveFindings,
-    getSourceMapUrl,
-    findSecretPosition,
-    serializePatterns,
     deserializePatterns,
-    retrievePatterns,
+    findSecretPosition,
+    getExistingFindings,
     getExistingPatterns,
+    getSourceMapUrl,
+    retrieveFindings,
+    retrievePatterns,
+    serializeFindings,
+    serializePatterns,
+    storeFindings,
     storePatterns
 } from './common';
 
