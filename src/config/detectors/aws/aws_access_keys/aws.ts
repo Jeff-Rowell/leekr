@@ -4,7 +4,7 @@ export const AWS_RESOURCE_TYPES: Record<string, string> = {
     'ACCA': 'Context-specific Credential'
 };
 
-export const DEFAULT_AWS_CONFIG = {
+export const DEFAULT_AWS_ACCESS_KEY_CONFIG = {
     requiredIdEntropy: 3.0,
     requiredSecretEntropy: 4.25
 };
