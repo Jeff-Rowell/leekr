@@ -4,5 +4,5 @@ export const AWS_RESOURCE_TYPES: Record<string, string> = {
 
 export const DEFAULT_AWS_SESSION_KEY_CONFIG = {
     requiredIdEntropy: 3.0,
-    requiredSecretEntropy: 4.25
+    requiredSecretEntropy: 4.5
 };
