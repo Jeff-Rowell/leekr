@@ -41,7 +41,7 @@ export const patterns: PatternsObj = {
         name: "AWS Session Key",
         familyName: "AWS Access & Secret Keys",
         pattern: /\b(?:[^A-Za-z0-9+/]|\A)([a-zA-Z0-9+/]{100,}={0,3})(?:[^A-Za-z0-9+/=]|$)\b/g,
-        entropy: awsSessionKeyConfig.requiredIdEntropy,
+        entropy: awsSessionKeyConfig.requiredSecretEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
         validityEndpoints: [],
