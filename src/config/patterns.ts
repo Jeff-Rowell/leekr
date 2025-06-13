@@ -29,7 +29,7 @@ export const patterns: PatternsObj = {
     },
     "AWS Session Key ID": {
         name: "AWS Session Key",
-        familyName: "AWS Access & Secret Keys",
+        familyName: "AWS Session Keys",
         pattern: /\b((?:ASIA)[A-Z0-9]{16})\b/g,
         entropy: awsSessionKeyConfig.requiredIdEntropy,
         isValidityCustomizable: false,
@@ -39,8 +39,8 @@ export const patterns: PatternsObj = {
     },
     "AWS Session Key": {
         name: "AWS Session Key",
-        familyName: "AWS Access & Secret Keys",
-        pattern: /\b(?:[^A-Za-z0-9+/]|\A)([a-zA-Z0-9+/]{100,}={0,3})(?:[^A-Za-z0-9+/=]|$)\b/g,
+        familyName: "AWS Session Keys",
+        pattern: /(?:[^A-Za-z0-9+/]|\A)([a-zA-Z0-9+/]{100,}={0,3})(?:[^A-Za-z0-9+/=]|$)/g,
         entropy: awsSessionKeyConfig.requiredSecretEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
