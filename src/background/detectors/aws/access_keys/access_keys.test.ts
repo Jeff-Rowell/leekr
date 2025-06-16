@@ -4,7 +4,7 @@ import * as entropyUtils from '../../../../utils/accuracy/entropy';
 import * as falsePositiveUtils from '../../../../utils/accuracy/falsePositives';
 import * as common from '../../../../utils/helpers/common';
 import * as helpers from '../../../../utils/helpers/computeFingerprint';
-import * as awsValidator from '../../../../utils/validators/aws_access_keys/aws';
+import * as awsValidator from '../../../../utils/validators/aws/aws_access_keys/aws';
 import { detectAwsAccessKeys } from './access_keys';
 
 jest.mock('../../../../utils/accuracy/entropy');

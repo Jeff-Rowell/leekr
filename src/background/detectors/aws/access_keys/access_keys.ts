@@ -7,7 +7,7 @@ import { calculateShannonEntropy } from '../../../../utils/accuracy/entropy';
 import { falsePositiveSecretPattern, isKnownFalsePositive } from '../../../../utils/accuracy/falsePositives';
 import { findSecretPosition, getExistingFindings, getSourceMapUrl } from '../../../../utils/helpers/common';
 import { computeFingerprint } from '../../../../utils/helpers/computeFingerprint';
-import { validateAWSCredentials } from '../../../../utils/validators/aws_access_keys/aws';
+import { validateAWSCredentials } from '../../../../utils/validators/aws/aws_access_keys/aws';
 
 export async function detectAwsAccessKeys(content: string, url: string): Promise<Occurrence[]> {
     const accessKeyMatches = content.match(patterns['AWS Access Key'].pattern) || [];
