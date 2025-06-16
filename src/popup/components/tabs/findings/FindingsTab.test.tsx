@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { AWSOccurrence } from 'src/types/aws.types';
 import { Finding, Occurrence } from 'src/types/findings.types';
 import { retrieveFindings, storeFindings } from '../../../../utils/helpers/common';
-import { awsValidityHelper } from '../../../../utils/validators/aws_access_keys/awsValidityHelper';
+import { awsValidityHelper } from '../../../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import FindingsTab from './FindingsTab';
 
@@ -10,7 +10,7 @@ jest.mock('../../../AppContext', () => ({
     useAppContext: jest.fn(),
 }));
 
-jest.mock('../../../../utils/validators/aws_access_keys/awsValidityHelper', () => ({
+jest.mock('../../../../utils/validators/aws/aws_access_keys/awsValidityHelper', () => ({
     awsValidityHelper: jest.fn(),
 }));
 

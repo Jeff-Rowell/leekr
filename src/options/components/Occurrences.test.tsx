@@ -2,14 +2,14 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { useAppContext } from '../../popup/AppContext';
 import { AWSOccurrence } from '../../types/aws.types';
 import { Finding, Occurrence } from '../../types/findings.types';
-import { awsValidityHelper } from '../../utils/validators/aws_access_keys/awsValidityHelper';
+import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
     useAppContext: jest.fn()
 }));
 
-jest.mock('../../utils/validators/aws_access_keys/awsValidityHelper');
+jest.mock('../../utils/validators/aws/aws_access_keys/awsValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",

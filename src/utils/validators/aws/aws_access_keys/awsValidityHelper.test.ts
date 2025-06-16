@@ -1,11 +1,11 @@
 import { AWSOccurrence } from 'src/types/aws.types';
 import { Finding, Occurrence } from 'src/types/findings.types';
-import { retrieveFindings, storeFindings } from '../../helpers/common';
+import { retrieveFindings, storeFindings } from '../../../helpers/common';
 import { validateAWSCredentials } from './aws';
 import { awsValidityHelper } from './awsValidityHelper';
 
 jest.mock('./aws');
-jest.mock('../../helpers/common');
+jest.mock('../../../helpers/common');
 
 const mockValidateAWSCredentials = validateAWSCredentials as jest.MockedFunction<typeof validateAWSCredentials>;
 const mockRetrieveFindings = retrieveFindings as jest.MockedFunction<typeof retrieveFindings>;

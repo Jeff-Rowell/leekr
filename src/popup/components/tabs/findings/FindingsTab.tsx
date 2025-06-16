@@ -2,7 +2,7 @@ import { RotateCw, Settings, ShieldCheck } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { Finding, ValidityStatus } from 'src/types/findings.types';
 import { retrieveFindings, storeFindings } from '../../../../utils/helpers/common';
-import { awsValidityHelper } from '../../../../utils/validators/aws_access_keys/awsValidityHelper';
+import { awsValidityHelper } from '../../../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import ModalHeader from '../../modalheader/ModalHeader';
 import './style.css';

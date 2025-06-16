@@ -9,7 +9,7 @@ import { detectAwsSessionKeys } from './session_keys';
 
 jest.mock('../../../../utils/accuracy/entropy');
 jest.mock('../../../../utils/accuracy/falsePositives');
-jest.mock('../../../../utils/validators/aws_access_keys/aws');
+jest.mock('../../../../utils/validators/aws/aws_access_keys/aws');
 jest.mock('../../../../utils/helpers/common');
 jest.mock('../../../../../external/source-map');
 

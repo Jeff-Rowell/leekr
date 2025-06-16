@@ -4,12 +4,12 @@ import userEvent from '@testing-library/user-event';
 import { useAppContext } from '../../popup/AppContext';
 import { AWSOccurrence } from '../../types/aws.types';
 import { Finding, Occurrence } from '../../types/findings.types';
-import { awsValidityHelper } from '../../utils/validators/aws_access_keys/awsValidityHelper';
+import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { Findings } from './Findings';
 
 jest.mock('../../popup/AppContext');
 
-jest.mock('../../utils/validators/aws_access_keys/awsValidityHelper');
+jest.mock('../../utils/validators/aws/aws_access_keys/awsValidityHelper');
 const mockAwsValidityHelper = awsValidityHelper as jest.MockedFunction<typeof awsValidityHelper>;
 
 const mockChrome = {

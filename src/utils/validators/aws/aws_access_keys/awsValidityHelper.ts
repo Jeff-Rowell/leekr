@@ -1,5 +1,5 @@
 import { Finding } from "src/types/findings.types";
-import { retrieveFindings, storeFindings } from "../../helpers/common";
+import { retrieveFindings, storeFindings } from "../../../helpers/common";
 import { validateAWSCredentials } from "./aws";
 
 export async function awsValidityHelper(finding: Finding): Promise<void> {

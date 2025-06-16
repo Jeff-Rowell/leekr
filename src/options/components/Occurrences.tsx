@@ -2,7 +2,7 @@ import { AlertTriangle, ChevronDown, ChevronUp, Download, RotateCw, ShieldCheck,
 import React, { useEffect, useState } from 'react';
 import { useAppContext } from '../../popup/AppContext';
 import { Finding } from '../../types/findings.types';
-import { awsValidityHelper } from '../../utils/validators/aws_access_keys/awsValidityHelper';
+import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 
 
 export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFingerprint }) => {
