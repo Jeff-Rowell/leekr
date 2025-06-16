@@ -7,7 +7,7 @@ import { AWSOccurrence, AWSSecretValue } from '../../../../types/aws.types';
 import { Finding, Occurrence, SourceContent } from '../../../../types/findings.types';
 import { validateAWSCredentials } from '../../../../utils/validators/aws/aws_session_keys/aws';
 import * as sourceMap from '../../../../../external/source-map';
-import { AWS_RESOURCE_TYPES } from '../../../../config/detectors/aws/aws_session_keys/session_keys';
+import { AWS_RESOURCE_TYPES } from '../../../../config/detectors/aws/aws_session_keys/aws';
 
 
 export async function detectAwsSessionKeys(content: string, url: string): Promise<Occurrence[]> {
