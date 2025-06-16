@@ -2,7 +2,8 @@ import { AWSDetectorConfig } from '../types/aws.types';
 import { PatternsObj } from '../types/patterns.types';
 import { storePatterns } from '../utils/helpers/common';
 import { DEFAULT_AWS_ACCESS_KEY_CONFIG } from './detectors/aws/aws_access_keys/aws';
-import { DEFAULT_AWS_SESSION_KEY_CONFIG } from './detectors/aws/aws_session_keys/session_keys';
+import { DEFAULT_AWS_SESSION_KEY_CONFIG } from './detectors/aws/aws_session_keys/aws';
+import { DEFAULT_ANTHROPIC_API_KEY_CONFIG } from './detectors/anthropic/anthropic';
 
 const awsAccessKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_ACCESS_KEY_CONFIG };
 const awsSessionKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_SESSION_KEY_CONFIG };
@@ -42,6 +43,16 @@ export const patterns: PatternsObj = {
         familyName: "AWS Session Keys",
         pattern: /(?:[^A-Za-z0-9+/]|\A)([a-zA-Z0-9+/]{100,}={0,3})(?:[^A-Za-z0-9+/=]|$)/g,
         entropy: awsSessionKeyConfig.requiredSecretEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Anthropic API Key": {
+        name: "Anthropic API Key",
+        familyName: "Anthropic AI",
+        pattern: /\b(sk-ant-(?:admin01|api03)-[\w\-]{93}AA)\b/,
+        entropy: DEFAULT_ANTHROPIC_API_KEY_CONFIG.requiredEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
         validityEndpoints: [],
