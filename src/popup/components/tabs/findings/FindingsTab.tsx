@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Finding, ValidityStatus } from 'src/types/findings.types';
 import { retrieveFindings, storeFindings } from '../../../../utils/helpers/common';
 import { awsValidityHelper } from '../../../../utils/validators/aws/aws_access_keys/awsValidityHelper';
+import { awsSessionValidityHelper } from '../../../../utils/validators/aws/aws_session_keys/awsValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import ModalHeader from '../../modalheader/ModalHeader';
 import './style.css';
@@ -17,6 +18,8 @@ const FindingsTab: React.FC = () => {
     const handleValidityCheck = async (finding: Finding) => {
         if (finding.secretType === "AWS Access & Secret Keys") {
             awsValidityHelper(finding);
+        } else if (finding.secretType === "AWS Session Keys") {
+            awsSessionValidityHelper(finding)
         }
     };
 
