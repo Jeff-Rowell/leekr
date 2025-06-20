@@ -5,12 +5,15 @@ import { useAppContext } from '../../popup/AppContext';
 import { AWSOccurrence } from '../../types/aws.types';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
+import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
 import { Findings } from './Findings';
 
 jest.mock('../../popup/AppContext');
 
 jest.mock('../../utils/validators/aws/aws_access_keys/awsValidityHelper');
+jest.mock('../../utils/validators/aws/aws_session_keys/awsValidityHelper');
 const mockAwsValidityHelper = awsValidityHelper as jest.MockedFunction<typeof awsValidityHelper>;
+const mockAwsSessionValidityHelper = awsSessionValidityHelper as jest.MockedFunction<typeof awsSessionValidityHelper>;
 
 const mockChrome = {
     runtime: {
@@ -118,10 +121,31 @@ const mockOccurrenceFour: AWSOccurrence = {
     url: "http://localhost:3000/static/js/main.foobar.js",
 };
 
+const mockSessionOccurrence: AWSOccurrence = {
+    accountId: "111222333444",
+    arn: "arn:aws:iam::111222333444:user/leekr",
+    filePath: "main.foobar.js",
+    fingerprint: "fp5",
+    resourceType: "Session Key",
+    secretType: "AWS Session Keys",
+    secretValue: {
+        match: { session_key_id: "session123", access_key_id: "lol", secret_key_id: "wut" }
+    },
+    sourceContent: {
+        content: "foobar",
+        contentEndLineNum: 35,
+        contentFilename: "App.js",
+        contentStartLineNum: 18,
+        exactMatchNumbers: [23, 30]
+    },
+    url: "http://localhost:3000/static/js/main.foobar.js",
+};
+
 const mockOccurrencesOne: Set<Occurrence> = new Set([mockOccurrenceOne]);
 const mockOccurrencesTwo: Set<Occurrence> = new Set([mockOccurrenceTwo]);
 const mockOccurrencesThree: Set<Occurrence> = new Set([mockOccurrenceThree]);
 const mockOccurrencesFour: Set<Occurrence> = new Set([mockOccurrenceFour]);
+const mockSessionOccurrences: Set<Occurrence> = new Set([mockSessionOccurrence]);
 
 const mockFindings: Finding[] = [
     {
@@ -173,6 +197,19 @@ const mockFindings: Finding[] = [
             validity: "failed_to_check"
         }
     },
+    {
+        fingerprint: "fp5",
+        numOccurrences: mockSessionOccurrences.size,
+        occurrences: mockSessionOccurrences,
+        validity: "valid",
+        validatedAt: "2025-05-17T18:16:16.870Z",
+        secretType: "AWS Session Keys",
+        secretValue: {
+            match: { session_token: "session123", access_key_id: "lol", secret_key_id: "wut" },
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            validity: "valid"
+        }
+    },
 ];
 
 describe('Findings Component', () => {
@@ -214,7 +251,7 @@ describe('Findings Component', () => {
         test('renders all findings when no filters applied', () => {
             const { container } = render(<Findings />);
             const findings = container.querySelectorAll('.findings-td');
-            expect(findings).toHaveLength(4);
+            expect(findings).toHaveLength(5);
         });
 
         test('shows empty state when no findings exist', () => {
@@ -233,7 +270,7 @@ describe('Findings Component', () => {
         test('displays validity status with correct formatting', () => {
             render(<Findings />);
 
-            expect(screen.getByText('valid')).toBeInTheDocument();
+            expect(screen.getAllByText('valid')).toHaveLength(2); // 2 valid findings
             expect(screen.getByText('invalid')).toBeInTheDocument();
             expect(screen.getByText('unknown')).toBeInTheDocument();
             expect(screen.getByText('failed to check')).toBeInTheDocument();
@@ -243,7 +280,7 @@ describe('Findings Component', () => {
             const { container } = render(<Findings />);
 
             const shieldIcons = container.querySelectorAll('.validity-valid');
-            expect(shieldIcons).toHaveLength(1);
+            expect(shieldIcons).toHaveLength(2); // Now 2 valid findings
         });
     });
 
@@ -256,7 +293,7 @@ describe('Findings Component', () => {
             await user.selectOptions(validityFilter, 'valid');
 
             const findings = container.querySelectorAll('.findings-td');
-            expect(findings).toHaveLength(1);
+            expect(findings).toHaveLength(2); // Now 2 valid findings (1 AWS Access & Secret Keys, 1 AWS Session Keys)
         });
 
         test('filters findings by invalid status', async () => {
@@ -301,11 +338,11 @@ describe('Findings Component', () => {
             await user.selectOptions(validityFilter, 'valid');
 
             const validFindings = container.querySelectorAll('.findings-td');
-            expect(validFindings).toHaveLength(1);
+            expect(validFindings).toHaveLength(2); // Now 2 valid findings
 
             await user.selectOptions(validityFilter, 'all');
             const allFindings = container.querySelectorAll('.findings-td');
-            expect(allFindings).toHaveLength(4);
+            expect(allFindings).toHaveLength(5);
         });
     });
 
@@ -316,9 +353,10 @@ describe('Findings Component', () => {
             const typeFilter = screen.getByLabelText('Secret Type:');
             const options = typeFilter.querySelectorAll('option');
 
-            expect(options).toHaveLength(2);
+            expect(options).toHaveLength(3);
             expect(options[0]).toHaveTextContent('All Types');
             expect(options[1]).toHaveTextContent('AWS Access & Secret Keys');
+            expect(options[2]).toHaveTextContent('AWS Session Keys');
         });
 
         test('filters findings by secret type', async () => {
@@ -329,7 +367,18 @@ describe('Findings Component', () => {
             await user.selectOptions(typeFilter, 'AWS Access & Secret Keys');
 
             const rows = screen.getAllByRole('row');
-            expect(rows).toHaveLength(5);
+            expect(rows).toHaveLength(5); // 1 header + 4 AWS Access & Secret Keys findings
+        });
+
+        test('filters findings by AWS Session Keys', async () => {
+            const user = userEvent.setup();
+            render(<Findings />);
+
+            const typeFilter = screen.getByLabelText('Secret Type:');
+            await user.selectOptions(typeFilter, 'AWS Session Keys');
+
+            const rows = screen.getAllByRole('row');
+            expect(rows).toHaveLength(2); // 1 header + 1 AWS Session Keys finding
         });
 
         test('shows all findings when "All Types" is selected', async () => {
@@ -339,7 +388,7 @@ describe('Findings Component', () => {
             const typeFilter = screen.getByLabelText('Secret Type:');
             await user.selectOptions(typeFilter, 'AWS Access & Secret Keys');
             const allFindings = container.querySelectorAll('.findings-td');
-            expect(allFindings).toHaveLength(4);
+            expect(allFindings).toHaveLength(4); // Only 4 AWS Access & Secret Keys findings
         });
     });
 
@@ -355,7 +404,7 @@ describe('Findings Component', () => {
             await user.selectOptions(typeFilter, 'AWS Access & Secret Keys');
 
             const rows = screen.getAllByRole('row');
-            expect(rows).toHaveLength(2);
+            expect(rows).toHaveLength(2); // 1 header + 1 valid AWS Access & Secret Keys finding
             expect(screen.getByText('valid')).toBeInTheDocument();
         });
 
@@ -396,7 +445,8 @@ describe('Findings Component', () => {
 
             const rows = screen.getAllByRole('row');
             const firstDataRow = rows[1];
-            expect(firstDataRow).toHaveTextContent('AWS Access & Secret Keys');
+            // After clicking to reverse sort, AWS Session Keys should come before AWS Access & Secret Keys
+            expect(firstDataRow).toHaveTextContent('AWS Session Keys');
         });
 
         test('sorts by validity when clicked', async () => {
@@ -455,7 +505,7 @@ describe('Findings Component', () => {
             render(<Findings />);
 
             const viewButtons = screen.getAllByTestId('square-arrow-right');
-            expect(viewButtons).toHaveLength(4);
+            expect(viewButtons).toHaveLength(5);
         });
 
         test('handles view occurrences click', async () => {
@@ -491,14 +541,46 @@ describe('Findings Component', () => {
             expect(mockAwsValidityHelper).toHaveBeenCalledWith(mockFindings[0]);
         });
 
-        test('does not call validity helper for non-AWS findings', async () => {
+        test('handles validity recheck for AWS Session Keys', async () => {
             const user = userEvent.setup();
             render(<Findings />);
 
             const recheckButtons = screen.getAllByTestId('rotate-cw');
-            await user.click(recheckButtons[1]);
+            await user.click(recheckButtons[1]); // Second button should be AWS Session Keys
+
+            expect(mockAwsSessionValidityHelper).toHaveBeenCalledWith(mockFindings[4]); // fp5 is the session keys finding
+        });
+
+        test('does not call validity helper for unknown secret types', async () => {
+            // Create a finding with an unknown secret type
+            const unknownTypeFindings: Finding[] = [{
+                fingerprint: "fp6",
+                numOccurrences: 1,
+                occurrences: mockOccurrencesOne,
+                validity: "valid",
+                validatedAt: "2025-05-17T18:16:16.870Z",
+                secretType: "Unknown Secret Type",
+                secretValue: {
+                    match: { some_key: "value" },
+                    validatedAt: "2025-05-17T18:16:16.870Z",
+                    validity: "valid"
+                }
+            }];
+
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: unknownTypeFindings,
+                },
+            });
+
+            const user = userEvent.setup();
+            render(<Findings />);
+
+            const recheckButtons = screen.getAllByTestId('rotate-cw');
+            await user.click(recheckButtons[0]);
 
             expect(mockAwsValidityHelper).not.toHaveBeenCalled();
+            expect(mockAwsSessionValidityHelper).not.toHaveBeenCalled();
         });
     });
 
@@ -506,12 +588,12 @@ describe('Findings Component', () => {
         test('applies correct CSS classes for validity status', () => {
             render(<Findings />);
 
-            const validStatus = screen.getByText('valid').closest('.validity-status');
+            const validStatuses = screen.getAllByText('valid');
             const invalidStatus = screen.getByText('invalid').closest('.validity-status');
             const unknownStatus = screen.getByText('unknown').closest('.validity-status');
             const failedStatus = screen.getByText('failed to check').closest('.validity-status');
 
-            expect(validStatus).toHaveClass('validity-valid');
+            expect(validStatuses[0].closest('.validity-status')).toHaveClass('validity-valid');
             expect(invalidStatus).toHaveClass('validity-invalid');
             expect(unknownStatus).toHaveClass('validity-unknown');
             expect(failedStatus).toHaveClass('validity-failed');
@@ -668,10 +750,10 @@ describe('Findings Component', () => {
             render(<Findings />);
 
             const viewButtons = screen.getAllByTitle('View Occurrences');
-            expect(viewButtons).toHaveLength(4);
+            expect(viewButtons).toHaveLength(5);
 
             const recheckButtons = screen.getAllByLabelText('Recheck validity');
-            expect(recheckButtons).toHaveLength(1);
+            expect(recheckButtons).toHaveLength(2); // Now 2 validated findings
         });
 
         test('table headers are clickable for sorting', () => {
