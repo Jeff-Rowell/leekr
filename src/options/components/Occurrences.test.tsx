@@ -3,6 +3,7 @@ import { useAppContext } from '../../popup/AppContext';
 import { AWSOccurrence } from '../../types/aws.types';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
+import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
@@ -10,6 +11,7 @@ jest.mock('../../popup/AppContext', () => ({
 }));
 
 jest.mock('../../utils/validators/aws/aws_access_keys/awsValidityHelper');
+jest.mock('../../utils/validators/aws/aws_session_keys/awsValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",
@@ -31,21 +33,57 @@ const mockOccurrence: AWSOccurrence = {
     url: "http://localhost:3000/static/js/main.foobar.js",
 };
 
-const mockOccurrences: Set<Occurrence> = new Set([mockOccurrence]);
-
-const mockFindings: Finding[] = [{
-    fingerprint: "fp1",
-    numOccurrences: mockOccurrences.size,
-    occurrences: mockOccurrences,
-    validity: "valid",
-    validatedAt: "2025-05-13T18:16:16.870Z",
-    secretType: "AWS Access & Secret Keys",
+const mockSessionOccurrence: AWSOccurrence = {
+    accountId: "111222333444",
+    arn: "arn:aws:iam::111222333444:user/leekr",
+    filePath: "main.foobar.js",
+    fingerprint: "fp2",
+    resourceType: "Session Key",
+    secretType: "AWS Session Keys",
     secretValue: {
-        match: { access_key_id: "lol", secret_key_id: "wut" },
-        validatedAt: "2025-05-17T18:16:16.870Z",
-        validity: "valid"
+        match: { session_key_id: "session123", access_key_id: "lol", secret_key_id: "wut" }
+    },
+    sourceContent: {
+        content: "sessionfoobar\n".repeat(18),
+        contentEndLineNum: 35,
+        contentFilename: "SessionApp.js",
+        contentStartLineNum: 18,
+        exactMatchNumbers: [23, 30]
+    },
+    url: "http://localhost:3000/static/js/session.foobar.js",
+};
+
+const mockOccurrences: Set<Occurrence> = new Set([mockOccurrence]);
+const mockSessionOccurrences: Set<Occurrence> = new Set([mockSessionOccurrence]);
+
+const mockFindings: Finding[] = [
+    {
+        fingerprint: "fp1",
+        numOccurrences: mockOccurrences.size,
+        occurrences: mockOccurrences,
+        validity: "valid",
+        validatedAt: "2025-05-13T18:16:16.870Z",
+        secretType: "AWS Access & Secret Keys",
+        secretValue: {
+            match: { access_key_id: "lol", secret_key_id: "wut" },
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            validity: "valid"
+        }
+    },
+    {
+        fingerprint: "fp2",
+        numOccurrences: mockSessionOccurrences.size,
+        occurrences: mockSessionOccurrences,
+        validity: "valid",
+        validatedAt: "2025-05-13T18:16:16.870Z",
+        secretType: "AWS Session Keys",
+        secretValue: {
+            match: { session_token: "session123", access_key_id: "lol", secret_key_id: "wut" },
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            validity: "valid"
+        }
     }
-}]
+]
 
 describe('Occurrences Component', () => {
     beforeEach(() => {
@@ -100,13 +138,61 @@ describe('Occurrences Component', () => {
         expect(screen.getByText(mockOccurrence.sourceContent.contentEndLineNum + 1)).toBeInTheDocument(); // last line number
     });
 
-    test('calls awsValidityHelper on recheck button click', () => {
+    test('calls awsValidityHelper on recheck button click for AWS Access Keys', () => {
         render(<Occurrences filterFingerprint='fp1' />);
 
         const recheckButton = screen.getByLabelText('Recheck validity');
         fireEvent.click(recheckButton);
 
         expect(awsValidityHelper).toHaveBeenCalledWith(mockFindings[0]);
+    });
+
+    test('calls awsSessionValidityHelper on recheck button click for AWS Session Keys', () => {
+        render(<Occurrences filterFingerprint='fp2' />);
+
+        const recheckButton = screen.getByLabelText('Recheck validity');
+        fireEvent.click(recheckButton);
+
+        expect(awsSessionValidityHelper).toHaveBeenCalledWith(mockFindings[1]);
+    });
+
+    test('renders AWS Session Keys finding and occurrence', () => {
+        render(<Occurrences filterFingerprint='fp2' />);
+
+        expect(screen.getByText('AWS Session Keys')).toBeInTheDocument();
+        expect(screen.getByText('SessionApp.js: Line 23')).toBeInTheDocument();
+        expect(screen.getByText('View JS Bundle')).toBeInTheDocument();
+    });
+
+    test('does not call validity helpers for unknown secret types', () => {
+        // Create a finding with unknown secret type
+        const unknownTypeFinding: Finding = {
+            fingerprint: "fp3",
+            numOccurrences: 1,
+            occurrences: mockOccurrences,
+            validity: "valid",
+            validatedAt: "2025-05-13T18:16:16.870Z",
+            secretType: "Unknown Secret Type",
+            secretValue: {
+                match: { some_key: "value" },
+                validatedAt: "2025-05-17T18:16:16.870Z",
+                validity: "valid"
+            }
+        };
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: {
+                findings: [unknownTypeFinding],
+            },
+        });
+
+        render(<Occurrences filterFingerprint='fp3' />);
+
+        const recheckButton = screen.getByLabelText('Recheck validity');
+        fireEvent.click(recheckButton);
+
+        expect(awsValidityHelper).not.toHaveBeenCalled();
+        expect(awsSessionValidityHelper).not.toHaveBeenCalled();
     });
 
     test('clicking download source code button calls URL.createObjectURL', () => {

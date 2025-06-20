@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useAppContext } from '../../popup/AppContext';
 import { Finding } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
+import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
 
 
 export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFingerprint }) => {
@@ -28,6 +29,8 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
     const handleValidityCheck = async (finding: Finding) => {
         if (finding.secretType === "AWS Access & Secret Keys") {
             awsValidityHelper(finding);
+        } else if (finding.secretType === "AWS Session Keys") {
+            awsSessionValidityHelper(finding)
         }
     };
 
