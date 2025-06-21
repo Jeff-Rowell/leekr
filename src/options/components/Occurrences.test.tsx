@@ -1,9 +1,11 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { useAppContext } from '../../popup/AppContext';
 import { AWSOccurrence } from '../../types/aws.types';
+import { AnthropicOccurrence } from '../../types/anthropic';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
+import { anthropicValidityHelper } from '../../utils/validators/anthropic/anthropicValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
@@ -12,6 +14,7 @@ jest.mock('../../popup/AppContext', () => ({
 
 jest.mock('../../utils/validators/aws/aws_access_keys/awsValidityHelper');
 jest.mock('../../utils/validators/aws/aws_session_keys/awsValidityHelper');
+jest.mock('../../utils/validators/anthropic/anthropicValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",
@@ -53,8 +56,27 @@ const mockSessionOccurrence: AWSOccurrence = {
     url: "http://localhost:3000/static/js/session.foobar.js",
 };
 
+const mockAnthropicOccurrence: AnthropicOccurrence = {
+    filePath: "main.foobar.js",
+    fingerprint: "fp3",
+    type: "ADMIN",
+    secretType: "Anthropic AI",
+    secretValue: {
+        match: { api_key: "sk-ant-api-test123456789" }
+    },
+    sourceContent: {
+        content: "anthropicfoobar\n".repeat(18),
+        contentEndLineNum: 35,
+        contentFilename: "AnthropicApp.js",
+        contentStartLineNum: 18,
+        exactMatchNumbers: [23, 30]
+    },
+    url: "http://localhost:3000/static/js/anthropic.foobar.js",
+};
+
 const mockOccurrences: Set<Occurrence> = new Set([mockOccurrence]);
 const mockSessionOccurrences: Set<Occurrence> = new Set([mockSessionOccurrence]);
+const mockAnthropicOccurrences: Set<Occurrence> = new Set([mockAnthropicOccurrence]);
 
 const mockFindings: Finding[] = [
     {
@@ -79,6 +101,19 @@ const mockFindings: Finding[] = [
         secretType: "AWS Session Keys",
         secretValue: {
             match: { session_token: "session123", access_key_id: "lol", secret_key_id: "wut" },
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            validity: "valid"
+        }
+    },
+    {
+        fingerprint: "fp3",
+        numOccurrences: mockAnthropicOccurrences.size,
+        occurrences: mockAnthropicOccurrences,
+        validity: "valid",
+        validatedAt: "2025-05-13T18:16:16.870Z",
+        secretType: "Anthropic AI",
+        secretValue: {
+            match: { api_key: "sk-ant-api-test123456789" },
             validatedAt: "2025-05-17T18:16:16.870Z",
             validity: "valid"
         }
@@ -134,8 +169,8 @@ describe('Occurrences Component', () => {
         const expandBtn = screen.getByLabelText('Expand code');
         fireEvent.click(expandBtn);
 
-        expect(screen.getByText(mockOccurrence.sourceContent.contentStartLineNum + 1)).toBeInTheDocument(); // first line number
-        expect(screen.getByText(mockOccurrence.sourceContent.contentEndLineNum + 1)).toBeInTheDocument(); // last line number
+        expect(screen.getByText(mockOccurrence.sourceContent.contentStartLineNum + 1)).toBeInTheDocument();
+        expect(screen.getByText(mockOccurrence.sourceContent.contentEndLineNum + 1)).toBeInTheDocument();
     });
 
     test('calls awsValidityHelper on recheck button click for AWS Access Keys', () => {
@@ -156,6 +191,15 @@ describe('Occurrences Component', () => {
         expect(awsSessionValidityHelper).toHaveBeenCalledWith(mockFindings[1]);
     });
 
+    test('calls anthropicValidityHelper on recheck button click for Anthropic AI', () => {
+        render(<Occurrences filterFingerprint='fp3' />);
+
+        const recheckButton = screen.getByLabelText('Recheck validity');
+        fireEvent.click(recheckButton);
+
+        expect(anthropicValidityHelper).toHaveBeenCalledWith(mockFindings[2]);
+    });
+
     test('renders AWS Session Keys finding and occurrence', () => {
         render(<Occurrences filterFingerprint='fp2' />);
 
@@ -164,10 +208,17 @@ describe('Occurrences Component', () => {
         expect(screen.getByText('View JS Bundle')).toBeInTheDocument();
     });
 
+    test('renders Anthropic AI finding and occurrence', () => {
+        render(<Occurrences filterFingerprint='fp3' />);
+
+        expect(screen.getByText('Anthropic AI')).toBeInTheDocument();
+        expect(screen.getByText('AnthropicApp.js: Line 23')).toBeInTheDocument();
+        expect(screen.getByText('View JS Bundle')).toBeInTheDocument();
+    });
+
     test('does not call validity helpers for unknown secret types', () => {
-        // Create a finding with unknown secret type
         const unknownTypeFinding: Finding = {
-            fingerprint: "fp3",
+            fingerprint: "fp4",
             numOccurrences: 1,
             occurrences: mockOccurrences,
             validity: "valid",
@@ -186,13 +237,14 @@ describe('Occurrences Component', () => {
             },
         });
 
-        render(<Occurrences filterFingerprint='fp3' />);
+        render(<Occurrences filterFingerprint='fp4' />);
 
         const recheckButton = screen.getByLabelText('Recheck validity');
         fireEvent.click(recheckButton);
 
         expect(awsValidityHelper).not.toHaveBeenCalled();
         expect(awsSessionValidityHelper).not.toHaveBeenCalled();
+        expect(anthropicValidityHelper).not.toHaveBeenCalled();
     });
 
     test('clicking download source code button calls URL.createObjectURL', () => {

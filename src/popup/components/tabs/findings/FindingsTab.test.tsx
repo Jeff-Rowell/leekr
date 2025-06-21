@@ -1,9 +1,11 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { AWSOccurrence } from 'src/types/aws.types';
+import { AnthropicOccurrence } from 'src/types/anthropic';
 import { Finding, Occurrence } from 'src/types/findings.types';
 import { retrieveFindings, storeFindings } from '../../../../utils/helpers/common';
 import { awsValidityHelper } from '../../../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../../../utils/validators/aws/aws_session_keys/awsValidityHelper';
+import { anthropicValidityHelper } from '../../../../utils/validators/anthropic/anthropicValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import FindingsTab from './FindingsTab';
 
@@ -17,6 +19,10 @@ jest.mock('../../../../utils/validators/aws/aws_access_keys/awsValidityHelper', 
 
 jest.mock('../../../../utils/validators/aws/aws_session_keys/awsValidityHelper', () => ({
     awsSessionValidityHelper: jest.fn(),
+}));
+
+jest.mock('../../../../utils/validators/anthropic/anthropicValidityHelper', () => ({
+    anthropicValidityHelper: jest.fn(),
 }));
 
 jest.mock('../../../../utils/helpers/common', () => ({
@@ -172,11 +178,30 @@ describe('FindingsTab', () => {
         url: "http://localhost:3000/static/js/main.foobar.js",
     };
 
+    const mockAnthropicOccurrence: AnthropicOccurrence = {
+        filePath: "main.foobar.js",
+        fingerprint: "fp6",
+        type: "ADMIN",
+        secretType: "Anthropic AI",
+        secretValue: {
+            match: { api_key: "sk-ant-api-test123456789" }
+        },
+        sourceContent: {
+            content: "foobar",
+            contentEndLineNum: 35,
+            contentFilename: "App.js",
+            contentStartLineNum: 18,
+            exactMatchNumbers: [23, 30]
+        },
+        url: "http://localhost:3000/static/js/main.foobar.js",
+    };
+
     const mockOccurrencesOne: Set<Occurrence> = new Set([mockOccurrenceOne]);
     const mockOccurrencesTwo: Set<Occurrence> = new Set([mockOccurrenceTwo]);
     const mockOccurrencesThree: Set<Occurrence> = new Set([mockOccurrenceThree]);
     const mockOccurrencesFour: Set<Occurrence> = new Set([mockOccurrenceFour]);
     const mockSessionOccurrences: Set<Occurrence> = new Set([mockSessionOccurrence]);
+    const mockAnthropicOccurrences: Set<Occurrence> = new Set([mockAnthropicOccurrence]);
 
     const mockFindings: Finding[] = [
         {
@@ -241,6 +266,19 @@ describe('FindingsTab', () => {
                 validity: "valid"
             }
         },
+        {
+            fingerprint: "fp6",
+            numOccurrences: mockAnthropicOccurrences.size,
+            occurrences: mockAnthropicOccurrences,
+            validity: "valid",
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            secretType: "Anthropic AI",
+            secretValue: {
+                match: { api_key: "sk-ant-api-test123456789" },
+                validatedAt: "2025-05-17T18:16:16.870Z",
+                validity: "valid"
+            }
+        },
     ];
 
     beforeEach(() => {
@@ -251,7 +289,6 @@ describe('FindingsTab', () => {
             },
         });
 
-        // Setup getBoundingClientRect mock for settings button
         Element.prototype.getBoundingClientRect = jest.fn(() => ({
             bottom: 100,
             right: 300,
@@ -264,7 +301,6 @@ describe('FindingsTab', () => {
             toJSON: () => { },
         }));
 
-        // Set up scrollX and scrollY
         window.scrollX = 0;
         window.scrollY = 0;
     });
@@ -299,6 +335,10 @@ describe('FindingsTab', () => {
         expect(rows[5]).toHaveTextContent('AWS Session Keys');
         expect(rows[5]).toHaveTextContent('valid');
         expect(rows[5]).toHaveTextContent('1');
+
+        expect(rows[6]).toHaveTextContent('Anthropic AI');
+        expect(rows[6]).toHaveTextContent('valid');
+        expect(rows[6]).toHaveTextContent('1');
     });
 
     test('applies correct validity color classes', () => {
@@ -318,14 +358,14 @@ describe('FindingsTab', () => {
     test('shows validity check icon for validated findings', () => {
         render(<FindingsTab />);
         const shieldIcons = screen.getAllByTestId('shield-check-icon');
-        expect(shieldIcons.length).toBe(2); // Updated to 2 since we now have 2 validated findings
+        expect(shieldIcons.length).toBe(3);
     });
 
     test('opens settings menu when settings button is clicked', async () => {
         render(<FindingsTab />);
 
         const settingsButtons = screen.getAllByLabelText('Settings');
-        expect(settingsButtons.length).toBe(5); // Updated to 5 since we now have 5 findings
+        expect(settingsButtons.length).toBe(6);
         fireEvent.click(settingsButtons[0]);
 
         await waitFor(() => {
@@ -384,26 +424,32 @@ describe('FindingsTab', () => {
 
     test('calls handleValidityCheck when recheck button is clicked', async () => {
         render(<FindingsTab />);
-        
-        // Find all recheck buttons (there should be 2 for the validated findings)
+
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(2);
-        
-        // Click the first one (should be for AWS Access & Secret Keys)
+        expect(recheckButtons).toHaveLength(3);
+
         fireEvent.click(recheckButtons[0]);
         expect(awsValidityHelper).toHaveBeenCalledWith(mockFindings[0]);
     });
 
     test('calls awsSessionValidityHelper when recheck button is clicked for AWS Session Keys', async () => {
         render(<FindingsTab />);
-        
-        // Find all recheck buttons (there should be 2 for the validated findings)
+
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(2);
-        
-        // Click the second one (should be for AWS Session Keys)
+        expect(recheckButtons).toHaveLength(3);
+
         fireEvent.click(recheckButtons[1]);
-        expect(awsSessionValidityHelper).toHaveBeenCalledWith(mockFindings[4]); // The AWS Session Keys finding
+        expect(awsSessionValidityHelper).toHaveBeenCalledWith(mockFindings[4]);
+    });
+
+    test('calls anthropicValidityHelper when recheck button is clicked for Anthropic AI', async () => {
+        render(<FindingsTab />);
+
+        const recheckButtons = screen.getAllByLabelText('Recheck validity');
+        expect(recheckButtons).toHaveLength(3);
+
+        fireEvent.click(recheckButtons[2]);
+        expect(anthropicValidityHelper).toHaveBeenCalledWith(mockFindings[5]);
     });
 
     test('opens GitHub issues page when "Report Issue" is clicked', async () => {
