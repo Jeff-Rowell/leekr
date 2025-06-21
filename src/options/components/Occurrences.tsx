@@ -4,6 +4,7 @@ import { useAppContext } from '../../popup/AppContext';
 import { Finding } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
+import { anthropicValidityHelper } from '../../utils/validators/anthropic/anthropicValidityHelper';
 
 
 export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFingerprint }) => {
@@ -30,7 +31,9 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
         if (finding.secretType === "AWS Access & Secret Keys") {
             awsValidityHelper(finding);
         } else if (finding.secretType === "AWS Session Keys") {
-            awsSessionValidityHelper(finding)
+            awsSessionValidityHelper(finding);
+        } else if (finding.secretType === "Anthropic AI") {
+            anthropicValidityHelper(finding);
         }
     };
 

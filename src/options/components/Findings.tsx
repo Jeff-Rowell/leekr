@@ -11,6 +11,7 @@ import { useAppContext } from '../../popup/AppContext';
 import { Finding, ValidityStatus } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
+import { anthropicValidityHelper } from '../../utils/validators/anthropic/anthropicValidityHelper';
 
 // Pagination constants
 const ITEMS_PER_PAGE = 10;
@@ -92,7 +93,9 @@ export const Findings: React.FC = () => {
         if (finding.secretType === "AWS Access & Secret Keys") {
             awsValidityHelper(finding);
         } else if (finding.secretType === "AWS Session Keys") {
-            awsSessionValidityHelper(finding)
+            awsSessionValidityHelper(finding);
+        } else if (finding.secretType === "Anthropic AI") {
+            anthropicValidityHelper(finding);
         }
     };
 
