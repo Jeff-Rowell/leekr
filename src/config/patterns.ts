@@ -51,7 +51,7 @@ export const patterns: PatternsObj = {
     "Anthropic API Key": {
         name: "Anthropic API Key",
         familyName: "Anthropic AI",
-        pattern: /\b(sk-ant-(?:admin01|api03)-[\w\-]{93}AA)\b/,
+        pattern: /\b(sk-ant-(?:admin01|api03)-[\w\-]{93}AA)\b/g,
         entropy: DEFAULT_ANTHROPIC_API_KEY_CONFIG.requiredEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,

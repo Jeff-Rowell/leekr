@@ -14,14 +14,16 @@ export async function detectAnthropicKeys(content: string, url: string): Promise
         return [];
     }
 
+    const uniqueKeys = [...new Set(anthropicKeyMatches)];
+
     const existingFindings = await getExistingFindings();
     const filteredAnthropicKeys = await Promise.all(
-        anthropicKeyMatches.map(async (apiKey) => {
+        uniqueKeys.map(async (apiKey) => {
             const alreadyFound = existingFindings.some(
                 (finding: Finding) => {
                     return Object.values(finding.secretValue).some(
-                        (match: AnthropicSecretValue) => {
-                            return Object.values(match).includes(apiKey);
+                        (match) => {
+                            return Object.values(match as AnthropicSecretValue).includes(apiKey);
                         }
                     );
                 }
