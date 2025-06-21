@@ -64,11 +64,18 @@ export async function detectAwsSessionKeys(content: string, url: string): Promis
         validAccessKeys.map(async (aKey) => {
             const alreadyFound = existingFindings.some(
                 (finding: Finding) => {
-                    return Object.values(finding.secretValue).some(
-                        (match: AWSSecretValue) => {
-                            return Object.values(match).includes(aKey);
-                        }
-                    )
+                    const secretValue = finding.secretValue as AWSSecretValue;
+                    if (!secretValue.match) return false;
+
+                    const accessKeyMatch = secretValue.match.access_key_id === aKey;
+                    const secretKeyMatch = validSecretKeys.some(sKey =>
+                        secretValue.match.secret_key_id === sKey
+                    );
+                    const sessionKeyMatch = validSessionKeys.some(sessKey =>
+                        secretValue.match.session_key_id === sessKey
+                    );
+
+                    return accessKeyMatch && secretKeyMatch && sessionKeyMatch;
                 }
             );
             return alreadyFound ? null : aKey;
