@@ -444,4 +444,51 @@ describe('detectAwsAccessKeys', () => {
         expect(result[0].sourceContent.contentFilename).toBe("");
     });
 
+    test('handles existing findings with secretValue that has no match property', async () => {
+        const content = `some code with ${fakeAccessKey} and "${fakeSecretKey}" inside and "${fakeSessionToken}"`;
+
+        jest.spyOn(entropyUtils, 'calculateShannonEntropy').mockReturnValue(5.0);
+        jest.spyOn(falsePositiveUtils, 'isKnownFalsePositive').mockReturnValue([false, '']);
+        Object.defineProperty(falsePositiveUtils, 'falsePositiveSecretPattern', {
+            value: /NOTHING_WILL_MATCH_THIS_PATTERN/,
+            writable: true,
+        });
+
+        jest.spyOn(awsValidator, 'validateAWSCredentials').mockResolvedValue({
+            valid: true,
+            accountId: '123456789012',
+            arn: 'arn:aws:iam::123456789012:user/TestUser',
+        });
+
+        // Mock existing finding with secretValue that has no match property
+        jest.spyOn(common, 'getExistingFindings').mockResolvedValue([{
+            secretType: 'AWS Session Keys',
+            secretValue: {}, // No match property
+            numOccurrences: 1,
+            fingerprint: 'some-fp',
+            validity: 'valid',
+            occurrences: new Set()
+        }]);
+
+        jest.spyOn(helpers, 'computeFingerprint').mockResolvedValue('mocked-fingerprint');
+
+        const result = await detectAwsSessionKeys(content, fakeUrl);
+
+        // Should still return 1 result since the existing finding doesn't match (no match property)
+        expect(result).toHaveLength(1);
+        expect(result[0]).toMatchObject({
+            secretValue: {
+                match: {
+                    access_key_id: fakeAccessKey,
+                    secret_key_id: fakeSecretKey,
+                    session_key_id: fakeSessionToken
+                }
+            },
+            validity: 'valid',
+            accountId: '123456789012',
+            arn: 'arn:aws:iam::123456789012:user/TestUser',
+            fingerprint: 'mocked-fingerprint',
+        });
+    });
+
 });
