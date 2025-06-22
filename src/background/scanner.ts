@@ -1,20 +1,20 @@
 import { Finding, Occurrence } from '../types/findings.types';
-import { detectAwsAccessKeys } from './detectors/aws/access_keys/access_keys';
-import { detectAwsSessionKeys } from './detectors/aws/session_keys/session_keys';
-import { detectAnthropicKeys } from './detectors/anthropic/anthropic';
+import { ConcreteDetectorFactory } from './detectors/DetectorFactory';
+import { DetectorFactory } from './detectors/detector.interface';
 
 export async function findSecrets(content: string, url: string): Promise<Finding[]> {
     const findings: Finding[] = [];
+    const factory: DetectorFactory = new ConcreteDetectorFactory();
 
-    // TODO: refactor this with a factory and don't block on each scan
-    const awsAccessKeyMatches: Occurrence[] = await detectAwsAccessKeys(content, url);
-    createFindings(findings, awsAccessKeyMatches)
+    const detectors = factory.createDetectors();
+    const detectionPromises = detectors.map(detector => 
+        detector.detect(content, url)
+    );
+    const allMatches = await Promise.all(detectionPromises);
 
-    const awsSessionKeyMatches: Occurrence[] = await detectAwsSessionKeys(content, url);
-    createFindings(findings, awsSessionKeyMatches)
-
-    const anthropicKeyMatches: Occurrence[] = await detectAnthropicKeys(content, url);
-    createFindings(findings, anthropicKeyMatches)
+    allMatches.forEach(matches => {
+        createFindings(findings, matches);
+    });
 
     return findings;
 }
