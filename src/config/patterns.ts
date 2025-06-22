@@ -4,6 +4,7 @@ import { storePatterns } from '../utils/helpers/common';
 import { DEFAULT_AWS_ACCESS_KEY_CONFIG } from './detectors/aws/aws_access_keys/aws';
 import { DEFAULT_AWS_SESSION_KEY_CONFIG } from './detectors/aws/aws_session_keys/aws';
 import { DEFAULT_ANTHROPIC_API_KEY_CONFIG } from './detectors/anthropic/anthropic';
+import { DEFAULT_OPENAI_API_KEY_CONFIG } from './detectors/openai/openai';
 
 const awsAccessKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_ACCESS_KEY_CONFIG };
 const awsSessionKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_SESSION_KEY_CONFIG };
@@ -53,6 +54,16 @@ export const patterns: PatternsObj = {
         familyName: "Anthropic AI",
         pattern: /\b(sk-ant-(?:admin01|api03)-[\w\-]{93}AA)\b/g,
         entropy: DEFAULT_ANTHROPIC_API_KEY_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "OpenAI API Key": {
+        name: "OpenAI API Key",
+        familyName: "OpenAI",
+        pattern: /\b(sk-[a-zA-Z0-9_-]+T3BlbkFJ[a-zA-Z0-9_-]+)\b/g,
+        entropy: DEFAULT_OPENAI_API_KEY_CONFIG.requiredEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
         validityEndpoints: [],
