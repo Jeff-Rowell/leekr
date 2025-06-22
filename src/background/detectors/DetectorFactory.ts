@@ -2,12 +2,14 @@ import { DetectorFactory, SecretDetector } from './detector.interface';
 import { AwsAccessKeysDetector } from './aws/AwsAccessKeysDetector';
 import { AwsSessionKeysDetector } from './aws/AwsSessionKeysDetector';
 import { AnthropicDetector } from './anthropic/AnthropicDetector';
+import { OpenAIDetector } from './openai/OpenAIDetector';
 
 export class ConcreteDetectorFactory implements DetectorFactory {
     private readonly detectorClasses = [
         AwsAccessKeysDetector,
         AwsSessionKeysDetector,
-        AnthropicDetector
+        AnthropicDetector,
+        OpenAIDetector
     ];
 
     createDetectors(): SecretDetector[] {
