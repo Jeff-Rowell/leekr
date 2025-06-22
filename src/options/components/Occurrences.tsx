@@ -5,6 +5,7 @@ import { Finding } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
 import { anthropicValidityHelper } from '../../utils/validators/anthropic/anthropicValidityHelper';
+import { openaiValidityHelper } from '../../utils/validators/openai/openaiValidityHelper';
 
 
 export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFingerprint }) => {
@@ -34,6 +35,8 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
             awsSessionValidityHelper(finding);
         } else if (finding.secretType === "Anthropic AI") {
             anthropicValidityHelper(finding);
+        } else if (finding.secretType === "OpenAI") {
+            openaiValidityHelper(finding);
         }
     };
 

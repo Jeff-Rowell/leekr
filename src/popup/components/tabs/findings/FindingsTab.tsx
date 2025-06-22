@@ -5,6 +5,7 @@ import { retrieveFindings, storeFindings } from '../../../../utils/helpers/commo
 import { awsValidityHelper } from '../../../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../../../utils/validators/aws/aws_session_keys/awsValidityHelper';
 import { anthropicValidityHelper } from '../../../../utils/validators/anthropic/anthropicValidityHelper';
+import { openaiValidityHelper } from '../../../../utils/validators/openai/openaiValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import ModalHeader from '../../modalheader/ModalHeader';
 import './style.css';
@@ -23,6 +24,8 @@ const FindingsTab: React.FC = () => {
             awsSessionValidityHelper(finding);
         } else if (finding.secretType === "Anthropic AI") {
             anthropicValidityHelper(finding);
+        } else if (finding.secretType === "OpenAI") {
+            openaiValidityHelper(finding);
         }
     };
 
