@@ -3,10 +3,12 @@ import { findSecrets } from '../scanner';
 jest.mock('./aws/access_keys/access_keys');
 jest.mock('./aws/session_keys/session_keys');
 jest.mock('./anthropic/anthropic');
+jest.mock('./openai/openai');
 
 import { detectAwsAccessKeys } from './aws/access_keys/access_keys';
 import { detectAwsSessionKeys } from './aws/session_keys/session_keys';
 import { detectAnthropicKeys } from './anthropic/anthropic';
+import { detectOpenAIKeys } from './openai/openai';
 
 describe('Concurrent Detection', () => {
     beforeEach(() => {
@@ -38,14 +40,22 @@ describe('Concurrent Detection', () => {
             return [];
         });
 
+        (detectOpenAIKeys as jest.Mock).mockImplementation(async () => {
+            executionOrder.push('openai_start');
+            await new Promise(resolve => setTimeout(resolve, delay));
+            executionOrder.push('openai_end');
+            return [];
+        });
+
         const startTime = Date.now();
         await findSecrets('test content', 'test url');
         const endTime = Date.now();
 
-        expect(executionOrder.slice(0, 3)).toEqual([
+        expect(executionOrder.slice(0, 4)).toEqual([
             'aws_access_start',
             'aws_session_start',
-            'anthropic_start'
+            'anthropic_start',
+            'openai_start'
         ]);
 
         // Execution should take roughly the delay time, not 3x the delay (proving concurrency)
@@ -58,11 +68,13 @@ describe('Concurrent Detection', () => {
         (detectAwsAccessKeys as jest.Mock).mockResolvedValue([]);
         (detectAwsSessionKeys as jest.Mock).mockResolvedValue([]);
         (detectAnthropicKeys as jest.Mock).mockResolvedValue([]);
+        (detectOpenAIKeys as jest.Mock).mockResolvedValue([]);
 
         await findSecrets('test content', 'test url');
 
         expect(detectAwsAccessKeys).toHaveBeenCalledWith('test content', 'test url');
         expect(detectAwsSessionKeys).toHaveBeenCalledWith('test content', 'test url');
         expect(detectAnthropicKeys).toHaveBeenCalledWith('test content', 'test url');
+        expect(detectOpenAIKeys).toHaveBeenCalledWith('test content', 'test url');
     });
 });

@@ -2,6 +2,7 @@ import { ConcreteDetectorFactory } from './DetectorFactory';
 import { AwsAccessKeysDetector } from './aws/AwsAccessKeysDetector';
 import { AwsSessionKeysDetector } from './aws/AwsSessionKeysDetector';
 import { AnthropicDetector } from './anthropic/AnthropicDetector';
+import { OpenAIDetector } from './openai/OpenAIDetector';
 
 describe('ConcreteDetectorFactory', () => {
     let factory: ConcreteDetectorFactory;
@@ -13,20 +14,23 @@ describe('ConcreteDetectorFactory', () => {
     test('createDetectors returns all detector instances', () => {
         const detectors = factory.createDetectors();
         
-        expect(detectors).toHaveLength(3);
+        expect(detectors).toHaveLength(4);
         expect(detectors[0]).toBeInstanceOf(AwsAccessKeysDetector);
         expect(detectors[1]).toBeInstanceOf(AwsSessionKeysDetector);
         expect(detectors[2]).toBeInstanceOf(AnthropicDetector);
+        expect(detectors[3]).toBeInstanceOf(OpenAIDetector);
     });
 
     test('createDetector returns specific detector by type', () => {
         const awsAccessKeysDetector = factory.createDetector('aws_access_keys');
         const awsSessionKeysDetector = factory.createDetector('aws_session_keys');
         const anthropicDetector = factory.createDetector('anthropic');
+        const openaiDetector = factory.createDetector('openai');
 
         expect(awsAccessKeysDetector).toBeInstanceOf(AwsAccessKeysDetector);
         expect(awsSessionKeysDetector).toBeInstanceOf(AwsSessionKeysDetector);
         expect(anthropicDetector).toBeInstanceOf(AnthropicDetector);
+        expect(openaiDetector).toBeInstanceOf(OpenAIDetector);
     });
 
     test('createDetector returns undefined for unknown type', () => {
@@ -48,5 +52,9 @@ describe('ConcreteDetectorFactory', () => {
         const anthropicDetector = detectors[2];
         expect(anthropicDetector.type).toBe('anthropic');
         expect(anthropicDetector.name).toBe('Anthropic AI');
+
+        const openaiDetector = detectors[3];
+        expect(openaiDetector.type).toBe('openai');
+        expect(openaiDetector.name).toBe('OpenAI');
     });
 });
