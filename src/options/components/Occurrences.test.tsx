@@ -2,10 +2,12 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { useAppContext } from '../../popup/AppContext';
 import { AWSOccurrence } from '../../types/aws.types';
 import { AnthropicOccurrence } from '../../types/anthropic';
+import { OpenAIOccurrence } from '../../types/openai';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
 import { anthropicValidityHelper } from '../../utils/validators/anthropic/anthropicValidityHelper';
+import { openaiValidityHelper } from '../../utils/validators/openai/openaiValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
@@ -15,6 +17,7 @@ jest.mock('../../popup/AppContext', () => ({
 jest.mock('../../utils/validators/aws/aws_access_keys/awsValidityHelper');
 jest.mock('../../utils/validators/aws/aws_session_keys/awsValidityHelper');
 jest.mock('../../utils/validators/anthropic/anthropicValidityHelper');
+jest.mock('../../utils/validators/openai/openaiValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",
@@ -74,9 +77,28 @@ const mockAnthropicOccurrence: AnthropicOccurrence = {
     url: "http://localhost:3000/static/js/anthropic.foobar.js",
 };
 
+const mockOpenAIOccurrence: OpenAIOccurrence = {
+    filePath: "main.foobar.js",
+    fingerprint: "fp4",
+    type: "API Key",
+    secretType: "OpenAI",
+    secretValue: {
+        match: { api_key: "sk-proj-test123T3BlbkFJtest456" }
+    },
+    sourceContent: {
+        content: "openaifoobar\n".repeat(18),
+        contentEndLineNum: 35,
+        contentFilename: "OpenAIApp.js",
+        contentStartLineNum: 18,
+        exactMatchNumbers: [23, 30]
+    },
+    url: "http://localhost:3000/static/js/openai.foobar.js",
+};
+
 const mockOccurrences: Set<Occurrence> = new Set([mockOccurrence]);
 const mockSessionOccurrences: Set<Occurrence> = new Set([mockSessionOccurrence]);
 const mockAnthropicOccurrences: Set<Occurrence> = new Set([mockAnthropicOccurrence]);
+const mockOpenAIOccurrences: Set<Occurrence> = new Set([mockOpenAIOccurrence]);
 
 const mockFindings: Finding[] = [
     {
@@ -114,6 +136,19 @@ const mockFindings: Finding[] = [
         secretType: "Anthropic AI",
         secretValue: {
             match: { api_key: "sk-ant-api-test123456789" },
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            validity: "valid"
+        }
+    },
+    {
+        fingerprint: "fp4",
+        numOccurrences: mockOpenAIOccurrences.size,
+        occurrences: mockOpenAIOccurrences,
+        validity: "valid",
+        validatedAt: "2025-05-13T18:16:16.870Z",
+        secretType: "OpenAI",
+        secretValue: {
+            match: { api_key: "sk-proj-test123T3BlbkFJtest456" },
             validatedAt: "2025-05-17T18:16:16.870Z",
             validity: "valid"
         }
@@ -200,6 +235,15 @@ describe('Occurrences Component', () => {
         expect(anthropicValidityHelper).toHaveBeenCalledWith(mockFindings[2]);
     });
 
+    test('calls openaiValidityHelper on recheck button click for OpenAI', () => {
+        render(<Occurrences filterFingerprint='fp4' />);
+
+        const recheckButton = screen.getByLabelText('Recheck validity');
+        fireEvent.click(recheckButton);
+
+        expect(openaiValidityHelper).toHaveBeenCalledWith(mockFindings[3]);
+    });
+
     test('renders AWS Session Keys finding and occurrence', () => {
         render(<Occurrences filterFingerprint='fp2' />);
 
@@ -213,6 +257,14 @@ describe('Occurrences Component', () => {
 
         expect(screen.getByText('Anthropic AI')).toBeInTheDocument();
         expect(screen.getByText('AnthropicApp.js: Line 23')).toBeInTheDocument();
+        expect(screen.getByText('View JS Bundle')).toBeInTheDocument();
+    });
+
+    test('renders OpenAI finding and occurrence', () => {
+        render(<Occurrences filterFingerprint='fp4' />);
+
+        expect(screen.getByText('OpenAI')).toBeInTheDocument();
+        expect(screen.getByText('OpenAIApp.js: Line 23')).toBeInTheDocument();
         expect(screen.getByText('View JS Bundle')).toBeInTheDocument();
     });
 
@@ -245,6 +297,7 @@ describe('Occurrences Component', () => {
         expect(awsValidityHelper).not.toHaveBeenCalled();
         expect(awsSessionValidityHelper).not.toHaveBeenCalled();
         expect(anthropicValidityHelper).not.toHaveBeenCalled();
+        expect(openaiValidityHelper).not.toHaveBeenCalled();
     });
 
     test('clicking download source code button calls URL.createObjectURL', () => {
