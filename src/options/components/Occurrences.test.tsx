@@ -3,11 +3,13 @@ import { useAppContext } from '../../popup/AppContext';
 import { AWSOccurrence } from '../../types/aws.types';
 import { AnthropicOccurrence } from '../../types/anthropic';
 import { OpenAIOccurrence } from '../../types/openai';
+import { GeminiOccurrence } from '../../types/gemini';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
 import { anthropicValidityHelper } from '../../utils/validators/anthropic/anthropicValidityHelper';
 import { openaiValidityHelper } from '../../utils/validators/openai/openaiValidityHelper';
+import { geminiValidityHelper } from '../../utils/validators/gemini/geminiValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
@@ -18,6 +20,7 @@ jest.mock('../../utils/validators/aws/aws_access_keys/awsValidityHelper');
 jest.mock('../../utils/validators/aws/aws_session_keys/awsValidityHelper');
 jest.mock('../../utils/validators/anthropic/anthropicValidityHelper');
 jest.mock('../../utils/validators/openai/openaiValidityHelper');
+jest.mock('../../utils/validators/gemini/geminiValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",
@@ -95,10 +98,32 @@ const mockOpenAIOccurrence: OpenAIOccurrence = {
     url: "http://localhost:3000/static/js/openai.foobar.js",
 };
 
+const mockGeminiOccurrence: GeminiOccurrence = {
+    filePath: "main.foobar.js",
+    fingerprint: "fp5",
+    type: "API Key & Secret",
+    secretType: "Gemini",
+    secretValue: {
+        match: { 
+            api_key: "account-1234567890ABCDEFGH12",
+            api_secret: "ABCDEFGHIJKLMNOPQRSTUVWXYZ12"
+        }
+    },
+    sourceContent: {
+        content: "geminifoobar\n".repeat(18),
+        contentEndLineNum: 35,
+        contentFilename: "GeminiApp.js",
+        contentStartLineNum: 18,
+        exactMatchNumbers: [23, 30]
+    },
+    url: "http://localhost:3000/static/js/gemini.foobar.js",
+};
+
 const mockOccurrences: Set<Occurrence> = new Set([mockOccurrence]);
 const mockSessionOccurrences: Set<Occurrence> = new Set([mockSessionOccurrence]);
 const mockAnthropicOccurrences: Set<Occurrence> = new Set([mockAnthropicOccurrence]);
 const mockOpenAIOccurrences: Set<Occurrence> = new Set([mockOpenAIOccurrence]);
+const mockGeminiOccurrences: Set<Occurrence> = new Set([mockGeminiOccurrence]);
 
 const mockFindings: Finding[] = [
     {
@@ -149,6 +174,22 @@ const mockFindings: Finding[] = [
         secretType: "OpenAI",
         secretValue: {
             match: { api_key: "sk-proj-test123T3BlbkFJtest456" },
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            validity: "valid"
+        }
+    },
+    {
+        fingerprint: "fp5",
+        numOccurrences: mockGeminiOccurrences.size,
+        occurrences: mockGeminiOccurrences,
+        validity: "valid",
+        validatedAt: "2025-05-13T18:16:16.870Z",
+        secretType: "Gemini",
+        secretValue: {
+            match: { 
+                api_key: "account-1234567890ABCDEFGH12",
+                api_secret: "ABCDEFGHIJKLMNOPQRSTUVWXYZ12"
+            },
             validatedAt: "2025-05-17T18:16:16.870Z",
             validity: "valid"
         }
@@ -268,6 +309,23 @@ describe('Occurrences Component', () => {
         expect(screen.getByText('View JS Bundle')).toBeInTheDocument();
     });
 
+    test('renders Gemini finding and occurrence', () => {
+        render(<Occurrences filterFingerprint='fp5' />);
+
+        expect(screen.getByText('Gemini')).toBeInTheDocument();
+        expect(screen.getByText('GeminiApp.js: Line 23')).toBeInTheDocument();
+        expect(screen.getByText('View JS Bundle')).toBeInTheDocument();
+    });
+
+    test('calls Gemini validity helper when recheck button is clicked', () => {
+        render(<Occurrences filterFingerprint='fp5' />);
+
+        const recheckButton = screen.getByLabelText('Recheck validity');
+        fireEvent.click(recheckButton);
+
+        expect(geminiValidityHelper).toHaveBeenCalledWith(mockFindings[4]);
+    });
+
     test('does not call validity helpers for unknown secret types', () => {
         const unknownTypeFinding: Finding = {
             fingerprint: "fp4",
@@ -298,6 +356,7 @@ describe('Occurrences Component', () => {
         expect(awsSessionValidityHelper).not.toHaveBeenCalled();
         expect(anthropicValidityHelper).not.toHaveBeenCalled();
         expect(openaiValidityHelper).not.toHaveBeenCalled();
+        expect(geminiValidityHelper).not.toHaveBeenCalled();
     });
 
     test('clicking download source code button calls URL.createObjectURL', () => {

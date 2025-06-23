@@ -5,11 +5,13 @@ import { useAppContext } from '../../popup/AppContext';
 import { AWSOccurrence } from '../../types/aws.types';
 import { AnthropicOccurrence } from '../../types/anthropic';
 import { OpenAIOccurrence } from '../../types/openai';
+import { GeminiOccurrence } from '../../types/gemini';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
 import { anthropicValidityHelper } from '../../utils/validators/anthropic/anthropicValidityHelper';
 import { openaiValidityHelper } from '../../utils/validators/openai/openaiValidityHelper';
+import { geminiValidityHelper } from '../../utils/validators/gemini/geminiValidityHelper';
 import { Findings } from './Findings';
 
 jest.mock('../../popup/AppContext');
@@ -18,11 +20,13 @@ jest.mock('../../utils/validators/aws/aws_access_keys/awsValidityHelper');
 jest.mock('../../utils/validators/aws/aws_session_keys/awsValidityHelper');
 jest.mock('../../utils/validators/anthropic/anthropicValidityHelper');
 jest.mock('../../utils/validators/openai/openaiValidityHelper');
+jest.mock('../../utils/validators/gemini/geminiValidityHelper');
 
 const mockAwsValidityHelper = awsValidityHelper as jest.MockedFunction<typeof awsValidityHelper>;
 const mockAwsSessionValidityHelper = awsSessionValidityHelper as jest.MockedFunction<typeof awsSessionValidityHelper>;
 const mockAnthropicValidityHelper = anthropicValidityHelper as jest.MockedFunction<typeof anthropicValidityHelper>;
 const mockOpenaiValidityHelper = openaiValidityHelper as jest.MockedFunction<typeof openaiValidityHelper>;
+const mockGeminiValidityHelper = geminiValidityHelper as jest.MockedFunction<typeof geminiValidityHelper>;
 
 const mockChrome = {
     runtime: {
@@ -192,8 +196,30 @@ const mockOpenAIOccurrence: OpenAIOccurrence = {
     url: "http://localhost:3000/static/js/main.foobar.js",
 };
 
+const mockGeminiOccurrence: GeminiOccurrence = {
+    filePath: "main.foobar.js",
+    fingerprint: "fp8",
+    type: "API Key & Secret",
+    secretType: "Gemini",
+    secretValue: {
+        match: { 
+            api_key: "account-1234567890ABCDEFGH12",
+            api_secret: "ABCDEFGHIJKLMNOPQRSTUVWXYZ12"
+        }
+    },
+    sourceContent: {
+        content: "foobar",
+        contentEndLineNum: 35,
+        contentFilename: "App.js",
+        contentStartLineNum: 18,
+        exactMatchNumbers: [23, 30]
+    },
+    url: "http://localhost:3000/static/js/main.foobar.js",
+};
+
 const mockAnthropicOccurrences: Set<Occurrence> = new Set([mockAnthropicOccurrence]);
 const mockOpenAIOccurrences: Set<Occurrence> = new Set([mockOpenAIOccurrence]);
+const mockGeminiOccurrences: Set<Occurrence> = new Set([mockGeminiOccurrence]);
 
 const mockFindings: Finding[] = [
     {
@@ -284,6 +310,22 @@ const mockFindings: Finding[] = [
             validity: "valid"
         }
     },
+    {
+        fingerprint: "fp8",
+        numOccurrences: mockGeminiOccurrences.size,
+        occurrences: mockGeminiOccurrences,
+        validity: "valid",
+        validatedAt: "2025-05-17T18:16:16.870Z",
+        secretType: "Gemini",
+        secretValue: {
+            match: { 
+                api_key: "account-1234567890ABCDEFGH12",
+                api_secret: "ABCDEFGHIJKLMNOPQRSTUVWXYZ12"
+            },
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            validity: "valid"
+        }
+    },
 ];
 
 describe('Findings Component', () => {
@@ -325,7 +367,7 @@ describe('Findings Component', () => {
         test('renders all findings when no filters applied', () => {
             const { container } = render(<Findings />);
             const findings = container.querySelectorAll('.findings-td');
-            expect(findings).toHaveLength(7);
+            expect(findings).toHaveLength(8);
         });
 
         test('shows empty state when no findings exist', () => {
@@ -344,7 +386,7 @@ describe('Findings Component', () => {
         test('displays validity status with correct formatting', () => {
             render(<Findings />);
 
-            expect(screen.getAllByText('valid')).toHaveLength(4);
+            expect(screen.getAllByText('valid')).toHaveLength(5);
             expect(screen.getByText('invalid')).toBeInTheDocument();
             expect(screen.getByText('unknown')).toBeInTheDocument();
             expect(screen.getByText('failed to check')).toBeInTheDocument();
@@ -354,7 +396,7 @@ describe('Findings Component', () => {
             const { container } = render(<Findings />);
 
             const shieldIcons = container.querySelectorAll('.validity-valid');
-            expect(shieldIcons).toHaveLength(4);
+            expect(shieldIcons).toHaveLength(5);
         });
     });
 
@@ -367,7 +409,7 @@ describe('Findings Component', () => {
             await user.selectOptions(validityFilter, 'valid');
 
             const findings = container.querySelectorAll('.findings-td');
-            expect(findings).toHaveLength(4);
+            expect(findings).toHaveLength(5);
         });
 
         test('filters findings by invalid status', async () => {
@@ -412,11 +454,11 @@ describe('Findings Component', () => {
             await user.selectOptions(validityFilter, 'valid');
 
             const validFindings = container.querySelectorAll('.findings-td');
-            expect(validFindings).toHaveLength(4);
+            expect(validFindings).toHaveLength(5);
 
             await user.selectOptions(validityFilter, 'all');
             const allFindings = container.querySelectorAll('.findings-td');
-            expect(allFindings).toHaveLength(7);
+            expect(allFindings).toHaveLength(8);
         });
     });
 
@@ -427,12 +469,13 @@ describe('Findings Component', () => {
             const typeFilter = screen.getByLabelText('Secret Type:');
             const options = typeFilter.querySelectorAll('option');
 
-            expect(options).toHaveLength(5);
+            expect(options).toHaveLength(6);
             expect(options[0]).toHaveTextContent('All Types');
             expect(options[1]).toHaveTextContent('AWS Access & Secret Keys');
             expect(options[2]).toHaveTextContent('AWS Session Keys');
             expect(options[3]).toHaveTextContent('Anthropic AI');
             expect(options[4]).toHaveTextContent('OpenAI');
+            expect(options[5]).toHaveTextContent('Gemini');
         });
 
         test('filters findings by secret type', async () => {
@@ -580,7 +623,7 @@ describe('Findings Component', () => {
             render(<Findings />);
 
             const viewButtons = screen.getAllByTestId('square-arrow-right');
-            expect(viewButtons).toHaveLength(7);
+            expect(viewButtons).toHaveLength(8);
         });
 
         test('handles view occurrences click', async () => {
@@ -641,9 +684,19 @@ describe('Findings Component', () => {
             render(<Findings />);
 
             const recheckButtons = screen.getAllByTestId('rotate-cw');
-            await user.click(recheckButtons[3]);
+            await user.click(recheckButtons[4]); // OpenAI is now index 4 after Gemini
 
             expect(mockOpenaiValidityHelper).toHaveBeenCalledWith(mockFindings[6]);
+        });
+
+        test('handles validity recheck for Gemini', async () => {
+            const user = userEvent.setup();
+            render(<Findings />);
+
+            const recheckButtons = screen.getAllByTestId('rotate-cw');
+            await user.click(recheckButtons[3]); // Gemini is index 3 after AWS Session
+
+            expect(mockGeminiValidityHelper).toHaveBeenCalledWith(mockFindings[7]);
         });
 
         test('does not call validity helper for unknown secret types', async () => {
@@ -677,6 +730,7 @@ describe('Findings Component', () => {
             expect(mockAwsSessionValidityHelper).not.toHaveBeenCalled();
             expect(mockAnthropicValidityHelper).not.toHaveBeenCalled();
             expect(mockOpenaiValidityHelper).not.toHaveBeenCalled();
+            expect(mockGeminiValidityHelper).not.toHaveBeenCalled();
         });
     });
 
@@ -846,10 +900,10 @@ describe('Findings Component', () => {
             render(<Findings />);
 
             const viewButtons = screen.getAllByTitle('View Occurrences');
-            expect(viewButtons).toHaveLength(7);
+            expect(viewButtons).toHaveLength(8);
 
             const recheckButtons = screen.getAllByLabelText('Recheck validity');
-            expect(recheckButtons).toHaveLength(4);
+            expect(recheckButtons).toHaveLength(5);
         });
 
         test('table headers are clickable for sorting', () => {
