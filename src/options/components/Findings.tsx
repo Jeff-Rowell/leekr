@@ -13,6 +13,7 @@ import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/aw
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
 import { anthropicValidityHelper } from '../../utils/validators/anthropic/anthropicValidityHelper';
 import { openaiValidityHelper } from '../../utils/validators/openai/openaiValidityHelper';
+import { geminiValidityHelper } from '../../utils/validators/gemini/geminiValidityHelper';
 
 // Pagination constants
 const ITEMS_PER_PAGE = 10;
@@ -99,6 +100,8 @@ export const Findings: React.FC = () => {
             anthropicValidityHelper(finding);
         } else if (finding.secretType === "OpenAI") {
             openaiValidityHelper(finding);
+        } else if (finding.secretType === "Gemini") {
+            geminiValidityHelper(finding);
         }
     };
 

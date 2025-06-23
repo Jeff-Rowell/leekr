@@ -6,6 +6,7 @@ import { awsValidityHelper } from '../../../../utils/validators/aws/aws_access_k
 import { awsSessionValidityHelper } from '../../../../utils/validators/aws/aws_session_keys/awsValidityHelper';
 import { anthropicValidityHelper } from '../../../../utils/validators/anthropic/anthropicValidityHelper';
 import { openaiValidityHelper } from '../../../../utils/validators/openai/openaiValidityHelper';
+import { geminiValidityHelper } from '../../../../utils/validators/gemini/geminiValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import ModalHeader from '../../modalheader/ModalHeader';
 import './style.css';
@@ -26,6 +27,8 @@ const FindingsTab: React.FC = () => {
             anthropicValidityHelper(finding);
         } else if (finding.secretType === "OpenAI") {
             openaiValidityHelper(finding);
+        } else if (finding.secretType === "Gemini") {
+            geminiValidityHelper(finding);
         }
     };
 
