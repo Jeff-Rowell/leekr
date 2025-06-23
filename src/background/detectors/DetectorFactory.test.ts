@@ -3,6 +3,7 @@ import { AwsAccessKeysDetector } from './aws/AwsAccessKeysDetector';
 import { AwsSessionKeysDetector } from './aws/AwsSessionKeysDetector';
 import { AnthropicDetector } from './anthropic/AnthropicDetector';
 import { OpenAIDetector } from './openai/OpenAIDetector';
+import { GeminiDetector } from './gemini/GeminiDetector';
 
 describe('ConcreteDetectorFactory', () => {
     let factory: ConcreteDetectorFactory;
@@ -14,11 +15,12 @@ describe('ConcreteDetectorFactory', () => {
     test('createDetectors returns all detector instances', () => {
         const detectors = factory.createDetectors();
         
-        expect(detectors).toHaveLength(4);
+        expect(detectors).toHaveLength(5);
         expect(detectors[0]).toBeInstanceOf(AwsAccessKeysDetector);
         expect(detectors[1]).toBeInstanceOf(AwsSessionKeysDetector);
         expect(detectors[2]).toBeInstanceOf(AnthropicDetector);
         expect(detectors[3]).toBeInstanceOf(OpenAIDetector);
+        expect(detectors[4]).toBeInstanceOf(GeminiDetector);
     });
 
     test('createDetector returns specific detector by type', () => {
@@ -26,11 +28,13 @@ describe('ConcreteDetectorFactory', () => {
         const awsSessionKeysDetector = factory.createDetector('aws_session_keys');
         const anthropicDetector = factory.createDetector('anthropic');
         const openaiDetector = factory.createDetector('openai');
+        const geminiDetector = factory.createDetector('gemini');
 
         expect(awsAccessKeysDetector).toBeInstanceOf(AwsAccessKeysDetector);
         expect(awsSessionKeysDetector).toBeInstanceOf(AwsSessionKeysDetector);
         expect(anthropicDetector).toBeInstanceOf(AnthropicDetector);
         expect(openaiDetector).toBeInstanceOf(OpenAIDetector);
+        expect(geminiDetector).toBeInstanceOf(GeminiDetector);
     });
 
     test('createDetector returns undefined for unknown type', () => {
@@ -56,5 +60,9 @@ describe('ConcreteDetectorFactory', () => {
         const openaiDetector = detectors[3];
         expect(openaiDetector.type).toBe('openai');
         expect(openaiDetector.name).toBe('OpenAI');
+
+        const geminiDetector = detectors[4];
+        expect(geminiDetector.type).toBe('gemini');
+        expect(geminiDetector.name).toBe('Gemini');
     });
 });
