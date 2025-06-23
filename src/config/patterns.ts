@@ -5,6 +5,7 @@ import { DEFAULT_AWS_ACCESS_KEY_CONFIG } from './detectors/aws/aws_access_keys/a
 import { DEFAULT_AWS_SESSION_KEY_CONFIG } from './detectors/aws/aws_session_keys/aws';
 import { DEFAULT_ANTHROPIC_API_KEY_CONFIG } from './detectors/anthropic/anthropic';
 import { DEFAULT_OPENAI_API_KEY_CONFIG } from './detectors/openai/openai';
+import { DEFAULT_GEMINI_API_KEY_CONFIG } from './detectors/gemini/gemini';
 
 const awsAccessKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_ACCESS_KEY_CONFIG };
 const awsSessionKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_SESSION_KEY_CONFIG };
@@ -64,6 +65,26 @@ export const patterns: PatternsObj = {
         familyName: "OpenAI",
         pattern: /\b(sk-[a-zA-Z0-9_-]+T3BlbkFJ[a-zA-Z0-9_-]+)\b/g,
         entropy: DEFAULT_OPENAI_API_KEY_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Gemini API Key": {
+        name: "Gemini API Key",
+        familyName: "Gemini",
+        pattern: /\b((?:master-|account-)[0-9A-Za-z]{20})\b/g,
+        entropy: DEFAULT_GEMINI_API_KEY_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Gemini API Secret": {
+        name: "Gemini API Secret",
+        familyName: "Gemini",
+        pattern: /\b([A-Za-z0-9]{27,28})\b/g,
+        entropy: DEFAULT_GEMINI_API_KEY_CONFIG.requiredEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
         validityEndpoints: [],
