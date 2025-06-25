@@ -5,6 +5,7 @@ import { AnthropicDetector } from './anthropic/AnthropicDetector';
 import { OpenAIDetector } from './openai/OpenAIDetector';
 import { GeminiDetector } from './gemini/GeminiDetector';
 import { HuggingFaceDetector } from './huggingface/HuggingFaceDetector';
+import { ArtifactoryDetector } from './artifactory/ArtifactoryDetector';
 
 describe('ConcreteDetectorFactory', () => {
     let factory: ConcreteDetectorFactory;
@@ -16,13 +17,14 @@ describe('ConcreteDetectorFactory', () => {
     test('createDetectors returns all detector instances', () => {
         const detectors = factory.createDetectors();
         
-        expect(detectors).toHaveLength(6);
+        expect(detectors).toHaveLength(7);
         expect(detectors[0]).toBeInstanceOf(AwsAccessKeysDetector);
         expect(detectors[1]).toBeInstanceOf(AwsSessionKeysDetector);
         expect(detectors[2]).toBeInstanceOf(AnthropicDetector);
         expect(detectors[3]).toBeInstanceOf(OpenAIDetector);
         expect(detectors[4]).toBeInstanceOf(GeminiDetector);
         expect(detectors[5]).toBeInstanceOf(HuggingFaceDetector);
+        expect(detectors[6]).toBeInstanceOf(ArtifactoryDetector);
     });
 
     test('createDetector returns specific detector by type', () => {
@@ -32,6 +34,7 @@ describe('ConcreteDetectorFactory', () => {
         const openaiDetector = factory.createDetector('openai');
         const geminiDetector = factory.createDetector('gemini');
         const huggingfaceDetector = factory.createDetector('Hugging Face');
+        const artifactoryDetector = factory.createDetector('Artifactory');
 
         expect(awsAccessKeysDetector).toBeInstanceOf(AwsAccessKeysDetector);
         expect(awsSessionKeysDetector).toBeInstanceOf(AwsSessionKeysDetector);
@@ -39,6 +42,7 @@ describe('ConcreteDetectorFactory', () => {
         expect(openaiDetector).toBeInstanceOf(OpenAIDetector);
         expect(geminiDetector).toBeInstanceOf(GeminiDetector);
         expect(huggingfaceDetector).toBeInstanceOf(HuggingFaceDetector);
+        expect(artifactoryDetector).toBeInstanceOf(ArtifactoryDetector);
     });
 
     test('createDetector returns undefined for unknown type', () => {
