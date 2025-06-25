@@ -4,6 +4,7 @@ import { AnthropicOccurrence } from 'src/types/anthropic';
 import { OpenAIOccurrence } from 'src/types/openai';
 import { GeminiOccurrence } from 'src/types/gemini';
 import { HuggingFaceOccurrence } from 'src/types/huggingface';
+import { ArtifactoryOccurrence } from 'src/types/artifactory';
 import { Finding, Occurrence } from 'src/types/findings.types';
 import { retrieveFindings, storeFindings } from '../../../../utils/helpers/common';
 import { awsValidityHelper } from '../../../../utils/validators/aws/aws_access_keys/awsValidityHelper';
@@ -12,6 +13,7 @@ import { anthropicValidityHelper } from '../../../../utils/validators/anthropic/
 import { openaiValidityHelper } from '../../../../utils/validators/openai/openaiValidityHelper';
 import { geminiValidityHelper } from '../../../../utils/validators/gemini/geminiValidityHelper';
 import { huggingfaceValidityHelper } from '../../../../utils/validators/huggingface/huggingfaceValidityHelper';
+import { artifactoryValidityHelper } from '../../../../utils/validators/artifactory/artifactoryValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import FindingsTab from './FindingsTab';
 
@@ -41,6 +43,10 @@ jest.mock('../../../../utils/validators/gemini/geminiValidityHelper', () => ({
 
 jest.mock('../../../../utils/validators/huggingface/huggingfaceValidityHelper', () => ({
     huggingfaceValidityHelper: jest.fn(),
+}));
+
+jest.mock('../../../../utils/validators/artifactory/artifactoryValidityHelper', () => ({
+    artifactoryValidityHelper: jest.fn(),
 }));
 
 jest.mock('../../../../utils/helpers/common', () => ({
@@ -403,6 +409,41 @@ describe('FindingsTab', () => {
                 validity: "valid"
             }
         },
+        {
+            fingerprint: "fp8",
+            numOccurrences: 1,
+            occurrences: new Set([{
+                fingerprint: "artifactory-fp",
+                secretType: "Artifactory",
+                filePath: "test.js",
+                url: "http://localhost:3000/test.js",
+                type: "Access Token",
+                secretValue: {
+                    match: {
+                        api_key: "a".repeat(73),
+                        url: "example.jfrog.io"
+                    }
+                },
+                sourceContent: {
+                    content: "test content",
+                    contentFilename: "test.js",
+                    contentStartLineNum: 1,
+                    contentEndLineNum: 10,
+                    exactMatchNumbers: [5]
+                }
+            } as ArtifactoryOccurrence]),
+            validity: "valid",
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            secretType: "Artifactory",
+            secretValue: {
+                match: { 
+                    api_key: "a".repeat(73),
+                    url: "example.jfrog.io"
+                },
+                validatedAt: "2025-05-17T18:16:16.870Z",
+                validity: "valid"
+            }
+        },
     ];
 
     beforeEach(() => {
@@ -482,14 +523,14 @@ describe('FindingsTab', () => {
     test('shows validity check icon for validated findings', () => {
         render(<FindingsTab />);
         const shieldIcons = screen.getAllByTestId('shield-check-icon');
-        expect(shieldIcons.length).toBe(6);
+        expect(shieldIcons.length).toBe(7);
     });
 
     test('opens settings menu when settings button is clicked', async () => {
         render(<FindingsTab />);
 
         const settingsButtons = screen.getAllByLabelText('Settings');
-        expect(settingsButtons.length).toBe(9);
+        expect(settingsButtons.length).toBe(10);
         fireEvent.click(settingsButtons[0]);
 
         await waitFor(() => {
@@ -550,7 +591,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(6);
+        expect(recheckButtons).toHaveLength(7);
 
         fireEvent.click(recheckButtons[0]);
         expect(awsValidityHelper).toHaveBeenCalledWith(mockFindings[0]);
@@ -560,7 +601,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(6);
+        expect(recheckButtons).toHaveLength(7);
 
         fireEvent.click(recheckButtons[1]);
         expect(awsSessionValidityHelper).toHaveBeenCalledWith(mockFindings[4]);
@@ -570,7 +611,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(6);
+        expect(recheckButtons).toHaveLength(7);
 
         fireEvent.click(recheckButtons[2]);
         expect(anthropicValidityHelper).toHaveBeenCalledWith(mockFindings[5]);
@@ -580,7 +621,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(6);
+        expect(recheckButtons).toHaveLength(7);
 
         fireEvent.click(recheckButtons[3]);
         expect(openaiValidityHelper).toHaveBeenCalledWith(mockFindings[6]);
@@ -590,7 +631,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(6);
+        expect(recheckButtons).toHaveLength(7);
 
         fireEvent.click(recheckButtons[4]);
         expect(geminiValidityHelper).toHaveBeenCalledWith(mockFindings[7]);
@@ -600,7 +641,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(6);
+        expect(recheckButtons).toHaveLength(7);
 
         fireEvent.click(recheckButtons[5]);
         expect(huggingfaceValidityHelper).toHaveBeenCalledWith(mockFindings[8]);
@@ -681,6 +722,25 @@ describe('FindingsTab', () => {
             type: 'CLEAR_NOTIFICATIONS',
             payload: ''
         });
+    });
+
+    test('calls artifactoryValidityHelper for Artifactory findings', async () => {
+        render(<FindingsTab />);
+        
+        // Find the Artifactory recheck button directly (in the validity tooltip)
+        const recheckButtons = screen.getAllByLabelText('Recheck validity');
+        expect(recheckButtons).toHaveLength(7);
+        
+        // Click the last recheck button (Artifactory finding)
+        fireEvent.click(recheckButtons[6]);
+        
+        // Verify artifactory validity helper was called
+        expect(artifactoryValidityHelper).toHaveBeenCalledWith(
+            expect.objectContaining({
+                fingerprint: "fp8",
+                secretType: "Artifactory"
+            })
+        );
     });
 
     test('closes settings menu when clicking outside', async () => {
