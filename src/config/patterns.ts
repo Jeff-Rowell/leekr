@@ -6,6 +6,7 @@ import { DEFAULT_AWS_SESSION_KEY_CONFIG } from './detectors/aws/aws_session_keys
 import { DEFAULT_ANTHROPIC_API_KEY_CONFIG } from './detectors/anthropic/anthropic';
 import { DEFAULT_OPENAI_API_KEY_CONFIG } from './detectors/openai/openai';
 import { DEFAULT_GEMINI_API_KEY_CONFIG } from './detectors/gemini/gemini';
+import { DEFAULT_HUGGINGFACE_API_KEY_CONFIG } from './detectors/huggingface/huggingface';
 
 const awsAccessKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_ACCESS_KEY_CONFIG };
 const awsSessionKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_SESSION_KEY_CONFIG };
@@ -85,6 +86,16 @@ export const patterns: PatternsObj = {
         familyName: "Gemini",
         pattern: /\b([A-Za-z0-9]{27,28})\b/g,
         entropy: DEFAULT_GEMINI_API_KEY_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Hugging Face API Key": {
+        name: "Hugging Face API Key",
+        familyName: "Hugging Face",
+        pattern: /\b((?:hf_|api_org_)[a-zA-Z0-9]{34})\b/g,
+        entropy: DEFAULT_HUGGINGFACE_API_KEY_CONFIG.requiredEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
         validityEndpoints: [],
