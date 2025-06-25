@@ -8,6 +8,7 @@ import { anthropicValidityHelper } from '../../../../utils/validators/anthropic/
 import { openaiValidityHelper } from '../../../../utils/validators/openai/openaiValidityHelper';
 import { geminiValidityHelper } from '../../../../utils/validators/gemini/geminiValidityHelper';
 import { huggingfaceValidityHelper } from '../../../../utils/validators/huggingface/huggingfaceValidityHelper';
+import { artifactoryValidityHelper } from '../../../../utils/validators/artifactory/artifactoryValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import ModalHeader from '../../modalheader/ModalHeader';
 import './style.css';
@@ -32,6 +33,8 @@ const FindingsTab: React.FC = () => {
             geminiValidityHelper(finding);
         } else if (finding.secretType === "Hugging Face") {
             huggingfaceValidityHelper(finding);
+        } else if (finding.secretType === "Artifactory") {
+            artifactoryValidityHelper(finding);
         }
     };
 

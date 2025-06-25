@@ -8,6 +8,7 @@ import { anthropicValidityHelper } from '../../utils/validators/anthropic/anthro
 import { openaiValidityHelper } from '../../utils/validators/openai/openaiValidityHelper';
 import { geminiValidityHelper } from '../../utils/validators/gemini/geminiValidityHelper';
 import { huggingfaceValidityHelper } from '../../utils/validators/huggingface/huggingfaceValidityHelper';
+import { artifactoryValidityHelper } from '../../utils/validators/artifactory/artifactoryValidityHelper';
 
 
 export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFingerprint }) => {
@@ -43,6 +44,8 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
             geminiValidityHelper(finding);
         } else if (finding.secretType === "Hugging Face") {
             huggingfaceValidityHelper(finding);
+        } else if (finding.secretType === "Artifactory") {
+            artifactoryValidityHelper(finding);
         }
     };
 
