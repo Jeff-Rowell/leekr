@@ -7,6 +7,7 @@ import { DEFAULT_ANTHROPIC_API_KEY_CONFIG } from './detectors/anthropic/anthropi
 import { DEFAULT_OPENAI_API_KEY_CONFIG } from './detectors/openai/openai';
 import { DEFAULT_GEMINI_API_KEY_CONFIG } from './detectors/gemini/gemini';
 import { DEFAULT_HUGGINGFACE_API_KEY_CONFIG } from './detectors/huggingface/huggingface';
+import { DEFAULT_ARTIFACTORY_ACCESS_TOKEN_CONFIG, DEFAULT_ARTIFACTORY_URL_CONFIG } from './detectors/artifactory/artifactory';
 
 const awsAccessKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_ACCESS_KEY_CONFIG };
 const awsSessionKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_SESSION_KEY_CONFIG };
@@ -96,6 +97,26 @@ export const patterns: PatternsObj = {
         familyName: "Hugging Face",
         pattern: /\b((?:hf_|api_org_)[a-zA-Z0-9]{34})\b/g,
         entropy: DEFAULT_HUGGINGFACE_API_KEY_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Artifactory Access Token": {
+        name: "Artifactory Access Token",
+        familyName: "Artifactory",
+        pattern: /\b([a-zA-Z0-9]{73}|[a-zA-Z0-9]{64})\b/g,
+        entropy: DEFAULT_ARTIFACTORY_ACCESS_TOKEN_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Artifactory URL": {
+        name: "Artifactory URL",
+        familyName: "Artifactory",
+        pattern: /\b([A-Za-z0-9](?:[A-Za-z0-9\-]{0,61}[A-Za-z0-9])\.jfrog\.io)\b/g,
+        entropy: DEFAULT_ARTIFACTORY_URL_CONFIG.requiredEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
         validityEndpoints: [],
