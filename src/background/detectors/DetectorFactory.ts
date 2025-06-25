@@ -5,6 +5,7 @@ import { AnthropicDetector } from './anthropic/AnthropicDetector';
 import { OpenAIDetector } from './openai/OpenAIDetector';
 import { GeminiDetector } from './gemini/GeminiDetector';
 import { HuggingFaceDetector } from './huggingface/HuggingFaceDetector';
+import { ArtifactoryDetector } from './artifactory/ArtifactoryDetector';
 
 export class ConcreteDetectorFactory implements DetectorFactory {
     private readonly detectorClasses = [
@@ -13,7 +14,8 @@ export class ConcreteDetectorFactory implements DetectorFactory {
         AnthropicDetector,
         OpenAIDetector,
         GeminiDetector,
-        HuggingFaceDetector
+        HuggingFaceDetector,
+        ArtifactoryDetector
     ];
 
     createDetectors(): SecretDetector[] {
