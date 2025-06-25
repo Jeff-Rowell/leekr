@@ -4,6 +4,7 @@ import { AwsSessionKeysDetector } from './aws/AwsSessionKeysDetector';
 import { AnthropicDetector } from './anthropic/AnthropicDetector';
 import { OpenAIDetector } from './openai/OpenAIDetector';
 import { GeminiDetector } from './gemini/GeminiDetector';
+import { HuggingFaceDetector } from './huggingface/HuggingFaceDetector';
 
 export class ConcreteDetectorFactory implements DetectorFactory {
     private readonly detectorClasses = [
@@ -11,7 +12,8 @@ export class ConcreteDetectorFactory implements DetectorFactory {
         AwsSessionKeysDetector,
         AnthropicDetector,
         OpenAIDetector,
-        GeminiDetector
+        GeminiDetector,
+        HuggingFaceDetector
     ];
 
     createDetectors(): SecretDetector[] {
