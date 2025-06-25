@@ -4,12 +4,14 @@ import { AWSOccurrence } from '../../types/aws.types';
 import { AnthropicOccurrence } from '../../types/anthropic';
 import { OpenAIOccurrence } from '../../types/openai';
 import { GeminiOccurrence } from '../../types/gemini';
+import { HuggingFaceOccurrence } from '../../types/huggingface';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
 import { anthropicValidityHelper } from '../../utils/validators/anthropic/anthropicValidityHelper';
 import { openaiValidityHelper } from '../../utils/validators/openai/openaiValidityHelper';
 import { geminiValidityHelper } from '../../utils/validators/gemini/geminiValidityHelper';
+import { huggingfaceValidityHelper } from '../../utils/validators/huggingface/huggingfaceValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
@@ -21,6 +23,7 @@ jest.mock('../../utils/validators/aws/aws_session_keys/awsValidityHelper');
 jest.mock('../../utils/validators/anthropic/anthropicValidityHelper');
 jest.mock('../../utils/validators/openai/openaiValidityHelper');
 jest.mock('../../utils/validators/gemini/geminiValidityHelper');
+jest.mock('../../utils/validators/huggingface/huggingfaceValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",
@@ -119,11 +122,32 @@ const mockGeminiOccurrence: GeminiOccurrence = {
     url: "http://localhost:3000/static/js/gemini.foobar.js",
 };
 
+const mockHuggingFaceOccurrence: HuggingFaceOccurrence = {
+    filePath: "main.foobar.js",
+    fingerprint: "fp6",
+    type: "API Key",
+    secretType: "Hugging Face",
+    secretValue: {
+        match: { 
+            api_key: "hf_1234567890abcdefghijklmnopqrstuv12"
+        }
+    },
+    sourceContent: {
+        content: "huggingfacefoobar\n".repeat(18),
+        contentEndLineNum: 35,
+        contentFilename: "HuggingFaceApp.js",
+        contentStartLineNum: 18,
+        exactMatchNumbers: [23, 30]
+    },
+    url: "http://localhost:3000/static/js/huggingface.foobar.js",
+};
+
 const mockOccurrences: Set<Occurrence> = new Set([mockOccurrence]);
 const mockSessionOccurrences: Set<Occurrence> = new Set([mockSessionOccurrence]);
 const mockAnthropicOccurrences: Set<Occurrence> = new Set([mockAnthropicOccurrence]);
 const mockOpenAIOccurrences: Set<Occurrence> = new Set([mockOpenAIOccurrence]);
 const mockGeminiOccurrences: Set<Occurrence> = new Set([mockGeminiOccurrence]);
+const mockHuggingFaceOccurrences: Set<Occurrence> = new Set([mockHuggingFaceOccurrence]);
 
 const mockFindings: Finding[] = [
     {
@@ -189,6 +213,21 @@ const mockFindings: Finding[] = [
             match: { 
                 api_key: "account-1234567890ABCDEFGH12",
                 api_secret: "ABCDEFGHIJKLMNOPQRSTUVWXYZ12"
+            },
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            validity: "valid"
+        }
+    },
+    {
+        fingerprint: "fp6",
+        numOccurrences: mockHuggingFaceOccurrences.size,
+        occurrences: mockHuggingFaceOccurrences,
+        validity: "valid",
+        validatedAt: "2025-05-13T18:16:16.870Z",
+        secretType: "Hugging Face",
+        secretValue: {
+            match: { 
+                api_key: "hf_1234567890abcdefghijklmnopqrstuv12"
             },
             validatedAt: "2025-05-17T18:16:16.870Z",
             validity: "valid"
@@ -324,6 +363,15 @@ describe('Occurrences Component', () => {
         fireEvent.click(recheckButton);
 
         expect(geminiValidityHelper).toHaveBeenCalledWith(mockFindings[4]);
+    });
+
+    test('calls Hugging Face validity helper when recheck button is clicked', () => {
+        render(<Occurrences filterFingerprint='fp6' />);
+
+        const recheckButton = screen.getByLabelText('Recheck validity');
+        fireEvent.click(recheckButton);
+
+        expect(huggingfaceValidityHelper).toHaveBeenCalledWith(mockFindings[5]);
     });
 
     test('does not call validity helpers for unknown secret types', () => {

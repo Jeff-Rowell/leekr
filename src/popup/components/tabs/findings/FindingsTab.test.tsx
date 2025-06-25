@@ -3,6 +3,7 @@ import { AWSOccurrence } from 'src/types/aws.types';
 import { AnthropicOccurrence } from 'src/types/anthropic';
 import { OpenAIOccurrence } from 'src/types/openai';
 import { GeminiOccurrence } from 'src/types/gemini';
+import { HuggingFaceOccurrence } from 'src/types/huggingface';
 import { Finding, Occurrence } from 'src/types/findings.types';
 import { retrieveFindings, storeFindings } from '../../../../utils/helpers/common';
 import { awsValidityHelper } from '../../../../utils/validators/aws/aws_access_keys/awsValidityHelper';
@@ -10,6 +11,7 @@ import { awsSessionValidityHelper } from '../../../../utils/validators/aws/aws_s
 import { anthropicValidityHelper } from '../../../../utils/validators/anthropic/anthropicValidityHelper';
 import { openaiValidityHelper } from '../../../../utils/validators/openai/openaiValidityHelper';
 import { geminiValidityHelper } from '../../../../utils/validators/gemini/geminiValidityHelper';
+import { huggingfaceValidityHelper } from '../../../../utils/validators/huggingface/huggingfaceValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import FindingsTab from './FindingsTab';
 
@@ -35,6 +37,10 @@ jest.mock('../../../../utils/validators/openai/openaiValidityHelper', () => ({
 
 jest.mock('../../../../utils/validators/gemini/geminiValidityHelper', () => ({
     geminiValidityHelper: jest.fn(),
+}));
+
+jest.mock('../../../../utils/validators/huggingface/huggingfaceValidityHelper', () => ({
+    huggingfaceValidityHelper: jest.fn(),
 }));
 
 jest.mock('../../../../utils/helpers/common', () => ({
@@ -247,6 +253,26 @@ describe('FindingsTab', () => {
         url: "http://localhost:3000/static/js/main.foobar.js",
     };
 
+    const mockHuggingFaceOccurrence: HuggingFaceOccurrence = {
+        filePath: "main.foobar.js",
+        fingerprint: "fp9",
+        type: "API Key",
+        secretType: "Hugging Face",
+        secretValue: {
+            match: { 
+                api_key: "hf_1234567890abcdefghijklmnopqrstuv12"
+            }
+        },
+        sourceContent: {
+            content: "foobar",
+            contentEndLineNum: 35,
+            contentFilename: "App.js",
+            contentStartLineNum: 18,
+            exactMatchNumbers: [23, 30]
+        },
+        url: "http://localhost:3000/static/js/main.foobar.js",
+    };
+
     const mockOccurrencesOne: Set<Occurrence> = new Set([mockOccurrenceOne]);
     const mockOccurrencesTwo: Set<Occurrence> = new Set([mockOccurrenceTwo]);
     const mockOccurrencesThree: Set<Occurrence> = new Set([mockOccurrenceThree]);
@@ -255,6 +281,7 @@ describe('FindingsTab', () => {
     const mockAnthropicOccurrences: Set<Occurrence> = new Set([mockAnthropicOccurrence]);
     const mockOpenAIOccurrences: Set<Occurrence> = new Set([mockOpenAIOccurrence]);
     const mockGeminiOccurrences: Set<Occurrence> = new Set([mockGeminiOccurrence]);
+    const mockHuggingFaceOccurrences: Set<Occurrence> = new Set([mockHuggingFaceOccurrence]);
 
     const mockFindings: Finding[] = [
         {
@@ -361,6 +388,21 @@ describe('FindingsTab', () => {
                 validity: "valid"
             }
         },
+        {
+            fingerprint: "fp9",
+            numOccurrences: mockHuggingFaceOccurrences.size,
+            occurrences: mockHuggingFaceOccurrences,
+            validity: "valid",
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            secretType: "Hugging Face",
+            secretValue: {
+                match: { 
+                    api_key: "hf_1234567890abcdefghijklmnopqrstuv12"
+                },
+                validatedAt: "2025-05-17T18:16:16.870Z",
+                validity: "valid"
+            }
+        },
     ];
 
     beforeEach(() => {
@@ -440,14 +482,14 @@ describe('FindingsTab', () => {
     test('shows validity check icon for validated findings', () => {
         render(<FindingsTab />);
         const shieldIcons = screen.getAllByTestId('shield-check-icon');
-        expect(shieldIcons.length).toBe(5);
+        expect(shieldIcons.length).toBe(6);
     });
 
     test('opens settings menu when settings button is clicked', async () => {
         render(<FindingsTab />);
 
         const settingsButtons = screen.getAllByLabelText('Settings');
-        expect(settingsButtons.length).toBe(8);
+        expect(settingsButtons.length).toBe(9);
         fireEvent.click(settingsButtons[0]);
 
         await waitFor(() => {
@@ -508,7 +550,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(5);
+        expect(recheckButtons).toHaveLength(6);
 
         fireEvent.click(recheckButtons[0]);
         expect(awsValidityHelper).toHaveBeenCalledWith(mockFindings[0]);
@@ -518,7 +560,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(5);
+        expect(recheckButtons).toHaveLength(6);
 
         fireEvent.click(recheckButtons[1]);
         expect(awsSessionValidityHelper).toHaveBeenCalledWith(mockFindings[4]);
@@ -528,7 +570,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(5);
+        expect(recheckButtons).toHaveLength(6);
 
         fireEvent.click(recheckButtons[2]);
         expect(anthropicValidityHelper).toHaveBeenCalledWith(mockFindings[5]);
@@ -538,7 +580,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(5);
+        expect(recheckButtons).toHaveLength(6);
 
         fireEvent.click(recheckButtons[3]);
         expect(openaiValidityHelper).toHaveBeenCalledWith(mockFindings[6]);
@@ -548,10 +590,20 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(5);
+        expect(recheckButtons).toHaveLength(6);
 
         fireEvent.click(recheckButtons[4]);
         expect(geminiValidityHelper).toHaveBeenCalledWith(mockFindings[7]);
+    });
+
+    test('calls huggingfaceValidityHelper when recheck button is clicked for Hugging Face', async () => {
+        render(<FindingsTab />);
+
+        const recheckButtons = screen.getAllByLabelText('Recheck validity');
+        expect(recheckButtons).toHaveLength(6);
+
+        fireEvent.click(recheckButtons[5]);
+        expect(huggingfaceValidityHelper).toHaveBeenCalledWith(mockFindings[8]);
     });
 
     test('opens GitHub issues page when "Report Issue" is clicked', async () => {
