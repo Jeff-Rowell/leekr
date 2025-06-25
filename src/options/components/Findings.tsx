@@ -14,6 +14,7 @@ import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session
 import { anthropicValidityHelper } from '../../utils/validators/anthropic/anthropicValidityHelper';
 import { openaiValidityHelper } from '../../utils/validators/openai/openaiValidityHelper';
 import { geminiValidityHelper } from '../../utils/validators/gemini/geminiValidityHelper';
+import { huggingfaceValidityHelper } from '../../utils/validators/huggingface/huggingfaceValidityHelper';
 
 // Pagination constants
 const ITEMS_PER_PAGE = 10;
@@ -102,6 +103,8 @@ export const Findings: React.FC = () => {
             openaiValidityHelper(finding);
         } else if (finding.secretType === "Gemini") {
             geminiValidityHelper(finding);
+        } else if (finding.secretType === "Hugging Face") {
+            huggingfaceValidityHelper(finding);
         }
     };
 

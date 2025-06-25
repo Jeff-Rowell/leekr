@@ -7,6 +7,7 @@ import { awsSessionValidityHelper } from '../../../../utils/validators/aws/aws_s
 import { anthropicValidityHelper } from '../../../../utils/validators/anthropic/anthropicValidityHelper';
 import { openaiValidityHelper } from '../../../../utils/validators/openai/openaiValidityHelper';
 import { geminiValidityHelper } from '../../../../utils/validators/gemini/geminiValidityHelper';
+import { huggingfaceValidityHelper } from '../../../../utils/validators/huggingface/huggingfaceValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import ModalHeader from '../../modalheader/ModalHeader';
 import './style.css';
@@ -29,6 +30,8 @@ const FindingsTab: React.FC = () => {
             openaiValidityHelper(finding);
         } else if (finding.secretType === "Gemini") {
             geminiValidityHelper(finding);
+        } else if (finding.secretType === "Hugging Face") {
+            huggingfaceValidityHelper(finding);
         }
     };
 
