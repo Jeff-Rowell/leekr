@@ -50,44 +50,30 @@ export async function detectHuggingFaceKeys(content: string, url: string): Promi
                 exactMatchNumbers: [-1]
             }
 
-            try {
-                const sourceMapUrl = getSourceMapUrl(url, content);
-                if (sourceMapUrl) {
-                    const sourceMapResponse = await fetch(sourceMapUrl.toString());
-                    if (sourceMapResponse.ok) {
-                        const sourceMapContent = await sourceMapResponse.text();
-                        const consumer = await new sourceMap.SourceMapConsumer(sourceMapContent, null);
-
-                        const keyPosition = findSecretPosition(content, apiKey);
-
-                        if (keyPosition.line !== -1) {
-                            const originalKeyPos = consumer.originalPositionFor({
-                                line: keyPosition.line,
-                                column: keyPosition.column
-                            });
-
-                            if (originalKeyPos.source) {
-                                const sourceContent = consumer.sourceContentFor(originalKeyPos.source);
-                                if (sourceContent) {
-                                    const lines = sourceContent.split('\n');
-                                    const startLine = Math.max(0, originalKeyPos.line - 10);
-                                    const endLine = Math.min(lines.length - 1, originalKeyPos.line + 10);
-
-                                    newSourceContent = {
-                                        content: lines.slice(startLine, endLine + 1).join('\n'),
-                                        contentFilename: originalKeyPos.source.split('/').pop() || "",
-                                        contentStartLineNum: startLine,
-                                        contentEndLineNum: endLine,
-                                        exactMatchNumbers: [originalKeyPos.line - 1]
-                                    };
-                                }
-                            }
-                        }
-                        consumer.destroy();
+            const sourceMapUrl = getSourceMapUrl(url, content);
+            if (sourceMapUrl) {
+                const sourceMapResponse = await fetch(sourceMapUrl);
+                const sourceMapContent = await sourceMapResponse.text();
+                sourceMap.SourceMapConsumer.initialize({
+                    "lib/mappings.wasm": chrome.runtime.getURL('libs/mappings.wasm'),
+                });
+                await sourceMap.SourceMapConsumer.with(sourceMapContent, null, (consumer: any) => {
+                    const keyPosition = findSecretPosition(content, apiKey);
+                    const originalKeyPos = consumer.originalPositionFor({
+                        line: keyPosition.line,
+                        column: keyPosition.column
+                    });
+                    if (originalKeyPos.source) {
+                        const sourceContent = consumer.sourceContentFor(originalKeyPos.source);
+                        newSourceContent = {
+                            content: sourceContent,
+                            contentFilename: originalKeyPos.source,
+                            contentStartLineNum: originalKeyPos.line - 5,
+                            contentEndLineNum: originalKeyPos.line + 5,
+                            exactMatchNumbers: [originalKeyPos.line]
+                        };
                     }
-                }
-            } catch (error) {
-                // Fall back to bundled content if source map processing fails
+                });
             }
 
             const secretValue: HuggingFaceSecretValue = {
