@@ -126,7 +126,7 @@ export const patterns: PatternsObj = {
     "Azure OpenAI API Key": {
         name: "Azure OpenAI API Key",
         familyName: "Azure OpenAI",
-        pattern: /\b([a-fA-F0-9]{32,64})\b/g,
+        pattern: /\b([A-Za-z0-9]{84})\b/g,
         entropy: DEFAULT_AZURE_OPENAI_API_KEY_CONFIG.requiredEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
