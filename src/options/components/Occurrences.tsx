@@ -9,6 +9,7 @@ import { openaiValidityHelper } from '../../utils/validators/openai/openaiValidi
 import { geminiValidityHelper } from '../../utils/validators/gemini/geminiValidityHelper';
 import { huggingfaceValidityHelper } from '../../utils/validators/huggingface/huggingfaceValidityHelper';
 import { artifactoryValidityHelper } from '../../utils/validators/artifactory/artifactoryValidityHelper';
+import { azureOpenAIValidityHelper } from '../../utils/validators/azure_openai/azureOpenAIValidityHelper';
 
 
 export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFingerprint }) => {
@@ -46,6 +47,8 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
             huggingfaceValidityHelper(finding);
         } else if (finding.secretType === "Artifactory") {
             artifactoryValidityHelper(finding);
+        } else if (finding.secretType === "Azure OpenAI") {
+            azureOpenAIValidityHelper(finding);
         }
     };
 
