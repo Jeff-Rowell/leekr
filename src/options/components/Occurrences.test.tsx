@@ -6,6 +6,7 @@ import { OpenAIOccurrence } from '../../types/openai';
 import { GeminiOccurrence } from '../../types/gemini';
 import { HuggingFaceOccurrence } from '../../types/huggingface';
 import { ArtifactoryOccurrence } from '../../types/artifactory';
+import { AzureOpenAIOccurrence } from '../../types/azure_openai';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -14,6 +15,7 @@ import { openaiValidityHelper } from '../../utils/validators/openai/openaiValidi
 import { geminiValidityHelper } from '../../utils/validators/gemini/geminiValidityHelper';
 import { huggingfaceValidityHelper } from '../../utils/validators/huggingface/huggingfaceValidityHelper';
 import { artifactoryValidityHelper } from '../../utils/validators/artifactory/artifactoryValidityHelper';
+import { azureOpenAIValidityHelper } from '../../utils/validators/azure_openai/azureOpenAIValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
@@ -27,6 +29,7 @@ jest.mock('../../utils/validators/openai/openaiValidityHelper');
 jest.mock('../../utils/validators/gemini/geminiValidityHelper');
 jest.mock('../../utils/validators/huggingface/huggingfaceValidityHelper');
 jest.mock('../../utils/validators/artifactory/artifactoryValidityHelper');
+jest.mock('../../utils/validators/azure_openai/azureOpenAIValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",
@@ -270,6 +273,41 @@ const mockFindings: Finding[] = [
             validatedAt: "2025-05-17T18:16:16.870Z",
             validity: "valid"
         }
+    },
+    {
+        fingerprint: "fp8",
+        numOccurrences: 1,
+        occurrences: new Set([{
+            fingerprint: "azure-openai-fp",
+            secretType: "Azure OpenAI",
+            filePath: "test.js",
+            url: "http://localhost:3000/test.js",
+            type: "API Key",
+            secretValue: {
+                match: {
+                    api_key: "abcdef12345678901234567890123456",
+                    url: "test-instance.openai.azure.com"
+                }
+            },
+            sourceContent: {
+                content: "const apiKey = \"abcdef12345678901234567890123456\";\nconst endpoint = \"test-instance.openai.azure.com\";",
+                contentFilename: "test.js",
+                contentStartLineNum: 5,
+                contentEndLineNum: 15,
+                exactMatchNumbers: [10]
+            }
+        } as AzureOpenAIOccurrence]),
+        validity: "valid",
+        validatedAt: "2025-05-13T18:16:16.870Z",
+        secretType: "Azure OpenAI",
+        secretValue: {
+            match: { 
+                api_key: "abcdef12345678901234567890123456",
+                url: "test-instance.openai.azure.com"
+            },
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            validity: "valid"
+        }
     }
 ]
 
@@ -412,6 +450,15 @@ describe('Occurrences Component', () => {
         expect(huggingfaceValidityHelper).toHaveBeenCalledWith(mockFindings[5]);
     });
 
+    test('calls Azure OpenAI validity helper when recheck button is clicked', () => {
+        render(<Occurrences filterFingerprint='fp8' />);
+
+        const recheckButton = screen.getByLabelText('Recheck validity');
+        fireEvent.click(recheckButton);
+
+        expect(azureOpenAIValidityHelper).toHaveBeenCalledWith(mockFindings[7]);
+    });
+
     test('does not call validity helpers for unknown secret types', () => {
         const unknownTypeFinding: Finding = {
             fingerprint: "fp4",
@@ -443,6 +490,7 @@ describe('Occurrences Component', () => {
         expect(anthropicValidityHelper).not.toHaveBeenCalled();
         expect(openaiValidityHelper).not.toHaveBeenCalled();
         expect(geminiValidityHelper).not.toHaveBeenCalled();
+        expect(azureOpenAIValidityHelper).not.toHaveBeenCalled();
     });
 
     test('clicking download source code button calls URL.createObjectURL', () => {

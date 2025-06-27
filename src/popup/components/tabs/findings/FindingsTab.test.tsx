@@ -5,6 +5,7 @@ import { OpenAIOccurrence } from 'src/types/openai';
 import { GeminiOccurrence } from 'src/types/gemini';
 import { HuggingFaceOccurrence } from 'src/types/huggingface';
 import { ArtifactoryOccurrence } from 'src/types/artifactory';
+import { AzureOpenAIOccurrence } from 'src/types/azure_openai';
 import { Finding, Occurrence } from 'src/types/findings.types';
 import { retrieveFindings, storeFindings } from '../../../../utils/helpers/common';
 import { awsValidityHelper } from '../../../../utils/validators/aws/aws_access_keys/awsValidityHelper';
@@ -14,6 +15,7 @@ import { openaiValidityHelper } from '../../../../utils/validators/openai/openai
 import { geminiValidityHelper } from '../../../../utils/validators/gemini/geminiValidityHelper';
 import { huggingfaceValidityHelper } from '../../../../utils/validators/huggingface/huggingfaceValidityHelper';
 import { artifactoryValidityHelper } from '../../../../utils/validators/artifactory/artifactoryValidityHelper';
+import { azureOpenAIValidityHelper } from '../../../../utils/validators/azure_openai/azureOpenAIValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import FindingsTab from './FindingsTab';
 
@@ -47,6 +49,10 @@ jest.mock('../../../../utils/validators/huggingface/huggingfaceValidityHelper', 
 
 jest.mock('../../../../utils/validators/artifactory/artifactoryValidityHelper', () => ({
     artifactoryValidityHelper: jest.fn(),
+}));
+
+jest.mock('../../../../utils/validators/azure_openai/azureOpenAIValidityHelper', () => ({
+    azureOpenAIValidityHelper: jest.fn(),
 }));
 
 jest.mock('../../../../utils/helpers/common', () => ({
@@ -308,6 +314,7 @@ describe('FindingsTab', () => {
             numOccurrences: mockOccurrencesTwo.size,
             occurrences: mockOccurrencesTwo,
             validity: "invalid",
+            validatedAt: "2025-05-17T18:16:16.870Z",
             secretType: "AWS Access & Secret Keys",
             secretValue: {
                 match: { access_key_id: "lol", secret_key_id: "wut" },
@@ -320,6 +327,7 @@ describe('FindingsTab', () => {
             numOccurrences: mockOccurrencesThree.size,
             occurrences: mockOccurrencesThree,
             validity: "unknown",
+            validatedAt: "2025-05-17T18:16:16.870Z",
             secretType: "AWS Access & Secret Keys",
             secretValue: {
                 match: { access_key_id: "lol", secret_key_id: "wut" },
@@ -332,6 +340,7 @@ describe('FindingsTab', () => {
             numOccurrences: mockOccurrencesFour.size,
             occurrences: mockOccurrencesFour,
             validity: "failed_to_check",
+            validatedAt: "2025-05-17T18:16:16.870Z",
             secretType: "AWS Access & Secret Keys",
             secretValue: {
                 match: { access_key_id: "lol", secret_key_id: "wut" },
@@ -410,7 +419,7 @@ describe('FindingsTab', () => {
             }
         },
         {
-            fingerprint: "fp8",
+            fingerprint: "fp11",
             numOccurrences: 1,
             occurrences: new Set([{
                 fingerprint: "artifactory-fp",
@@ -439,6 +448,41 @@ describe('FindingsTab', () => {
                 match: { 
                     api_key: "a".repeat(73),
                     url: "example.jfrog.io"
+                },
+                validatedAt: "2025-05-17T18:16:16.870Z",
+                validity: "valid"
+            }
+        },
+        {
+            fingerprint: "fp10",
+            numOccurrences: 1,
+            occurrences: new Set([{
+                fingerprint: "azure-openai-fp",
+                secretType: "Azure OpenAI",
+                filePath: "test.js",
+                url: "http://localhost:3000/test.js",
+                type: "API Key",
+                secretValue: {
+                    match: {
+                        api_key: "abcdef1234567890123456789012345678",
+                        url: "test-instance.openai.azure.com"
+                    }
+                },
+                sourceContent: {
+                    content: "test content",
+                    contentFilename: "test.js",
+                    contentStartLineNum: 1,
+                    contentEndLineNum: 10,
+                    exactMatchNumbers: [5]
+                }
+            } as AzureOpenAIOccurrence]),
+            validity: "valid",
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            secretType: "Azure OpenAI",
+            secretValue: {
+                match: { 
+                    api_key: "abcdef1234567890123456789012345678",
+                    url: "test-instance.openai.azure.com"
                 },
                 validatedAt: "2025-05-17T18:16:16.870Z",
                 validity: "valid"
@@ -523,14 +567,14 @@ describe('FindingsTab', () => {
     test('shows validity check icon for validated findings', () => {
         render(<FindingsTab />);
         const shieldIcons = screen.getAllByTestId('shield-check-icon');
-        expect(shieldIcons.length).toBe(7);
+        expect(shieldIcons.length).toBe(11);
     });
 
     test('opens settings menu when settings button is clicked', async () => {
         render(<FindingsTab />);
 
         const settingsButtons = screen.getAllByLabelText('Settings');
-        expect(settingsButtons.length).toBe(10);
+        expect(settingsButtons.length).toBe(11);
         fireEvent.click(settingsButtons[0]);
 
         await waitFor(() => {
@@ -591,7 +635,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(7);
+        expect(recheckButtons).toHaveLength(11);
 
         fireEvent.click(recheckButtons[0]);
         expect(awsValidityHelper).toHaveBeenCalledWith(mockFindings[0]);
@@ -601,9 +645,9 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(7);
+        expect(recheckButtons).toHaveLength(11);
 
-        fireEvent.click(recheckButtons[1]);
+        fireEvent.click(recheckButtons[4]);
         expect(awsSessionValidityHelper).toHaveBeenCalledWith(mockFindings[4]);
     });
 
@@ -611,9 +655,9 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(7);
+        expect(recheckButtons).toHaveLength(11);
 
-        fireEvent.click(recheckButtons[2]);
+        fireEvent.click(recheckButtons[5]);
         expect(anthropicValidityHelper).toHaveBeenCalledWith(mockFindings[5]);
     });
 
@@ -621,9 +665,9 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(7);
+        expect(recheckButtons).toHaveLength(11);
 
-        fireEvent.click(recheckButtons[3]);
+        fireEvent.click(recheckButtons[6]);
         expect(openaiValidityHelper).toHaveBeenCalledWith(mockFindings[6]);
     });
 
@@ -631,9 +675,9 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(7);
+        expect(recheckButtons).toHaveLength(11);
 
-        fireEvent.click(recheckButtons[4]);
+        fireEvent.click(recheckButtons[7]);
         expect(geminiValidityHelper).toHaveBeenCalledWith(mockFindings[7]);
     });
 
@@ -641,9 +685,9 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(7);
+        expect(recheckButtons).toHaveLength(11);
 
-        fireEvent.click(recheckButtons[5]);
+        fireEvent.click(recheckButtons[8]);
         expect(huggingfaceValidityHelper).toHaveBeenCalledWith(mockFindings[8]);
     });
 
@@ -729,18 +773,27 @@ describe('FindingsTab', () => {
         
         // Find the Artifactory recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(7);
+        expect(recheckButtons).toHaveLength(11);
         
-        // Click the last recheck button (Artifactory finding)
-        fireEvent.click(recheckButtons[6]);
+        // Click the Artifactory recheck button (10th button, index 9) 
+        fireEvent.click(recheckButtons[9]);
         
         // Verify artifactory validity helper was called
-        expect(artifactoryValidityHelper).toHaveBeenCalledWith(
-            expect.objectContaining({
-                fingerprint: "fp8",
-                secretType: "Artifactory"
-            })
-        );
+        expect(artifactoryValidityHelper).toHaveBeenCalledWith(mockFindings[9]);
+    });
+
+    test('calls azureOpenAIValidityHelper for Azure OpenAI findings', async () => {
+        render(<FindingsTab />);
+        
+        // Find the Azure OpenAI recheck button directly (in the validity tooltip)
+        const recheckButtons = screen.getAllByLabelText('Recheck validity');
+        expect(recheckButtons).toHaveLength(11);
+        
+        // Click the last recheck button (Azure OpenAI finding)
+        fireEvent.click(recheckButtons[10]);
+        
+        // Verify azure openai validity helper was called
+        expect(azureOpenAIValidityHelper).toHaveBeenCalledWith(mockFindings[10]);
     });
 
     test('closes settings menu when clicking outside', async () => {

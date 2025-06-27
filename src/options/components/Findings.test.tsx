@@ -8,6 +8,7 @@ import { OpenAIOccurrence } from '../../types/openai';
 import { GeminiOccurrence } from '../../types/gemini';
 import { HuggingFaceOccurrence } from '../../types/huggingface';
 import { ArtifactoryOccurrence } from '../../types/artifactory';
+import { AzureOpenAIOccurrence } from '../../types/azure_openai';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -16,6 +17,7 @@ import { openaiValidityHelper } from '../../utils/validators/openai/openaiValidi
 import { geminiValidityHelper } from '../../utils/validators/gemini/geminiValidityHelper';
 import { huggingfaceValidityHelper } from '../../utils/validators/huggingface/huggingfaceValidityHelper';
 import { artifactoryValidityHelper } from '../../utils/validators/artifactory/artifactoryValidityHelper';
+import { azureOpenAIValidityHelper } from '../../utils/validators/azure_openai/azureOpenAIValidityHelper';
 import { Findings } from './Findings';
 
 jest.mock('../../popup/AppContext');
@@ -27,6 +29,7 @@ jest.mock('../../utils/validators/openai/openaiValidityHelper');
 jest.mock('../../utils/validators/gemini/geminiValidityHelper');
 jest.mock('../../utils/validators/huggingface/huggingfaceValidityHelper');
 jest.mock('../../utils/validators/artifactory/artifactoryValidityHelper');
+jest.mock('../../utils/validators/azure_openai/azureOpenAIValidityHelper');
 
 const mockAwsValidityHelper = awsValidityHelper as jest.MockedFunction<typeof awsValidityHelper>;
 const mockAwsSessionValidityHelper = awsSessionValidityHelper as jest.MockedFunction<typeof awsSessionValidityHelper>;
@@ -35,6 +38,7 @@ const mockOpenaiValidityHelper = openaiValidityHelper as jest.MockedFunction<typ
 const mockGeminiValidityHelper = geminiValidityHelper as jest.MockedFunction<typeof geminiValidityHelper>;
 const mockHuggingfaceValidityHelper = huggingfaceValidityHelper as jest.MockedFunction<typeof huggingfaceValidityHelper>;
 const mockArtifactoryValidityHelper = artifactoryValidityHelper as jest.MockedFunction<typeof artifactoryValidityHelper>;
+const mockAzureOpenAIValidityHelper = azureOpenAIValidityHelper as jest.MockedFunction<typeof azureOpenAIValidityHelper>;
 
 const mockChrome = {
     runtime: {
@@ -245,10 +249,32 @@ const mockHuggingFaceOccurrence: HuggingFaceOccurrence = {
     url: "http://localhost:3000/static/js/main.foobar.js",
 };
 
+const mockAzureOpenAIOccurrence: AzureOpenAIOccurrence = {
+    filePath: "main.foobar.js",
+    fingerprint: "fp10",
+    type: "API Key",
+    secretType: "Azure OpenAI",
+    secretValue: {
+        match: { 
+            api_key: "abcdef12345678901234567890123456",
+            url: "test-instance.openai.azure.com"
+        }
+    },
+    sourceContent: {
+        content: "foobar",
+        contentEndLineNum: 35,
+        contentFilename: "App.js",
+        contentStartLineNum: 18,
+        exactMatchNumbers: [23, 30]
+    },
+    url: "http://localhost:3000/static/js/main.foobar.js",
+};
+
 const mockAnthropicOccurrences: Set<Occurrence> = new Set([mockAnthropicOccurrence]);
 const mockOpenAIOccurrences: Set<Occurrence> = new Set([mockOpenAIOccurrence]);
 const mockGeminiOccurrences: Set<Occurrence> = new Set([mockGeminiOccurrence]);
 const mockHuggingFaceOccurrences: Set<Occurrence> = new Set([mockHuggingFaceOccurrence]);
+const mockAzureOpenAIOccurrences: Set<Occurrence> = new Set([mockAzureOpenAIOccurrence]);
 
 const mockFindings: Finding[] = [
     {
@@ -370,6 +396,22 @@ const mockFindings: Finding[] = [
             validity: "valid"
         }
     },
+    {
+        fingerprint: "fp10",
+        numOccurrences: mockAzureOpenAIOccurrences.size,
+        occurrences: mockAzureOpenAIOccurrences,
+        validity: "valid",
+        validatedAt: "2025-05-17T18:16:16.870Z",
+        secretType: "Azure OpenAI",
+        secretValue: {
+            match: { 
+                api_key: "abcdef12345678901234567890123456",
+                url: "test-instance.openai.azure.com"
+            },
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            validity: "valid"
+        }
+    },
 ];
 
 describe('Findings Component', () => {
@@ -411,7 +453,7 @@ describe('Findings Component', () => {
         test('renders all findings when no filters applied', () => {
             const { container } = render(<Findings />);
             const findings = container.querySelectorAll('.findings-td');
-            expect(findings).toHaveLength(9);
+            expect(findings).toHaveLength(10);
         });
 
         test('shows empty state when no findings exist', () => {
@@ -430,7 +472,7 @@ describe('Findings Component', () => {
         test('displays validity status with correct formatting', () => {
             render(<Findings />);
 
-            expect(screen.getAllByText('valid')).toHaveLength(6);
+            expect(screen.getAllByText('valid')).toHaveLength(7);
             expect(screen.getByText('invalid')).toBeInTheDocument();
             expect(screen.getByText('unknown')).toBeInTheDocument();
             expect(screen.getByText('failed to check')).toBeInTheDocument();
@@ -440,7 +482,7 @@ describe('Findings Component', () => {
             const { container } = render(<Findings />);
 
             const shieldIcons = container.querySelectorAll('.validity-valid');
-            expect(shieldIcons).toHaveLength(6);
+            expect(shieldIcons).toHaveLength(7);
         });
     });
 
@@ -453,7 +495,7 @@ describe('Findings Component', () => {
             await user.selectOptions(validityFilter, 'valid');
 
             const findings = container.querySelectorAll('.findings-td');
-            expect(findings).toHaveLength(6);
+            expect(findings).toHaveLength(7);
         });
 
         test('filters findings by invalid status', async () => {
@@ -498,11 +540,11 @@ describe('Findings Component', () => {
             await user.selectOptions(validityFilter, 'valid');
 
             const validFindings = container.querySelectorAll('.findings-td');
-            expect(validFindings).toHaveLength(6);
+            expect(validFindings).toHaveLength(7);
 
             await user.selectOptions(validityFilter, 'all');
             const allFindings = container.querySelectorAll('.findings-td');
-            expect(allFindings).toHaveLength(9);
+            expect(allFindings).toHaveLength(10);
         });
     });
 
@@ -513,13 +555,14 @@ describe('Findings Component', () => {
             const typeFilter = screen.getByLabelText('Secret Type:');
             const options = typeFilter.querySelectorAll('option');
 
-            expect(options).toHaveLength(7);
+            expect(options).toHaveLength(8);
             expect(options[0]).toHaveTextContent('All Types');
             expect(options[1]).toHaveTextContent('AWS Access & Secret Keys');
             expect(options[2]).toHaveTextContent('AWS Session Keys');
             expect(options[3]).toHaveTextContent('Anthropic AI');
             expect(options[4]).toHaveTextContent('OpenAI');
             expect(options[5]).toHaveTextContent('Gemini');
+            expect(options[6]).toHaveTextContent('Hugging Face');
         });
 
         test('filters findings by secret type', async () => {
@@ -667,7 +710,7 @@ describe('Findings Component', () => {
             render(<Findings />);
 
             const viewButtons = screen.getAllByTestId('square-arrow-right');
-            expect(viewButtons).toHaveLength(9);
+            expect(viewButtons).toHaveLength(10);
         });
 
         test('handles view occurrences click', async () => {
@@ -728,7 +771,7 @@ describe('Findings Component', () => {
             render(<Findings />);
 
             const recheckButtons = screen.getAllByTestId('rotate-cw');
-            await user.click(recheckButtons[5]); // OpenAI is last in alphabetical order
+            await user.click(recheckButtons[6]); // OpenAI is index 6 in alphabetical order
 
             expect(mockOpenaiValidityHelper).toHaveBeenCalledWith(mockFindings[6]);
         });
@@ -738,7 +781,7 @@ describe('Findings Component', () => {
             render(<Findings />);
 
             const recheckButtons = screen.getAllByTestId('rotate-cw');
-            await user.click(recheckButtons[3]); // Gemini is index 3 after AWS Session
+            await user.click(recheckButtons[4]); // Gemini is index 4 in alphabetical order
 
             expect(mockGeminiValidityHelper).toHaveBeenCalledWith(mockFindings[7]);
         });
@@ -748,7 +791,7 @@ describe('Findings Component', () => {
             render(<Findings />);
 
             const recheckButtons = screen.getAllByTestId('rotate-cw');
-            await user.click(recheckButtons[4]); // Hugging Face is index 4 in alphabetical order
+            await user.click(recheckButtons[5]); // Hugging Face is index 5 in alphabetical order
 
             expect(mockHuggingfaceValidityHelper).toHaveBeenCalledWith(mockFindings[8]);
         });
@@ -786,6 +829,7 @@ describe('Findings Component', () => {
             expect(mockOpenaiValidityHelper).not.toHaveBeenCalled();
             expect(mockGeminiValidityHelper).not.toHaveBeenCalled();
             expect(mockArtifactoryValidityHelper).not.toHaveBeenCalled();
+            expect(mockAzureOpenAIValidityHelper).not.toHaveBeenCalled();
         });
 
         test('handles validity recheck for Artifactory tokens', async () => {
@@ -838,6 +882,16 @@ describe('Findings Component', () => {
             await user.click(recheckButtons[0]);
 
             expect(mockArtifactoryValidityHelper).toHaveBeenCalledWith(artifactoryFindings[0]);
+        });
+
+        test('handles validity recheck for Azure OpenAI', async () => {
+            const user = userEvent.setup();
+            render(<Findings />);
+
+            const recheckButtons = screen.getAllByTestId('rotate-cw');
+            await user.click(recheckButtons[3]); // Azure OpenAI is index 3 in alphabetical order
+
+            expect(mockAzureOpenAIValidityHelper).toHaveBeenCalledWith(mockFindings[9]);
         });
     });
 
@@ -1007,10 +1061,10 @@ describe('Findings Component', () => {
             render(<Findings />);
 
             const viewButtons = screen.getAllByTitle('View Occurrences');
-            expect(viewButtons).toHaveLength(9);
+            expect(viewButtons).toHaveLength(10);
 
             const recheckButtons = screen.getAllByLabelText('Recheck validity');
-            expect(recheckButtons).toHaveLength(6);
+            expect(recheckButtons).toHaveLength(7);
         });
 
         test('table headers are clickable for sorting', () => {
