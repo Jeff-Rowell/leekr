@@ -6,6 +6,7 @@ import { OpenAIDetector } from './openai/OpenAIDetector';
 import { GeminiDetector } from './gemini/GeminiDetector';
 import { HuggingFaceDetector } from './huggingface/HuggingFaceDetector';
 import { ArtifactoryDetector } from './artifactory/ArtifactoryDetector';
+import { AzureOpenAIDetector } from './azure_openai/AzureOpenAIDetector';
 
 export class ConcreteDetectorFactory implements DetectorFactory {
     private readonly detectorClasses = [
@@ -15,7 +16,8 @@ export class ConcreteDetectorFactory implements DetectorFactory {
         OpenAIDetector,
         GeminiDetector,
         HuggingFaceDetector,
-        ArtifactoryDetector
+        ArtifactoryDetector,
+        AzureOpenAIDetector
     ];
 
     createDetectors(): SecretDetector[] {
