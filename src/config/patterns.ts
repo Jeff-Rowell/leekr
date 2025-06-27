@@ -8,6 +8,7 @@ import { DEFAULT_OPENAI_API_KEY_CONFIG } from './detectors/openai/openai';
 import { DEFAULT_GEMINI_API_KEY_CONFIG } from './detectors/gemini/gemini';
 import { DEFAULT_HUGGINGFACE_API_KEY_CONFIG } from './detectors/huggingface/huggingface';
 import { DEFAULT_ARTIFACTORY_ACCESS_TOKEN_CONFIG, DEFAULT_ARTIFACTORY_URL_CONFIG } from './detectors/artifactory/artifactory';
+import { DEFAULT_AZURE_OPENAI_API_KEY_CONFIG, DEFAULT_AZURE_OPENAI_URL_CONFIG } from './detectors/azure_openai/azure_openai';
 
 const awsAccessKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_ACCESS_KEY_CONFIG };
 const awsSessionKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_SESSION_KEY_CONFIG };
@@ -117,6 +118,26 @@ export const patterns: PatternsObj = {
         familyName: "Artifactory",
         pattern: /\b([A-Za-z0-9](?:[A-Za-z0-9\-]{0,61}[A-Za-z0-9])\.jfrog\.io)\b/g,
         entropy: DEFAULT_ARTIFACTORY_URL_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Azure OpenAI API Key": {
+        name: "Azure OpenAI API Key",
+        familyName: "Azure OpenAI",
+        pattern: /\b([a-fA-F0-9]{32,64})\b/g,
+        entropy: DEFAULT_AZURE_OPENAI_API_KEY_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Azure OpenAI URL": {
+        name: "Azure OpenAI URL",
+        familyName: "Azure OpenAI",
+        pattern: /\b([a-z0-9-]+\.openai\.azure\.com)\b/g,
+        entropy: DEFAULT_AZURE_OPENAI_URL_CONFIG.requiredEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
         validityEndpoints: [],
