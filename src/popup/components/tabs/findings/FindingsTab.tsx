@@ -73,8 +73,13 @@ const FindingsTab: React.FC = () => {
             const buttonElement = settingsButtonRefs.current[index];
             if (buttonElement) {
                 const rect = buttonElement.getBoundingClientRect();
+                const dropdownHeight = 175;
+                const spaceBelow = window.innerHeight - rect.bottom;
+                const spaceAbove = rect.top;
+                const showAbove = spaceBelow < dropdownHeight && spaceAbove > dropdownHeight;
+                
                 setDropdownPosition({
-                    top: rect.bottom + window.scrollY,
+                    top: showAbove ? rect.top - dropdownHeight + window.scrollY : rect.bottom + window.scrollY,
                     left: rect.right - 250 + window.scrollX // 250px is the width of the dropdown
                 });
             }
