@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useAppContext } from '../../popup/AppContext';
 import { AWSOccurrence } from '../../types/aws.types';
@@ -9,6 +9,7 @@ import { GeminiOccurrence } from '../../types/gemini';
 import { HuggingFaceOccurrence } from '../../types/huggingface';
 import { ArtifactoryOccurrence } from '../../types/artifactory';
 import { AzureOpenAIOccurrence } from '../../types/azure_openai';
+import { ApolloOccurrence } from '../../types/apollo';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -18,6 +19,7 @@ import { geminiValidityHelper } from '../../utils/validators/gemini/geminiValidi
 import { huggingfaceValidityHelper } from '../../utils/validators/huggingface/huggingfaceValidityHelper';
 import { artifactoryValidityHelper } from '../../utils/validators/artifactory/artifactoryValidityHelper';
 import { azureOpenAIValidityHelper } from '../../utils/validators/azure_openai/azureOpenAIValidityHelper';
+import { apolloValidityHelper } from '../../utils/validators/apollo/apolloValidityHelper';
 import { Findings } from './Findings';
 
 jest.mock('../../popup/AppContext');
@@ -30,6 +32,7 @@ jest.mock('../../utils/validators/gemini/geminiValidityHelper');
 jest.mock('../../utils/validators/huggingface/huggingfaceValidityHelper');
 jest.mock('../../utils/validators/artifactory/artifactoryValidityHelper');
 jest.mock('../../utils/validators/azure_openai/azureOpenAIValidityHelper');
+jest.mock('../../utils/validators/apollo/apolloValidityHelper');
 
 const mockAwsValidityHelper = awsValidityHelper as jest.MockedFunction<typeof awsValidityHelper>;
 const mockAwsSessionValidityHelper = awsSessionValidityHelper as jest.MockedFunction<typeof awsSessionValidityHelper>;
@@ -39,6 +42,7 @@ const mockGeminiValidityHelper = geminiValidityHelper as jest.MockedFunction<typ
 const mockHuggingfaceValidityHelper = huggingfaceValidityHelper as jest.MockedFunction<typeof huggingfaceValidityHelper>;
 const mockArtifactoryValidityHelper = artifactoryValidityHelper as jest.MockedFunction<typeof artifactoryValidityHelper>;
 const mockAzureOpenAIValidityHelper = azureOpenAIValidityHelper as jest.MockedFunction<typeof azureOpenAIValidityHelper>;
+const mockApolloValidityHelper = apolloValidityHelper as jest.MockedFunction<typeof apolloValidityHelper>;
 
 const mockChrome = {
     runtime: {
@@ -1079,6 +1083,33 @@ describe('Findings Component', () => {
             sortableHeaders.forEach(header => {
                 expect(header).toHaveClass('sortable-header');
             });
+        });
+    });
+
+    describe('Apollo Validity Checking', () => {
+        test('calls apolloValidityHelper when recheck button is clicked for Apollo finding', async () => {
+            const apolloFinding = {
+                fingerprint: 'apollo-test',
+                numOccurrences: 1,
+                secretType: 'Apollo',
+                validity: 'valid' as const,
+                validatedAt: '2025-05-30T12:00:00.000Z',
+                secretValue: { match: { api_key: 'abcdefghij1234567890AB' } },
+                occurrences: new Set([])
+            };
+
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: [apolloFinding],
+                },
+            });
+
+            render(<Findings />);
+
+            const recheckButton = screen.getByLabelText('Recheck validity');
+            fireEvent.click(recheckButton);
+
+            expect(mockApolloValidityHelper).toHaveBeenCalledWith(apolloFinding);
         });
     });
 });

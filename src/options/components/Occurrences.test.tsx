@@ -7,6 +7,7 @@ import { GeminiOccurrence } from '../../types/gemini';
 import { HuggingFaceOccurrence } from '../../types/huggingface';
 import { ArtifactoryOccurrence } from '../../types/artifactory';
 import { AzureOpenAIOccurrence } from '../../types/azure_openai';
+import { ApolloOccurrence } from '../../types/apollo';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -16,6 +17,7 @@ import { geminiValidityHelper } from '../../utils/validators/gemini/geminiValidi
 import { huggingfaceValidityHelper } from '../../utils/validators/huggingface/huggingfaceValidityHelper';
 import { artifactoryValidityHelper } from '../../utils/validators/artifactory/artifactoryValidityHelper';
 import { azureOpenAIValidityHelper } from '../../utils/validators/azure_openai/azureOpenAIValidityHelper';
+import { apolloValidityHelper } from '../../utils/validators/apollo/apolloValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
@@ -30,6 +32,7 @@ jest.mock('../../utils/validators/gemini/geminiValidityHelper');
 jest.mock('../../utils/validators/huggingface/huggingfaceValidityHelper');
 jest.mock('../../utils/validators/artifactory/artifactoryValidityHelper');
 jest.mock('../../utils/validators/azure_openai/azureOpenAIValidityHelper');
+jest.mock('../../utils/validators/apollo/apolloValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",
@@ -576,5 +579,55 @@ describe('Occurrences Component', () => {
         fireEvent.click(downloadBtn);
 
         expect(mockCreateObjectURL).toHaveBeenCalled();
+    });
+
+    test('calls apolloValidityHelper on recheck button click for Apollo', () => {
+        // Create an Apollo finding and occurrence for testing
+        const apolloOccurrence = {
+            filePath: "apollo.js",
+            fingerprint: "apollo-fp",
+            type: "API_KEY",
+            secretType: "Apollo",
+            secretValue: {
+                match: { 
+                    api_key: "abcdefghij1234567890AB"
+                }
+            },
+            url: "https://example.com/apollo.js",
+            sourceContent: {
+                content: "const apolloKey = 'abcdefghij1234567890AB';",
+                contentFilename: "apollo.js",
+                contentStartLineNum: 5,
+                contentEndLineNum: 15,
+                exactMatchNumbers: [10]
+            }
+        };
+
+        const apolloFinding = {
+            fingerprint: "apollo-fp",
+            numOccurrences: 1,
+            occurrences: new Set([apolloOccurrence]),
+            validity: "valid" as const,
+            validatedAt: "2025-05-30T12:00:00.000Z",
+            secretType: "Apollo",
+            secretValue: {
+                match: { 
+                    api_key: "abcdefghij1234567890AB"
+                }
+            }
+        };
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: {
+                findings: [apolloFinding],
+            },
+        });
+
+        render(<Occurrences filterFingerprint='apollo-fp' />);
+
+        const recheckButton = screen.getByLabelText('Recheck validity');
+        fireEvent.click(recheckButton);
+
+        expect(apolloValidityHelper).toHaveBeenCalledWith(apolloFinding);
     });
 });
