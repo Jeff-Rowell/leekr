@@ -17,6 +17,7 @@ import { geminiValidityHelper } from '../../utils/validators/gemini/geminiValidi
 import { huggingfaceValidityHelper } from '../../utils/validators/huggingface/huggingfaceValidityHelper';
 import { artifactoryValidityHelper } from '../../utils/validators/artifactory/artifactoryValidityHelper';
 import { azureOpenAIValidityHelper } from '../../utils/validators/azure_openai/azureOpenAIValidityHelper';
+import { apolloValidityHelper } from '../../utils/validators/apollo/apolloValidityHelper';
 
 // Pagination constants
 const ITEMS_PER_PAGE = 10;
@@ -111,6 +112,8 @@ export const Findings: React.FC = () => {
             artifactoryValidityHelper(finding);
         } else if (finding.secretType === "Azure OpenAI") {
             azureOpenAIValidityHelper(finding);
+        } else if (finding.secretType === "Apollo") {
+            apolloValidityHelper(finding);
         }
     };
 

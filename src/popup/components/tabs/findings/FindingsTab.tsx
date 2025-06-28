@@ -10,6 +10,7 @@ import { geminiValidityHelper } from '../../../../utils/validators/gemini/gemini
 import { huggingfaceValidityHelper } from '../../../../utils/validators/huggingface/huggingfaceValidityHelper';
 import { artifactoryValidityHelper } from '../../../../utils/validators/artifactory/artifactoryValidityHelper';
 import { azureOpenAIValidityHelper } from '../../../../utils/validators/azure_openai/azureOpenAIValidityHelper';
+import { apolloValidityHelper } from '../../../../utils/validators/apollo/apolloValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import ModalHeader from '../../modalheader/ModalHeader';
 import './style.css';
@@ -38,6 +39,8 @@ const FindingsTab: React.FC = () => {
             artifactoryValidityHelper(finding);
         } else if (finding.secretType === "Azure OpenAI") {
             azureOpenAIValidityHelper(finding);
+        } else if (finding.secretType === "Apollo") {
+            apolloValidityHelper(finding);
         }
     };
 
