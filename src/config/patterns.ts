@@ -9,6 +9,7 @@ import { DEFAULT_GEMINI_API_KEY_CONFIG } from './detectors/gemini/gemini';
 import { DEFAULT_HUGGINGFACE_API_KEY_CONFIG } from './detectors/huggingface/huggingface';
 import { DEFAULT_ARTIFACTORY_ACCESS_TOKEN_CONFIG, DEFAULT_ARTIFACTORY_URL_CONFIG } from './detectors/artifactory/artifactory';
 import { DEFAULT_AZURE_OPENAI_API_KEY_CONFIG, DEFAULT_AZURE_OPENAI_URL_CONFIG } from './detectors/azure_openai/azure_openai';
+import { DEFAULT_APOLLO_API_KEY_CONFIG } from './detectors/apollo/apollo';
 
 const awsAccessKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_ACCESS_KEY_CONFIG };
 const awsSessionKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_SESSION_KEY_CONFIG };
@@ -138,6 +139,16 @@ export const patterns: PatternsObj = {
         familyName: "Azure OpenAI",
         pattern: /\b([a-z0-9-]+\.openai\.azure\.com)\b/g,
         entropy: DEFAULT_AZURE_OPENAI_URL_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Apollo API Key": {
+        name: "Apollo API Key",
+        familyName: "Apollo",
+        pattern: /(?:apollo|Apollo|APOLLO).{0,40}\b([a-zA-Z0-9]{22})\b/g,
+        entropy: DEFAULT_APOLLO_API_KEY_CONFIG.requiredEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
         validityEndpoints: [],
