@@ -663,39 +663,96 @@ th .sortable-header {
     color: var(--color-leek);
 }
 
-.pagination-controls {
+/* Pagination Controls */
+.pagination-container {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     margin-top: 1.5rem;
-    gap: 1rem;
+    padding: 1rem;
+    background-color: #2c2c33;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.pagination-controls button {
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pagination-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     padding: 0.5rem 1rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid #3a3a45;
     border-radius: 0.375rem;
     font-size: 0.875rem;
     cursor: pointer;
     transition: all 0.2s;
-    background-color: #3a3a45;
-    border: 1px solid #4a4a55;
-    color: #e0e0e0;
+    background-color: var(--color-bg-dark-transparent);
+    color: #f0f0f0;
+    font-weight: 500;
+    white-space: nowrap;
 }
 
-.pagination-controls button:hover:not(:disabled) {
-    background-color: #42424d;
+.pagination-button:hover:not(:disabled) {
+    background-color: var(--color-bg-dark);
     border-color: var(--color-leek);
+    color: var(--color-leek);
 }
 
-.pagination-controls button:disabled {
+.pagination-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
-.pagination-controls span {
+.pagination-pages {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.pagination-page {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #3a3a45;
+    border-radius: 0.375rem;
     font-size: 0.875rem;
-    color: #b0b0b0;
+    cursor: pointer;
+    transition: all 0.2s;
+    background-color: var(--color-bg-dark-transparent);
+    color: #f0f0f0;
+    font-weight: 500;
+    min-width: 2.5rem;
+    text-align: center;
+}
+
+.pagination-page:hover {
+    background-color: var(--color-bg-dark);
+    border-color: var(--color-leek);
+    color: var(--color-leek);
+}
+
+.pagination-page.active {
+    background-color: var(--color-leek);
+    border-color: var(--color-leek);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 0 0 2px rgba(108, 124, 54, 0.3);
+    transform: scale(1.05);
+}
+
+.pagination-page.active:hover {
+    background-color: var(--color-leek);
+    border-color: var(--color-leek);
+    color: white;
+    transform: scale(1.05);
+}
+
+.pagination-info {
+    font-size: 0.875rem;
+    color: #e0e0e0;
+    font-weight: 500;
 }
 
 .empty-state {
