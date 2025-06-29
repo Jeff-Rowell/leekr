@@ -863,4 +863,41 @@ describe('FindingsTab', () => {
             expect(screen.queryByText('Finding Options')).not.toBeInTheDocument();
         });
     });
+
+    test('positions dropdown above button when there is insufficient space below but sufficient space above', async () => {
+        // Mock window dimensions
+        Object.defineProperty(window, 'innerHeight', {
+            writable: true,
+            configurable: true,
+            value: 400, // Small window height
+        });
+
+        // Mock getBoundingClientRect to simulate a button near the bottom
+        Element.prototype.getBoundingClientRect = jest.fn(() => ({
+            bottom: 350, // Near bottom of window (spaceBelow = 400 - 350 = 50 < 175)
+            right: 300,
+            width: 50,
+            height: 30,
+            top: 320, // High enough that spaceAbove = 320 > 175
+            left: 250,
+            x: 250,
+            y: 320,
+            toJSON: () => { },
+        }));
+
+        render(<FindingsTab />);
+
+        const settingsButtons = screen.getAllByLabelText('Settings');
+        fireEvent.click(settingsButtons[0]);
+
+        await waitFor(() => {
+            expect(screen.getByText('Finding Options')).toBeInTheDocument();
+        });
+
+        // Check that the dropdown is positioned above the button
+        // When showAbove is true, top = rect.top - dropdownHeight + window.scrollY
+        // top = 320 - 175 + 0 = 145
+        const dropdown = screen.getByText('Finding Options').closest('.settings-dropdown');
+        expect(dropdown).toHaveStyle('top: 145px');
+    });
 });
