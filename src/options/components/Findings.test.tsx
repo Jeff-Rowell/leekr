@@ -66,6 +66,10 @@ jest.mock('lucide-react', () => ({
         <div data-testid={`chevron-down${className ? `-${className}` : ''}`} data-size={size}>ChevronDown</div>,
     ChevronUp: ({ size }: { size?: number }) =>
         <div data-testid="chevron-up" data-size={size}>ChevronUp</div>,
+    ChevronLeft: ({ size }: { size?: number }) =>
+        <div data-testid="chevron-left" data-size={size}>ChevronLeft</div>,
+    ChevronRight: ({ size }: { size?: number }) =>
+        <div data-testid="chevron-right" data-size={size}>ChevronRight</div>,
     AlertTriangle: ({ size }: { size?: number }) =>
         <div data-testid="alert-triangle" data-size={size}>AlertTriangle</div>,
 }));
@@ -986,6 +990,128 @@ describe('Findings Component', () => {
 
             const findings = container.querySelectorAll('.findings-td');
             expect(findings).toHaveLength(10);
+        });
+
+        test('renders pagination controls when more than 10 items', () => {
+            const manyFindings = createManyFindings(15);
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: manyFindings,
+                },
+            });
+
+            render(<Findings />);
+
+            expect(screen.getByText('Previous')).toBeInTheDocument();
+            expect(screen.getByText('Next')).toBeInTheDocument();
+            
+            const pageButtons = document.querySelectorAll('.pagination-page');
+            expect(pageButtons).toHaveLength(2);
+            expect(pageButtons[0]).toHaveTextContent('1');
+            expect(pageButtons[1]).toHaveTextContent('2');
+            
+            expect(screen.getByText('Showing 1-10 of 15 findings')).toBeInTheDocument();
+        });
+
+        test('navigates to next page when Next button clicked', async () => {
+            const user = userEvent.setup();
+            const manyFindings = createManyFindings(15);
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: manyFindings,
+                },
+            });
+
+            render(<Findings />);
+
+            const nextButton = screen.getByText('Next');
+            await user.click(nextButton);
+
+            expect(screen.getByText('Showing 11-15 of 15 findings')).toBeInTheDocument();
+        });
+
+        test('navigates to previous page when Previous button clicked', async () => {
+            const user = userEvent.setup();
+            const manyFindings = createManyFindings(15);
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: manyFindings,
+                },
+            });
+
+            render(<Findings />);
+
+            const nextButton = screen.getByText('Next');
+            await user.click(nextButton);
+
+            const prevButton = screen.getByText('Previous');
+            await user.click(prevButton);
+
+            expect(screen.getByText('Showing 1-10 of 15 findings')).toBeInTheDocument();
+        });
+
+        test('disables Previous button on first page', () => {
+            const manyFindings = createManyFindings(15);
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: manyFindings,
+                },
+            });
+
+            render(<Findings />);
+
+            const prevButton = screen.getByText('Previous');
+            expect(prevButton).toBeDisabled();
+        });
+
+        test('disables Next button on last page', async () => {
+            const user = userEvent.setup();
+            const manyFindings = createManyFindings(15);
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: manyFindings,
+                },
+            });
+
+            render(<Findings />);
+
+            const nextButton = screen.getByText('Next');
+            await user.click(nextButton);
+
+            expect(nextButton).toBeDisabled();
+        });
+
+        test('navigates to specific page when page number clicked', async () => {
+            const user = userEvent.setup();
+            const manyFindings = createManyFindings(25);
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: manyFindings,
+                },
+            });
+
+            render(<Findings />);
+
+            const pageButtons = document.querySelectorAll('.pagination-page');
+            const page2Button = Array.from(pageButtons).find(button => button.textContent === '2');
+            await user.click(page2Button as Element);
+
+            expect(screen.getByText('Showing 11-20 of 25 findings')).toBeInTheDocument();
+        });
+
+        test('highlights active page number', () => {
+            const manyFindings = createManyFindings(15);
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: manyFindings,
+                },
+            });
+
+            render(<Findings />);
+
+            const pageButtons = document.querySelectorAll('.pagination-page');
+            const activePage = Array.from(pageButtons).find(button => button.textContent === '1');
+            expect(activePage).toHaveClass('active');
         });
     });
 

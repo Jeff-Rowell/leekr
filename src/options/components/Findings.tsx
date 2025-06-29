@@ -1,6 +1,8 @@
 import {
     AlertTriangle,
     ChevronDown,
+    ChevronLeft,
+    ChevronRight,
     ChevronUp,
     RotateCw,
     ShieldCheck,
@@ -245,7 +247,44 @@ export const Findings: React.FC = () => {
                                 ))}
                             </tbody>
                         </table>
-                        {/* Pagination controls remain the same */}
+                        
+                        {/* Pagination Controls */}
+                        <div className="pagination-container">
+                            <div className="pagination-info">
+                                Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredFindings.length)} of {filteredFindings.length} findings
+                            </div>
+                            <div className="pagination-controls">
+                                <button
+                                    className="pagination-button"
+                                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                    disabled={currentPage === 1}
+                                >
+                                    <ChevronLeft size={16} />
+                                    Previous
+                                </button>
+                                
+                                <div className="pagination-pages">
+                                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                        <button
+                                            key={page}
+                                            className={`pagination-page ${currentPage === page ? 'active' : ''}`}
+                                            onClick={() => setCurrentPage(page)}
+                                        >
+                                            {page}
+                                        </button>
+                                    ))}
+                                </div>
+                                
+                                <button
+                                    className="pagination-button"
+                                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    Next
+                                    <ChevronRight size={16} />
+                                </button>
+                            </div>
+                        </div>
                     </>
                 ) : (
                     <div className="empty-state">
