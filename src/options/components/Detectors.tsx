@@ -1,6 +1,8 @@
 import {
     AlertTriangle,
     ChevronDown,
+    ChevronLeft,
+    ChevronRight,
     ChevronUp,
     Search
 } from 'lucide-react';
@@ -143,6 +145,47 @@ export const Detectors: React.FC<{ familyname: string }> = ({ familyname }) => {
                                 ))}
                             </tbody>
                         </table>
+                        
+                        {totalPages > 1 && (
+                            <div className="pagination-container">
+                                <div className="pagination-info">
+                                    Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredPatterns.length)} of {filteredPatterns.length} detectors
+                                </div>
+                                <div className="pagination-controls">
+                                    <button
+                                        className="pagination-button"
+                                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                        disabled={currentPage === 1}
+                                        aria-label="Previous page"
+                                    >
+                                        <ChevronLeft size={16} />
+                                        Previous
+                                    </button>
+                                    
+                                    <div className="pagination-pages">
+                                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                            <button
+                                                key={page}
+                                                className={`pagination-page ${currentPage === page ? 'active' : ''}`}
+                                                onClick={() => setCurrentPage(page)}
+                                            >
+                                                {page}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    
+                                    <button
+                                        className="pagination-button"
+                                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                        disabled={currentPage === totalPages}
+                                        aria-label="Next page"
+                                    >
+                                        Next
+                                        <ChevronRight size={16} />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </>
                 ) : (
                     <div className="empty-state">
