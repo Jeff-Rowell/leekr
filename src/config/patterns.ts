@@ -147,7 +147,7 @@ export const patterns: PatternsObj = {
     "Apollo API Key": {
         name: "Apollo API Key",
         familyName: "Apollo",
-        pattern: /\b([a-zA-Z0-9]{22})\b/g,
+        pattern: /\b([a-zA-Z0-9-_]{22})\b/g,
         entropy: DEFAULT_APOLLO_API_KEY_CONFIG.requiredEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
