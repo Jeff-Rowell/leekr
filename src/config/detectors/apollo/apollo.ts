@@ -3,5 +3,5 @@ export const APOLLO_RESOURCE_TYPES: Record<string, string> = {
 };
 
 export const DEFAULT_APOLLO_API_KEY_CONFIG = {
-    requiredEntropy: 4.1,
+    requiredEntropy: 3.9,
 };

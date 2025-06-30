@@ -269,7 +269,7 @@ describe('detectApolloKeys', () => {
         const content = `const key = "${lowEntropyKey}";`;
 
         // Mock low entropy for this specific key  
-        mockCalculateShannonEntropy.mockReturnValueOnce(3.0); // Below 4.5 threshold
+        mockCalculateShannonEntropy.mockReturnValueOnce(3.0); // Below 3.9 threshold
 
         const result = await detectApolloKeys(content, testUrl);
 
