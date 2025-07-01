@@ -326,4 +326,253 @@ describe('detectApolloKeys', () => {
         expect(result[0].sourceContent.contentFilename).toBe('original.js');
         expect(result[0].sourceContent.content).toBe('const config = { apiKey: "secret" };');
     });
+
+    // New tests for contextual pattern matching
+    test('should detect Apollo keys in variable assignments', async () => {
+        const content = `
+            const apolloKey = "${validApiKey}";
+            const apollo_key = "${validApiKey}";
+            const apollo_api_key = "${validApiKey}";
+            let apolloToken = "${validApiKey}";
+        `;
+
+        mockValidateApolloCredentials.mockResolvedValue({
+            valid: true,
+            error: ''
+        });
+
+        const result = await detectApolloKeys(content, testUrl);
+
+        expect(mockValidateApolloCredentials).toHaveBeenCalledWith(validApiKey);
+        expect(result).toHaveLength(1); // Should deduplicate the same key
+        expect(result[0].secretType).toBe('Apollo');
+    });
+
+    test('should detect Apollo keys in object properties', async () => {
+        const content = `
+            const config = {
+                apolloKey: "${validApiKey}",
+                apollo_key: "${validApiKey}",
+                key: "${validApiKey}"
+            };
+        `;
+
+        mockValidateApolloCredentials.mockResolvedValue({
+            valid: true,
+            error: ''
+        });
+
+        const result = await detectApolloKeys(content, testUrl);
+
+        expect(mockValidateApolloCredentials).toHaveBeenCalledWith(validApiKey);
+        expect(result).toHaveLength(1); // Should deduplicate
+        expect(result[0].secretType).toBe('Apollo');
+    });
+
+    test('should detect Apollo keys in Apollo-specific contexts', async () => {
+        const content = `
+            Apollo.init({ key: "${validApiKey}" });
+            apollo.config({ apiKey: "${validApiKey}" });
+            new ApolloClient({ api_key: "${validApiKey}" });
+        `;
+
+        mockValidateApolloCredentials.mockResolvedValue({
+            valid: true,
+            error: ''
+        });
+
+        const result = await detectApolloKeys(content, testUrl);
+
+        expect(mockValidateApolloCredentials).toHaveBeenCalledWith(validApiKey);
+        expect(result).toHaveLength(1); // Should deduplicate
+        expect(result[0].secretType).toBe('Apollo');
+    });
+
+    test('should detect Apollo keys in headers and auth contexts', async () => {
+        const content = `
+            headers: {
+                'Authorization': "apollo ${validApiKey}",
+                'x-apollo-key': "${validApiKey}",
+                'apollo-key': "${validApiKey}"
+            }
+        `;
+
+        mockValidateApolloCredentials.mockResolvedValue({
+            valid: true,
+            error: ''
+        });
+
+        const result = await detectApolloKeys(content, testUrl);
+
+        expect(mockValidateApolloCredentials).toHaveBeenCalledWith(validApiKey);
+        expect(result).toHaveLength(1); // Should deduplicate
+        expect(result[0].secretType).toBe('Apollo');
+    });
+
+    test('should detect Apollo keys in environment variable patterns', async () => {
+        const content = `
+            const APOLLO_KEY = "${validApiKey}";
+            process.env.APOLLO_API_KEY = "${validApiKey}";
+            export const apollo_token = "${validApiKey}";
+        `;
+
+        mockValidateApolloCredentials.mockResolvedValue({
+            valid: true,
+            error: ''
+        });
+
+        const result = await detectApolloKeys(content, testUrl);
+
+        expect(mockValidateApolloCredentials).toHaveBeenCalledWith(validApiKey);
+        expect(result).toHaveLength(1); // Should deduplicate
+        expect(result[0].secretType).toBe('Apollo');
+    });
+
+    test('should detect Apollo keys in general meaningful contexts with apollo/graphql reference', async () => {
+        const content = `
+            // Apollo GraphQL setup
+            const apiKey = "${validApiKey}";
+            
+            // GraphQL apollo client
+            const token = "${validApiKey}";
+        `;
+
+        mockValidateApolloCredentials.mockResolvedValue({
+            valid: true,
+            error: ''
+        });
+
+        const result = await detectApolloKeys(content, testUrl);
+
+        expect(mockValidateApolloCredentials).toHaveBeenCalledWith(validApiKey);
+        expect(result).toHaveLength(1); // Should deduplicate
+        expect(result[0].secretType).toBe('Apollo');
+    });
+
+    test('should detect keys using fallback pattern in generic key contexts', async () => {
+        const content = `
+            // Generic key context should be caught by fallback
+            const settings = {
+                apiKey: "${validApiKey}",
+                token: "${validApiKey}"
+            };
+        `;
+
+        mockValidateApolloCredentials.mockResolvedValue({
+            valid: true,
+            error: ''
+        });
+
+        const result = await detectApolloKeys(content, testUrl);
+
+        expect(mockValidateApolloCredentials).toHaveBeenCalledWith(validApiKey);
+        expect(result).toHaveLength(1); // Should deduplicate
+        expect(result[0].secretType).toBe('Apollo');
+    });
+
+    test('should not detect programming-style false positives', async () => {
+        const content = `
+            // These look like programming identifiers, not API keys
+            const ProvideAnomalyFeedback = "some value";
+            const sqlInjectionHelper = "another value";
+            const version2ApiHandler = "third value";
+        `;
+
+        const result = await detectApolloKeys(content, testUrl);
+
+        expect(mockValidateApolloCredentials).not.toHaveBeenCalled();
+        expect(result).toEqual([]);
+    });
+
+    test('should handle mixed contextual and fallback patterns', async () => {
+        const apolloKey1 = 'abcdefghij1234567890AB';
+        const apolloKey2 = 'xyztuvwxyz9876543210CD';
+        
+        const content = `
+            // Contextual match
+            const apolloApiKey = "${apolloKey1}";
+            
+            // Fallback pattern match (generic key context)
+            const config = { key: "${apolloKey2}" };
+        `;
+
+        mockValidateApolloCredentials
+            .mockResolvedValueOnce({ valid: true, error: '' })
+            .mockResolvedValueOnce({ valid: true, error: '' });
+
+        const result = await detectApolloKeys(content, testUrl);
+
+        expect(mockValidateApolloCredentials).toHaveBeenCalledTimes(2);
+        expect(mockValidateApolloCredentials).toHaveBeenCalledWith(apolloKey1);
+        expect(mockValidateApolloCredentials).toHaveBeenCalledWith(apolloKey2);
+        expect(result).toHaveLength(2);
+    });
+
+    test('should filter out PascalCase false positives', async () => {
+        const content = `
+            const ProvideAnomalyFeedback = "some value";
+            const OptInPhoneNumberResult = "another value";
+            const CustomerOwnedIpEnabled = "third value";
+        `;
+
+        const result = await detectApolloKeys(content, testUrl);
+
+        expect(mockValidateApolloCredentials).not.toHaveBeenCalled();
+        expect(result).toEqual([]);
+    });
+
+    test('should filter out camelCase false positives', async () => {
+        const content = `
+            const provideAnomalyFeedback = "some value";
+            const optInPhoneNumberResult = "another value";
+            const customerOwnedIpEnabled = "third value";
+        `;
+
+        const result = await detectApolloKeys(content, testUrl);
+
+        expect(mockValidateApolloCredentials).not.toHaveBeenCalled();
+        expect(result).toEqual([]);
+    });
+
+    test('should filter out patterns with consecutive capitals', async () => {
+        const content = `
+            const SqlInjectionMatchTuple = "some value";
+            const HTTPResponseCodeError = "another value";
+            const XMLParsingFailureMsg = "third value";
+        `;
+
+        const result = await detectApolloKeys(content, testUrl);
+
+        expect(mockValidateApolloCredentials).not.toHaveBeenCalled();
+        expect(result).toEqual([]);
+    });
+
+    test('should filter out patterns with numbers in programming style', async () => {
+        const content = `
+            const option1ResponseHandler = "some value";
+            const error404NotFoundPage = "another value";
+            const version2ApiEndpoint = "third value";
+        `;
+
+        const result = await detectApolloKeys(content, testUrl);
+
+        expect(mockValidateApolloCredentials).not.toHaveBeenCalled();
+        expect(result).toEqual([]);
+    });
+
+    test('should still detect valid random-looking 22-char strings', async () => {
+        const randomKey = 'x7k9m2p4n8q1w6e3r5t0y9';
+        const content = `const apiKey = "${randomKey}";`;
+
+        mockValidateApolloCredentials.mockResolvedValueOnce({
+            valid: true,
+            error: ''
+        });
+
+        const result = await detectApolloKeys(content, testUrl);
+
+        expect(mockValidateApolloCredentials).toHaveBeenCalledWith(randomKey);
+        expect(result).toHaveLength(1);
+        expect(result[0].secretType).toBe('Apollo');
+    });
 });

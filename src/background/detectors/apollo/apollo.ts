@@ -4,7 +4,7 @@ import { Finding, Occurrence, SourceContent } from "src/types/findings.types";
 import { findSecretPosition, getExistingFindings, getSourceMapUrl } from '../../../utils/helpers/common';
 import { ApolloOccurrence, ApolloSecretValue } from '../../../types/apollo';
 import { validateApolloCredentials } from '../../../utils/validators/apollo/apollo';
-import { APOLLO_RESOURCE_TYPES } from '../../../config/detectors/apollo/apollo';
+import { APOLLO_RESOURCE_TYPES, DEFAULT_APOLLO_API_KEY_CONFIG } from '../../../config/detectors/apollo/apollo';
 import { computeFingerprint } from '../../../utils/helpers/computeFingerprint';
 import { calculateShannonEntropy } from '../../../utils/accuracy/entropy';
 import { isKnownFalsePositive } from '../../../utils/accuracy/falsePositives';
@@ -13,10 +13,8 @@ export async function detectApolloKeys(content: string, url: string): Promise<Oc
     const apolloPattern = patterns['Apollo API Key'].pattern;
     const apolloKeyMatches: string[] = [];
     
-    // Extract capture groups (the actual 22-character keys) from the pattern matches
     let match;
-    const regex = new RegExp(apolloPattern.source, apolloPattern.flags);
-    while ((match = regex.exec(content)) !== null) {
+    while ((match = apolloPattern.exec(content)) !== null) {
         if (match[1]) { // match[1] is the captured group (the 22-char key)
             apolloKeyMatches.push(match[1]);
         }
@@ -26,11 +24,17 @@ export async function detectApolloKeys(content: string, url: string): Promise<Oc
         return [];
     }
 
-    // Filter keys by entropy to avoid false positives like function names
+    // Filter keys by entropy and programming naming patterns to avoid false positives
     const validApolloKeys = apolloKeyMatches.filter(key => {
         const entropy = calculateShannonEntropy(key);
         const apolloKeyEntropyThreshold = patterns["Apollo API Key"].entropy;
         if (entropy < apolloKeyEntropyThreshold) return false;
+
+        // Check for programming naming convention patterns (camelCase, PascalCase, etc.)
+        const isProgrammingPattern = DEFAULT_APOLLO_API_KEY_CONFIG.falsePositivePatterns.some(pattern => 
+            pattern.test(key)
+        );
+        if (isProgrammingPattern) return false;
 
         const [isFP] = isKnownFalsePositive(key);
         return !isFP;
