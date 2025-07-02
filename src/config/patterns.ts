@@ -10,6 +10,7 @@ import { DEFAULT_HUGGINGFACE_API_KEY_CONFIG } from './detectors/huggingface/hugg
 import { DEFAULT_ARTIFACTORY_ACCESS_TOKEN_CONFIG, DEFAULT_ARTIFACTORY_URL_CONFIG } from './detectors/artifactory/artifactory';
 import { DEFAULT_AZURE_OPENAI_API_KEY_CONFIG, DEFAULT_AZURE_OPENAI_URL_CONFIG } from './detectors/azure_openai/azure_openai';
 import { DEFAULT_APOLLO_API_KEY_CONFIG } from './detectors/apollo/apollo';
+import { DEFAULT_GCP_SERVICE_ACCOUNT_CONFIG } from './detectors/gcp/gcp';
 
 const awsAccessKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_ACCESS_KEY_CONFIG };
 const awsSessionKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_SESSION_KEY_CONFIG };
@@ -149,6 +150,86 @@ export const patterns: PatternsObj = {
         familyName: "Apollo",
         pattern: /\b([a-zA-Z0-9-_]{22})\b/g,
         entropy: DEFAULT_APOLLO_API_KEY_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "GCP Service Account Key": {
+        name: "GCP Service Account Key",
+        familyName: "Google Cloud Platform",
+        pattern: /(?:service_account|private_key|auth_provider_x509_cert_url|gserviceaccount\.com)/g,
+        entropy: DEFAULT_GCP_SERVICE_ACCOUNT_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "GCP Service Account Type": {
+        name: "GCP Service Account Type",
+        familyName: "Google Cloud Platform",
+        pattern: /["']?service_account["']?/g,
+        entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "GCP Project ID": {
+        name: "GCP Project ID",
+        familyName: "Google Cloud Platform",
+        pattern: /["']([a-z][a-z0-9-]{4,28}[a-z0-9])["']?/g,
+        entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "GCP Private Key ID": {
+        name: "GCP Private Key ID",
+        familyName: "Google Cloud Platform",
+        pattern: /["']([a-f0-9]{40})["']?/g,
+        entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "GCP Private Key": {
+        name: "GCP Private Key",
+        familyName: "Google Cloud Platform",
+        pattern: /["']?(-----BEGIN PRIVATE KEY-----[\s\S]*?-----END PRIVATE KEY-----)["']?/g,
+        entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "GCP Client Email": {
+        name: "GCP Client Email",
+        familyName: "Google Cloud Platform",
+        pattern: /["']?([a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.iam\.gserviceaccount\.com)["']?/g,
+        entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "GCP Client ID": {
+        name: "GCP Client ID",
+        familyName: "Google Cloud Platform",
+        pattern: /["']?(\d{21})["']?/g,
+        entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "GCP Auth Provider URL": {
+        name: "GCP Auth Provider URL",
+        familyName: "Google Cloud Platform",
+        pattern: /["']?(https:\/\/www\.googleapis\.com\/oauth2\/v1\/certs)["']?/g,
+        entropy: 0,
         isValidityCustomizable: false,
         hasCustomValidity: false,
         validityEndpoints: [],
