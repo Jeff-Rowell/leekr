@@ -8,6 +8,7 @@ import { HuggingFaceDetector } from './huggingface/HuggingFaceDetector';
 import { ArtifactoryDetector } from './artifactory/ArtifactoryDetector';
 import { AzureOpenAIDetector } from './azure_openai/AzureOpenAIDetector';
 import { ApolloDetector } from './apollo/ApolloDetector';
+import { GcpDetector } from './gcp/GcpDetector';
 
 describe('ConcreteDetectorFactory', () => {
     let factory: ConcreteDetectorFactory;
@@ -19,7 +20,7 @@ describe('ConcreteDetectorFactory', () => {
     test('createDetectors returns all detector instances', () => {
         const detectors = factory.createDetectors();
         
-        expect(detectors).toHaveLength(9);
+        expect(detectors).toHaveLength(10);
         expect(detectors[0]).toBeInstanceOf(AwsAccessKeysDetector);
         expect(detectors[1]).toBeInstanceOf(AwsSessionKeysDetector);
         expect(detectors[2]).toBeInstanceOf(AnthropicDetector);
@@ -29,6 +30,7 @@ describe('ConcreteDetectorFactory', () => {
         expect(detectors[6]).toBeInstanceOf(ArtifactoryDetector);
         expect(detectors[7]).toBeInstanceOf(AzureOpenAIDetector);
         expect(detectors[8]).toBeInstanceOf(ApolloDetector);
+        expect(detectors[9]).toBeInstanceOf(GcpDetector);
     });
 
     test('createDetector returns specific detector by type', () => {
@@ -41,6 +43,7 @@ describe('ConcreteDetectorFactory', () => {
         const artifactoryDetector = factory.createDetector('Artifactory');
         const azureOpenAIDetector = factory.createDetector('Azure OpenAI');
         const apolloDetector = factory.createDetector('Apollo');
+        const gcpDetector = factory.createDetector('gcp');
 
         expect(awsAccessKeysDetector).toBeInstanceOf(AwsAccessKeysDetector);
         expect(awsSessionKeysDetector).toBeInstanceOf(AwsSessionKeysDetector);
@@ -51,6 +54,7 @@ describe('ConcreteDetectorFactory', () => {
         expect(artifactoryDetector).toBeInstanceOf(ArtifactoryDetector);
         expect(azureOpenAIDetector).toBeInstanceOf(AzureOpenAIDetector);
         expect(apolloDetector).toBeInstanceOf(ApolloDetector);
+        expect(gcpDetector).toBeInstanceOf(GcpDetector);
     });
 
     test('createDetector returns undefined for unknown type', () => {
