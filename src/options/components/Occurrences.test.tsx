@@ -8,6 +8,7 @@ import { HuggingFaceOccurrence } from '../../types/huggingface';
 import { ArtifactoryOccurrence } from '../../types/artifactory';
 import { AzureOpenAIOccurrence } from '../../types/azure_openai';
 import { ApolloOccurrence } from '../../types/apollo';
+import { GcpOccurrence } from '../../types/gcp';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -18,6 +19,7 @@ import { huggingfaceValidityHelper } from '../../utils/validators/huggingface/hu
 import { artifactoryValidityHelper } from '../../utils/validators/artifactory/artifactoryValidityHelper';
 import { azureOpenAIValidityHelper } from '../../utils/validators/azure_openai/azureOpenAIValidityHelper';
 import { apolloValidityHelper } from '../../utils/validators/apollo/apolloValidityHelper';
+import { gcpValidityHelper } from '../../utils/validators/gcp/gcpValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
@@ -33,6 +35,7 @@ jest.mock('../../utils/validators/huggingface/huggingfaceValidityHelper');
 jest.mock('../../utils/validators/artifactory/artifactoryValidityHelper');
 jest.mock('../../utils/validators/azure_openai/azureOpenAIValidityHelper');
 jest.mock('../../utils/validators/apollo/apolloValidityHelper');
+jest.mock('../../utils/validators/gcp/gcpValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",
@@ -156,7 +159,32 @@ const mockSessionOccurrences: Set<Occurrence> = new Set([mockSessionOccurrence])
 const mockAnthropicOccurrences: Set<Occurrence> = new Set([mockAnthropicOccurrence]);
 const mockOpenAIOccurrences: Set<Occurrence> = new Set([mockOpenAIOccurrence]);
 const mockGeminiOccurrences: Set<Occurrence> = new Set([mockGeminiOccurrence]);
+const mockGcpOccurrence: GcpOccurrence = {
+    filePath: "main.foobar.js",
+    fingerprint: "fp9",
+    type: "Service Account Key",
+    secretType: "Google Cloud Platform",
+    secretValue: {
+        match: { 
+            service_account_key: JSON.stringify({
+                type: "service_account",
+                project_id: "test-project",
+                client_email: "test@test-project.iam.gserviceaccount.com"
+            })
+        }
+    },
+    sourceContent: {
+        content: "gcpfoobar\n".repeat(18),
+        contentEndLineNum: 35,
+        contentFilename: "GcpApp.js",
+        contentStartLineNum: 18,
+        exactMatchNumbers: [23, 30]
+    },
+    url: "http://localhost:3000/static/js/gcp.foobar.js",
+};
+
 const mockHuggingFaceOccurrences: Set<Occurrence> = new Set([mockHuggingFaceOccurrence]);
+const mockGcpOccurrences: Set<Occurrence> = new Set([mockGcpOccurrence]);
 
 const mockFindings: Finding[] = [
     {
@@ -307,6 +335,25 @@ const mockFindings: Finding[] = [
             match: { 
                 api_key: "abcdef12345678901234567890123456",
                 url: "test-instance.openai.azure.com"
+            },
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            validity: "valid"
+        }
+    },
+    {
+        fingerprint: "fp9",
+        numOccurrences: mockGcpOccurrences.size,
+        occurrences: mockGcpOccurrences,
+        validity: "valid",
+        validatedAt: "2025-05-13T18:16:16.870Z",
+        secretType: "Google Cloud Platform",
+        secretValue: {
+            match: { 
+                service_account_key: JSON.stringify({
+                    type: "service_account",
+                    project_id: "test-project",
+                    client_email: "test@test-project.iam.gserviceaccount.com"
+                })
             },
             validatedAt: "2025-05-17T18:16:16.870Z",
             validity: "valid"
@@ -629,5 +676,14 @@ describe('Occurrences Component', () => {
         fireEvent.click(recheckButton);
 
         expect(apolloValidityHelper).toHaveBeenCalledWith(apolloFinding);
+    });
+
+    test('calls gcpValidityHelper on recheck button click for Google Cloud Platform', () => {
+        render(<Occurrences filterFingerprint='fp9' />);
+
+        const recheckButton = screen.getByLabelText('Recheck validity');
+        fireEvent.click(recheckButton);
+
+        expect(gcpValidityHelper).toHaveBeenCalledWith(mockFindings[8]);
     });
 });
