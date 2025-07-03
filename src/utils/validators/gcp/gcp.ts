@@ -22,13 +22,49 @@ export async function validateGcpCredentials(serviceAccountKey: string): Promise
             return { valid: false, type: 'unknown', error: 'Test service account' };
         }
 
+        // First do structural validation
+        const structureValidation = validateServiceAccountStructure(credentials);
+        if (!structureValidation.valid) {
+            return structureValidation;
+        }
+
+        // Now do actual validation by attempting to get an access token
+        try {
+            const isValid = await verifyGcpCredentials(credentials);
+            if (isValid) {
+                return { valid: true, type: 'SERVICE_ACCOUNT', error: '' };
+            } else {
+                return { valid: false, type: 'SERVICE_ACCOUNT', error: 'Invalid credentials - authentication failed' };
+            }
+        } catch (verificationError: any) {
+            // Check for specific error types
+            if (verificationError.message && (
+                verificationError.message.includes('invalid_grant') || 
+                verificationError.message.includes('invalid_client') ||
+                verificationError.message.includes('disabled') ||
+                verificationError.message.includes('deleted'))) {
+                return { valid: false, type: 'SERVICE_ACCOUNT', error: 'Service account is disabled or deleted' };
+            }
+            return { valid: false, type: 'SERVICE_ACCOUNT', error: 'Verification failed' };
+        }
+
+    } catch (error) {
+        return { valid: false, type: 'unknown', error: error };
+    }
+}
+
+async function verifyGcpCredentials(credentials: GcpCredentials): Promise<boolean> {
+    try {
         // Create JWT assertion for OAuth2 flow
         const now = Math.floor(Date.now() / 1000);
+        
+        // Create the JWT header
         const header = {
             alg: 'RS256',
             typ: 'JWT'
         };
 
+        // Create the JWT payload
         const payload = {
             iss: credentials.client_email,
             scope: 'https://www.googleapis.com/auth/cloud-platform',
@@ -37,23 +73,114 @@ export async function validateGcpCredentials(serviceAccountKey: string): Promise
             iat: now
         };
 
-        // For browser environment, we cannot actually sign the JWT with the private key
-        // Instead, we'll do basic validation of the service account structure
-        const structureValidation = validateServiceAccountStructure(credentials);
-        if (!structureValidation.valid) {
-            return structureValidation;
+        // Encode header and payload
+        const encodedHeader = base64UrlEncode(JSON.stringify(header));
+        const encodedPayload = base64UrlEncode(JSON.stringify(payload));
+        
+        // Create the signing input
+        const signingInput = `${encodedHeader}.${encodedPayload}`;
+        
+        // Sign the JWT using the private key
+        const signature = await signJWT(signingInput, credentials.private_key);
+        
+        // Create the complete JWT
+        const jwt = `${signingInput}.${signature}`;
+        
+        // Exchange JWT for access token
+        const tokenResponse = await fetch(GCP_TOKEN_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+                assertion: jwt
+            })
+        });
+
+        if (!tokenResponse.ok) {
+            const errorText = await tokenResponse.text();
+            throw new Error(`Token request failed: ${tokenResponse.status} ${errorText}`);
         }
 
-        // In a real implementation, we would:
-        // 1. Sign the JWT with the private key
-        // 2. Make a request to the token endpoint
-        // 3. Use the access token to make an authenticated API call
-        // For now, we'll return valid if the structure is correct
-        return { valid: true, type: 'SERVICE_ACCOUNT', error: '' };
-
-    } catch (error) {
-        return { valid: false, type: 'unknown', error: error };
+        const tokenData = await tokenResponse.json();
+        
+        // If we get an access token, the credentials are valid
+        return !!(tokenData.access_token);
+        
+    } catch (error: any) {
+        // Re-throw the error to be handled by the caller
+        throw error;
     }
+}
+
+async function signJWT(signingInput: string, privateKey: string): Promise<string> {
+    try {
+        // Clean up the private key
+        const cleanKey = privateKey
+            .replace(/\\n/g, '\n')
+            .replace(/-----BEGIN PRIVATE KEY-----/, '-----BEGIN PRIVATE KEY-----\n')
+            .replace(/-----END PRIVATE KEY-----/, '\n-----END PRIVATE KEY-----')
+            .trim();
+
+        // Convert PEM to DER format for Web Crypto API
+        const pemHeader = '-----BEGIN PRIVATE KEY-----';
+        const pemFooter = '-----END PRIVATE KEY-----';
+        
+        if (!cleanKey.includes(pemHeader) || !cleanKey.includes(pemFooter)) {
+            throw new Error('Invalid private key format');
+        }
+
+        const keyData = cleanKey
+            .replace(pemHeader, '')
+            .replace(pemFooter, '')
+            .replace(/\s/g, '');
+
+        // Convert base64 to ArrayBuffer
+        const binaryKey = Uint8Array.from(atob(keyData), c => c.charCodeAt(0));
+
+        // Import the private key
+        const cryptoKey = await crypto.subtle.importKey(
+            'pkcs8',
+            binaryKey,
+            {
+                name: 'RSASSA-PKCS1-v1_5',
+                hash: 'SHA-256'
+            },
+            false,
+            ['sign']
+        );
+
+        // Sign the data
+        const signature = await crypto.subtle.sign(
+            'RSASSA-PKCS1-v1_5',
+            cryptoKey,
+            new TextEncoder().encode(signingInput)
+        );
+
+        // Convert signature to base64url
+        return base64UrlEncode(new Uint8Array(signature));
+        
+    } catch (error: any) {
+        throw new Error(`JWT signing failed: ${error.message}`);
+    }
+}
+
+function base64UrlEncode(data: string | Uint8Array): string {
+    let base64: string;
+    
+    if (typeof data === 'string') {
+        base64 = btoa(data);
+    } else {
+        // Convert Uint8Array to base64
+        base64 = btoa(String.fromCharCode(...Array.from(data)));
+    }
+    
+    // Convert base64 to base64url
+    return base64
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '');
 }
 
 function validateServiceAccountStructure(credentials: GcpCredentials): { valid: boolean; type: string; error: string } {
