@@ -11,6 +11,7 @@ import { huggingfaceValidityHelper } from '../../../../utils/validators/huggingf
 import { artifactoryValidityHelper } from '../../../../utils/validators/artifactory/artifactoryValidityHelper';
 import { azureOpenAIValidityHelper } from '../../../../utils/validators/azure_openai/azureOpenAIValidityHelper';
 import { apolloValidityHelper } from '../../../../utils/validators/apollo/apolloValidityHelper';
+import { gcpValidityHelper } from '../../../../utils/validators/gcp/gcpValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import ModalHeader from '../../modalheader/ModalHeader';
 import './style.css';
@@ -41,6 +42,8 @@ const FindingsTab: React.FC = () => {
             azureOpenAIValidityHelper(finding);
         } else if (finding.secretType === "Apollo") {
             apolloValidityHelper(finding);
+        } else if (finding.secretType === "Google Cloud Platform") {
+            gcpValidityHelper(finding);
         }
     };
 

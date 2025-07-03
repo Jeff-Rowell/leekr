@@ -11,6 +11,7 @@ import { huggingfaceValidityHelper } from '../../utils/validators/huggingface/hu
 import { artifactoryValidityHelper } from '../../utils/validators/artifactory/artifactoryValidityHelper';
 import { azureOpenAIValidityHelper } from '../../utils/validators/azure_openai/azureOpenAIValidityHelper';
 import { apolloValidityHelper } from '../../utils/validators/apollo/apolloValidityHelper';
+import { gcpValidityHelper } from '../../utils/validators/gcp/gcpValidityHelper';
 
 
 export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFingerprint }) => {
@@ -52,6 +53,8 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
             azureOpenAIValidityHelper(finding);
         } else if (finding.secretType === "Apollo") {
             apolloValidityHelper(finding);
+        } else if (finding.secretType === "Google Cloud Platform") {
+            gcpValidityHelper(finding);
         }
     };
 

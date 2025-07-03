@@ -20,6 +20,7 @@ import { huggingfaceValidityHelper } from '../../utils/validators/huggingface/hu
 import { artifactoryValidityHelper } from '../../utils/validators/artifactory/artifactoryValidityHelper';
 import { azureOpenAIValidityHelper } from '../../utils/validators/azure_openai/azureOpenAIValidityHelper';
 import { apolloValidityHelper } from '../../utils/validators/apollo/apolloValidityHelper';
+import { gcpValidityHelper } from '../../utils/validators/gcp/gcpValidityHelper';
 
 // Pagination constants
 const ITEMS_PER_PAGE = 10;
@@ -116,6 +117,8 @@ export const Findings: React.FC = () => {
             azureOpenAIValidityHelper(finding);
         } else if (finding.secretType === "Apollo") {
             apolloValidityHelper(finding);
+        } else if (finding.secretType === "Google Cloud Platform") {
+            gcpValidityHelper(finding);
         }
     };
 
