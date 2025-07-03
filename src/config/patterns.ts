@@ -234,6 +234,106 @@ export const patterns: PatternsObj = {
         hasCustomValidity: false,
         validityEndpoints: [],
         global: true
+    },
+    "GCP Project ID Context": {
+        name: "GCP Project ID Context",
+        familyName: "Google Cloud Platform",
+        pattern: /(?:["']?project_id["']?\s*:\s*["']([a-z][a-z0-9-]{4,28}[a-z0-9])["']|(?:const|let|var)?\s*projectId\s*=\s*["']([a-z][a-z0-9-]{4,28}[a-z0-9])["'])/g,
+        entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "GCP Private Key ID Context": {
+        name: "GCP Private Key ID Context",
+        familyName: "Google Cloud Platform",
+        pattern: /(?:["']?private_key_id["']?\s*:\s*["']([a-f0-9A-F\w]{4,})["']|(?:const|let|var)?\s*keyId\s*=\s*["']([a-f0-9A-F\w]{4,})["'])/g,
+        entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "GCP Private Key Context": {
+        name: "GCP Private Key Context",
+        familyName: "Google Cloud Platform",
+        pattern: /(?:["']?private_key["']?\s*:\s*["']?(-----BEGIN PRIVATE KEY-----[\\s\\S]*?-----END PRIVATE KEY-----[\\s]*?)["']?|(?:const|let|var)?\s*privateKey\s*=\s*["']?(-----BEGIN PRIVATE KEY-----[\\s\\S]*?-----END PRIVATE KEY-----[\\s]*?)["']?)/g,
+        entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "GCP Client Email Context": {
+        name: "GCP Client Email Context",
+        familyName: "Google Cloud Platform",
+        pattern: /(?:["']?client_email["']?\s*:\s*["']([a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.iam\.gserviceaccount\.com)["']|(?:const|let|var)?\s*email\s*=\s*["']([a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.iam\.gserviceaccount\.com)["'])/g,
+        entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "GCP Client ID Context": {
+        name: "GCP Client ID Context",
+        familyName: "Google Cloud Platform",
+        pattern: /["']?client_id["']?\s*:\s*["'](\d{21})["']/g,
+        entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "GCP Auth Provider Context": {
+        name: "GCP Auth Provider Context",
+        familyName: "Google Cloud Platform",
+        pattern: /(?:["']?auth_provider_x509_cert_url["']?\s*:\s*["'](https:\/\/www\.googleapis\.com\/oauth2\/v1\/certs)["']|(?:const|let|var)?\s*authUrl\s*=\s*["'](https:\/\/www\.googleapis\.com\/oauth2\/v1\/certs)["'])/g,
+        entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "GCP Auth URI": {
+        name: "GCP Auth URI",
+        familyName: "Google Cloud Platform",
+        pattern: /["']?(https:\/\/accounts\.google\.com\/o\/oauth2\/auth)["']?/g,
+        entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "GCP Token URI": {
+        name: "GCP Token URI",
+        familyName: "Google Cloud Platform",
+        pattern: /["']?(https:\/\/oauth2\.googleapis\.com\/token)["']?/g,
+        entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "GCP Client Cert URL": {
+        name: "GCP Client Cert URL",
+        familyName: "Google Cloud Platform",
+        pattern: /["']?(https:\/\/www\.googleapis\.com\/robot\/v1\/metadata\/x509\/[^"']+)["']?/g,
+        entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "GCP Universe Domain": {
+        name: "GCP Universe Domain",
+        familyName: "Google Cloud Platform",
+        pattern: /["']?(googleapis\.com)["']?/g,
+        entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
     }
 }
 
