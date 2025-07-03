@@ -60,6 +60,7 @@ export const Detectors: React.FC<{ familyname: string }> = ({ familyname }) => {
     const totalPages = Math.ceil(filteredPatterns.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const paginatedPatterns = filteredPatterns.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    const uniqueFamilyNamesCount = new Set(filteredPatterns.map(pattern => pattern.familyName)).size;
 
     const handleSortChange = (field: 'name' | 'family-name' | 'pattern' | 'entropy') => {
         if (sortField === field) {
@@ -149,7 +150,7 @@ export const Detectors: React.FC<{ familyname: string }> = ({ familyname }) => {
                         {totalPages > 1 && (
                             <div className="pagination-container">
                                 <div className="pagination-info">
-                                    Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredPatterns.length)} of {filteredPatterns.length} detectors
+                                    Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredPatterns.length)} patterns from {uniqueFamilyNamesCount} detectors
                                 </div>
                                 <div className="pagination-controls">
                                     <button

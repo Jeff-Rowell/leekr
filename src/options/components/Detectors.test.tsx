@@ -223,7 +223,7 @@ describe('<Detectors />', () => {
         test('displays pagination controls when there are more than 10 items', () => {
             render(<Detectors familyname="" />);
             
-            expect(screen.getByText(/Showing 1-10 of 15 detectors/)).toBeInTheDocument();
+            expect(screen.getByText(/Showing 1-10 patterns from 5 detectors/)).toBeInTheDocument();
             expect(screen.getByRole('button', { name: /Previous page/ })).toBeInTheDocument();
             expect(screen.getByRole('button', { name: /Next page/ })).toBeInTheDocument();
             
@@ -253,7 +253,7 @@ describe('<Detectors />', () => {
             // screen.debug();
             
             // Initially on page 1 - verify pagination is shown and check content
-            expect(screen.getByText(/Showing 1-10 of 15 detectors/)).toBeInTheDocument();
+            expect(screen.getByText(/Showing 1-10 patterns from 5 detectors/)).toBeInTheDocument();
             
             // Count the number of table rows (excluding header)
             const tableRows = screen.getAllByRole('row');
@@ -268,7 +268,7 @@ describe('<Detectors />', () => {
             fireEvent.click(nextButton);
             
             // Now on page 2 - should show remaining 5 patterns
-            expect(screen.getByText(/Showing 11-15 of 15 detectors/)).toBeInTheDocument();
+            expect(screen.getByText(/Showing 11-15 patterns from 5 detectors/)).toBeInTheDocument();
             
             // Count rows again - should be 6 now (1 header + 5 data rows)
             const tableRowsPage2 = screen.getAllByRole('row');
@@ -285,14 +285,14 @@ describe('<Detectors />', () => {
             // Navigate to page 2 first
             const nextButton = screen.getByRole('button', { name: /Next page/ });
             fireEvent.click(nextButton);
-            expect(screen.getByText(/Showing 11-15 of 15 detectors/)).toBeInTheDocument();
+            expect(screen.getByText(/Showing 11-15 patterns from 5 detectors/)).toBeInTheDocument();
             
             // Click previous button
             const prevButton = screen.getByRole('button', { name: /Previous page/ });
             fireEvent.click(prevButton);
             
             // Back to page 1
-            expect(screen.getByText(/Showing 1-10 of 15 detectors/)).toBeInTheDocument();
+            expect(screen.getByText(/Showing 1-10 patterns from 5 detectors/)).toBeInTheDocument();
             const tableRows = screen.getAllByRole('row');
             expect(tableRows).toHaveLength(11); // 1 header + 10 data rows
         });
@@ -306,7 +306,7 @@ describe('<Detectors />', () => {
             expect(page2Button).toHaveTextContent('2');
             fireEvent.click(page2Button!);
             
-            expect(screen.getByText(/Showing 11-15 of 15 detectors/)).toBeInTheDocument();
+            expect(screen.getByText(/Showing 11-15 patterns from 5 detectors/)).toBeInTheDocument();
             const tableRows = screen.getAllByRole('row');
             expect(tableRows).toHaveLength(6); // 1 header + 5 data rows
         });
@@ -334,7 +334,7 @@ describe('<Detectors />', () => {
             // Navigate to page 2
             const nextButton = screen.getByRole('button', { name: /Next page/ });
             fireEvent.click(nextButton);
-            expect(screen.getByText(/Showing 11-15 of 15 detectors/)).toBeInTheDocument();
+            expect(screen.getByText(/Showing 11-15 patterns from 5 detectors/)).toBeInTheDocument();
             
             // Apply search filter - this will match Pattern 1, Pattern 10, Pattern 11, etc.
             const searchInput = screen.getByPlaceholderText(/Search detectors/i);
