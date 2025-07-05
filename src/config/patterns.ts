@@ -12,6 +12,7 @@ import { DEFAULT_AZURE_OPENAI_API_KEY_CONFIG, DEFAULT_AZURE_OPENAI_URL_CONFIG } 
 import { DEFAULT_APOLLO_API_KEY_CONFIG } from './detectors/apollo/apollo';
 import { DEFAULT_GCP_SERVICE_ACCOUNT_CONFIG } from './detectors/gcp/gcp';
 import { DEFAULT_DOCKER_CONFIG } from './detectors/docker/docker';
+import { DEFAULT_JOTFORM_CONFIG } from './detectors/jotform/jotform';
 
 const awsAccessKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_ACCESS_KEY_CONFIG };
 const awsSessionKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_SESSION_KEY_CONFIG };
@@ -401,6 +402,16 @@ export const patterns: PatternsObj = {
         familyName: "Docker",
         pattern: /[\"']?email[\"']?\s*:\s*[\"']([^\"']+)[\"']/gi,
         entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "JotForm API Key": {
+        name: "JotForm API Key",
+        familyName: "JotForm",
+        pattern: /\b([0-9A-Za-z]{32})\b/g,
+        entropy: DEFAULT_JOTFORM_CONFIG.requiredEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
         validityEndpoints: [],
