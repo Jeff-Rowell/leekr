@@ -19,6 +19,9 @@ jest.mock('../../../utils/accuracy/entropy', () => ({
 jest.mock('../../../utils/accuracy/falsePositives', () => ({
     isKnownFalsePositive: jest.fn(() => [false]) // Mock not a false positive
 }));
+jest.mock('../../../utils/accuracy/programmingPatterns', () => ({
+    isProgrammingPattern: jest.fn(() => false) // Mock not a programming pattern
+}));
 
 jest.mock('../../../../external/source-map', () => ({
     SourceMapConsumer: {
@@ -56,8 +59,10 @@ const mockFetch = fetch as jest.MockedFunction<typeof fetch>;
 // Import mocked functions for entropy and false positive checks
 import { calculateShannonEntropy } from '../../../utils/accuracy/entropy';
 import { isKnownFalsePositive } from '../../../utils/accuracy/falsePositives';
+import { isProgrammingPattern } from '../../../utils/accuracy/programmingPatterns';
 const mockCalculateShannonEntropy = calculateShannonEntropy as jest.MockedFunction<typeof calculateShannonEntropy>;
 const mockIsKnownFalsePositive = isKnownFalsePositive as jest.MockedFunction<typeof isKnownFalsePositive>;
+const mockIsProgrammingPattern = isProgrammingPattern as jest.MockedFunction<typeof isProgrammingPattern>;
 
 describe('detectApolloKeys', () => {
     beforeEach(() => {
@@ -574,5 +579,52 @@ describe('detectApolloKeys', () => {
         expect(mockValidateApolloCredentials).toHaveBeenCalledWith(randomKey);
         expect(result).toHaveLength(1);
         expect(result[0].secretType).toBe('Apollo');
+    });
+
+    test('should filter out programming patterns using centralized utility', async () => {
+        // Test with 22-character strings that match programming patterns
+        const programmingPattern = 'DisableSnapshotBlocking'; // 22 chars, PascalCase
+        const content = `const config = { key: "${programmingPattern}" };`;
+
+        // Mock programming pattern detection to return true
+        mockIsProgrammingPattern.mockReturnValueOnce(true);
+
+        const result = await detectApolloKeys(content, testUrl);
+
+        expect(mockIsProgrammingPattern).toHaveBeenCalledWith(programmingPattern);
+        expect(mockValidateApolloCredentials).not.toHaveBeenCalled();
+        expect(result).toEqual([]);
+    });
+
+    test('should not filter out non-programming patterns', async () => {
+        const nonProgrammingPattern = 'sk1234567890abcdef1234'; // 22 chars, looks like API key
+        const content = `const config = { key: "${nonProgrammingPattern}" };`;
+
+        // Mock programming pattern detection to return false
+        mockIsProgrammingPattern.mockReturnValueOnce(false);
+        mockValidateApolloCredentials.mockResolvedValueOnce({
+            valid: true,
+            error: ''
+        });
+
+        const result = await detectApolloKeys(content, testUrl);
+
+        expect(mockIsProgrammingPattern).toHaveBeenCalledWith(nonProgrammingPattern);
+        expect(mockValidateApolloCredentials).toHaveBeenCalledWith(nonProgrammingPattern);
+        expect(result).toHaveLength(1);
+    });
+
+    test('should filter out keys with incorrect length', async () => {
+        const wrongLengthKey = 'abcdefghij1234567890A'; // 21 chars instead of 22
+        const content = `const config = { key: "${wrongLengthKey}" };`;
+
+        // Mock programming pattern detection to return false (not a programming pattern)
+        mockIsProgrammingPattern.mockReturnValueOnce(false);
+
+        const result = await detectApolloKeys(content, testUrl);
+
+        expect(mockIsProgrammingPattern).toHaveBeenCalledWith(wrongLengthKey);
+        expect(mockValidateApolloCredentials).not.toHaveBeenCalled();
+        expect(result).toEqual([]);
     });
 });

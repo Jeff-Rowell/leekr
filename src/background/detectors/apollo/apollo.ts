@@ -8,15 +8,39 @@ import { APOLLO_RESOURCE_TYPES, DEFAULT_APOLLO_API_KEY_CONFIG } from '../../../c
 import { computeFingerprint } from '../../../utils/helpers/computeFingerprint';
 import { calculateShannonEntropy } from '../../../utils/accuracy/entropy';
 import { isKnownFalsePositive } from '../../../utils/accuracy/falsePositives';
+import { isProgrammingPattern } from '../../../utils/accuracy/programmingPatterns';
 
 export async function detectApolloKeys(content: string, url: string): Promise<Occurrence[]> {
-    const apolloPattern = patterns['Apollo API Key'].pattern;
     const apolloKeyMatches: string[] = [];
     
-    let match;
-    while ((match = apolloPattern.exec(content)) !== null) {
-        if (match[1]) { // match[1] is the captured group (the 22-char key)
-            apolloKeyMatches.push(match[1]);
+    // Define contextual patterns for Apollo API keys
+    const contextualPatterns = [
+        // Apollo-specific variable names
+        /(?:apolloKey|apollo_key|apollo_api_key|apolloToken|apollo_token|apolloApiKey)\s*(?:=|:)\s*['""]?([a-zA-Z0-9_-]{20,24})['""]?/gi,
+        
+        // Apollo-specific contexts
+        /(?:Apollo\.init|apollo\.config|ApolloClient)\s*\(\s*\{\s*(?:key|apiKey|api_key)\s*:\s*['""]?([a-zA-Z0-9_-]{20,24})['""]?/gi,
+        
+        // Headers with Apollo context - handle various quote patterns
+        /(?:'|")?(?:Authorization|x-apollo-key|apollo-key)(?:'|")?\s*:\s*(?:'|")?(?:apollo\s+)?([a-zA-Z0-9_-]{20,24})(?:'|")?/gi,
+        
+        // Environment variables with Apollo context
+        /(?:APOLLO_KEY|APOLLO_API_KEY|apollo_token)\s*(?:=|:)\s*['""]?([a-zA-Z0-9_-]{20,24})['""]?/gi,
+        
+        // Comments mentioning Apollo or GraphQL with nearby keys
+        /(?:apollo|graphql)[\s\S]{0,200}(?:apiKey|api_key|key|token)\s*(?:=|:)\s*['""]?([a-zA-Z0-9_-]{20,24})['""]?/gi,
+        
+        // Generic key patterns (fallback for generic contexts) - broader range to catch programming patterns
+        /(?:apiKey|api_key|key|token)\s*(?:=|:)\s*['""]?([a-zA-Z0-9_-]{20,32})['""]?/gi
+    ];
+    
+    // Execute all contextual patterns
+    for (const pattern of contextualPatterns) {
+        let match;
+        while ((match = pattern.exec(content)) !== null) {
+            if (match[1]) {
+                apolloKeyMatches.push(match[1]);
+            }
         }
     }
 
@@ -24,17 +48,17 @@ export async function detectApolloKeys(content: string, url: string): Promise<Oc
         return [];
     }
 
-    // Filter keys by entropy and programming naming patterns to avoid false positives
+    // Filter keys by programming patterns first, then length, entropy and false positives
     const validApolloKeys = apolloKeyMatches.filter(key => {
+        // Check for programming naming convention patterns first (camelCase, PascalCase, etc.)
+        if (isProgrammingPattern(key)) return false;
+
+        // Apollo API keys should be exactly 22 characters for validation
+        if (key.length !== 22) return false;
+        
         const entropy = calculateShannonEntropy(key);
         const apolloKeyEntropyThreshold = patterns["Apollo API Key"].entropy;
         if (entropy < apolloKeyEntropyThreshold) return false;
-
-        // Check for programming naming convention patterns (camelCase, PascalCase, etc.)
-        const isProgrammingPattern = DEFAULT_APOLLO_API_KEY_CONFIG.falsePositivePatterns.some(pattern => 
-            pattern.test(key)
-        );
-        if (isProgrammingPattern) return false;
 
         const [isFP] = isKnownFalsePositive(key);
         return !isFP;
