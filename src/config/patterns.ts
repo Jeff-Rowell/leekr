@@ -11,6 +11,7 @@ import { DEFAULT_ARTIFACTORY_ACCESS_TOKEN_CONFIG, DEFAULT_ARTIFACTORY_URL_CONFIG
 import { DEFAULT_AZURE_OPENAI_API_KEY_CONFIG, DEFAULT_AZURE_OPENAI_URL_CONFIG } from './detectors/azure_openai/azure_openai';
 import { DEFAULT_APOLLO_API_KEY_CONFIG } from './detectors/apollo/apollo';
 import { DEFAULT_GCP_SERVICE_ACCOUNT_CONFIG } from './detectors/gcp/gcp';
+import { DEFAULT_DOCKER_CONFIG } from './detectors/docker/docker';
 
 const awsAccessKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_ACCESS_KEY_CONFIG };
 const awsSessionKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_SESSION_KEY_CONFIG };
@@ -329,6 +330,76 @@ export const patterns: PatternsObj = {
         name: "GCP Universe Domain",
         familyName: "Google Cloud Platform",
         pattern: /["']?(googleapis\.com)["']?/g,
+        entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Docker Auth Config": {
+        name: "Docker Auth Config",
+        familyName: "Docker",
+        pattern: /auths[\s\S]{1,1500}/gi,
+        entropy: DEFAULT_DOCKER_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Docker Auths Structure": {
+        name: "Docker Auths Structure",
+        familyName: "Docker",
+        pattern: /[\"']?auths[\"']?\s*:\s*\{/gi,
+        entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Docker Registry Pattern": {
+        name: "Docker Registry Pattern", 
+        familyName: "Docker",
+        pattern: /[\"']([a-z0-9\-.:/]+(?:\.[a-z]{2,}|\.io|\.com|\.org)(?::\d+)?(?:\/[a-z0-9\-._/]*)?)[\"']\s*:\s*\{([^}]+)\}/gi,
+        entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Docker Auth Token Pattern": {
+        name: "Docker Auth Token Pattern",
+        familyName: "Docker", 
+        pattern: /[\"']?auth[\"']?\s*:\s*[\"']([^\"']+)[\"']/gi,
+        entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Docker Username Pattern": {
+        name: "Docker Username Pattern",
+        familyName: "Docker",
+        pattern: /[\"']?username[\"']?\s*:\s*[\"']([^\"']+)[\"']/gi,
+        entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Docker Password Pattern": {
+        name: "Docker Password Pattern",
+        familyName: "Docker",
+        pattern: /[\"']?password[\"']?\s*:\s*[\"']([^\"']+)[\"']/gi,
+        entropy: 0,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Docker Email Pattern": {
+        name: "Docker Email Pattern",
+        familyName: "Docker",
+        pattern: /[\"']?email[\"']?\s*:\s*[\"']([^\"']+)[\"']/gi,
         entropy: 0,
         isValidityCustomizable: false,
         hasCustomValidity: false,
