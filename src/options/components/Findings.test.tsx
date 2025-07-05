@@ -11,6 +11,7 @@ import { ArtifactoryOccurrence } from '../../types/artifactory';
 import { AzureOpenAIOccurrence } from '../../types/azure_openai';
 import { ApolloOccurrence } from '../../types/apollo';
 import { GcpOccurrence } from '../../types/gcp';
+import { DockerOccurrence } from '../../types/docker';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -22,6 +23,7 @@ import { artifactoryValidityHelper } from '../../utils/validators/artifactory/ar
 import { azureOpenAIValidityHelper } from '../../utils/validators/azure_openai/azureOpenAIValidityHelper';
 import { apolloValidityHelper } from '../../utils/validators/apollo/apolloValidityHelper';
 import { gcpValidityHelper } from '../../utils/validators/gcp/gcpValidityHelper';
+import { dockerValidityHelper } from '../../utils/validators/docker/dockerValidityHelper';
 import { Findings } from './Findings';
 
 jest.mock('../../popup/AppContext');
@@ -36,6 +38,7 @@ jest.mock('../../utils/validators/artifactory/artifactoryValidityHelper');
 jest.mock('../../utils/validators/azure_openai/azureOpenAIValidityHelper');
 jest.mock('../../utils/validators/apollo/apolloValidityHelper');
 jest.mock('../../utils/validators/gcp/gcpValidityHelper');
+jest.mock('../../utils/validators/docker/dockerValidityHelper');
 
 const mockAwsValidityHelper = awsValidityHelper as jest.MockedFunction<typeof awsValidityHelper>;
 const mockAwsSessionValidityHelper = awsSessionValidityHelper as jest.MockedFunction<typeof awsSessionValidityHelper>;
@@ -47,6 +50,7 @@ const mockArtifactoryValidityHelper = artifactoryValidityHelper as jest.MockedFu
 const mockAzureOpenAIValidityHelper = azureOpenAIValidityHelper as jest.MockedFunction<typeof azureOpenAIValidityHelper>;
 const mockApolloValidityHelper = apolloValidityHelper as jest.MockedFunction<typeof apolloValidityHelper>;
 const mockGcpValidityHelper = gcpValidityHelper as jest.MockedFunction<typeof gcpValidityHelper>;
+const mockDockerValidityHelper = dockerValidityHelper as jest.MockedFunction<typeof dockerValidityHelper>;
 
 const mockChrome = {
     runtime: {
@@ -313,6 +317,32 @@ const mockGcpOccurrence: GcpOccurrence = {
 const mockAzureOpenAIOccurrences: Set<Occurrence> = new Set([mockAzureOpenAIOccurrence]);
 const mockGcpOccurrences: Set<Occurrence> = new Set([mockGcpOccurrence]);
 
+const mockDockerOccurrence: DockerOccurrence = {
+    filePath: "main.foobar.js",
+    fingerprint: "fp12",
+    type: "Docker Registry Credentials",
+    secretType: "Docker",
+    secretValue: {
+        match: {
+            registry: "registry.example.com",
+            auth: "dGVzdDp0ZXN0",
+            username: "test",
+            password: "test",
+            email: "test@example.com"
+        }
+    },
+    sourceContent: {
+        content: "foobar",
+        contentEndLineNum: 35,
+        contentFilename: "App.js",
+        contentStartLineNum: 18,
+        exactMatchNumbers: [23, 30]
+    },
+    url: "http://localhost:3000/static/js/main.foobar.js",
+};
+
+const mockDockerOccurrences: Set<Occurrence> = new Set([mockDockerOccurrence]);
+
 const mockFindings: Finding[] = [
     {
         fingerprint: "fp1",
@@ -468,6 +498,25 @@ const mockFindings: Finding[] = [
             validity: "valid"
         }
     },
+    {
+        fingerprint: "fp12",
+        numOccurrences: mockDockerOccurrences.size,
+        occurrences: mockDockerOccurrences,
+        validity: "valid",
+        validatedAt: "2025-05-17T18:16:16.870Z",
+        secretType: "Docker",
+        secretValue: {
+            match: {
+                registry: "registry.example.com",
+                auth: "dGVzdDp0ZXN0",
+                username: "test",
+                password: "test",
+                email: "test@example.com"
+            },
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            validity: "valid"
+        }
+    },
 ];
 
 describe('Findings Component', () => {
@@ -509,7 +558,7 @@ describe('Findings Component', () => {
         test('renders all findings when no filters applied', () => {
             const { container } = render(<Findings />);
             const findings = container.querySelectorAll('.findings-td');
-            expect(findings).toHaveLength(10);
+            expect(findings).toHaveLength(10); // Pagination shows only 10 per page
         });
 
         test('shows empty state when no findings exist', () => {
@@ -528,7 +577,7 @@ describe('Findings Component', () => {
         test('displays validity status with correct formatting', () => {
             render(<Findings />);
 
-            expect(screen.getAllByText('valid')).toHaveLength(7);
+            expect(screen.getAllByText('valid')).toHaveLength(7); // Only shows 7 on first page due to pagination
             expect(screen.getByText('invalid')).toBeInTheDocument();
             expect(screen.getByText('unknown')).toBeInTheDocument();
             expect(screen.getByText('failed to check')).toBeInTheDocument();
@@ -551,7 +600,7 @@ describe('Findings Component', () => {
             await user.selectOptions(validityFilter, 'valid');
 
             const findings = container.querySelectorAll('.findings-td');
-            expect(findings).toHaveLength(8);
+            expect(findings).toHaveLength(9); // 9 valid findings now
         });
 
         test('filters findings by invalid status', async () => {
@@ -596,11 +645,11 @@ describe('Findings Component', () => {
             await user.selectOptions(validityFilter, 'valid');
 
             const validFindings = container.querySelectorAll('.findings-td');
-            expect(validFindings).toHaveLength(8);
+            expect(validFindings).toHaveLength(9); // 9 valid findings now
 
             await user.selectOptions(validityFilter, 'all');
             const allFindings = container.querySelectorAll('.findings-td');
-            expect(allFindings).toHaveLength(10);
+            expect(allFindings).toHaveLength(10); // Pagination shows only 10 per page
         });
     });
 
@@ -611,7 +660,7 @@ describe('Findings Component', () => {
             const typeFilter = screen.getByLabelText('Secret Type:');
             const options = typeFilter.querySelectorAll('option');
 
-            expect(options).toHaveLength(9);
+            expect(options).toHaveLength(10); // Added Docker
             expect(options[0]).toHaveTextContent('All Types');
             expect(options[1]).toHaveTextContent('AWS Access & Secret Keys');
             expect(options[2]).toHaveTextContent('AWS Session Keys');
@@ -823,37 +872,84 @@ describe('Findings Component', () => {
         });
 
         test('handles validity recheck for OpenAI', async () => {
+            // Create a specific OpenAI finding to test
+            const openAIFinding = {
+                fingerprint: 'openai-test',
+                numOccurrences: 1,
+                secretType: 'OpenAI',
+                validity: 'valid' as const,
+                validatedAt: '2025-05-30T12:00:00.000Z',
+                secretValue: { match: { api_key: 'sk-proj-test123456789' } },
+                occurrences: new Set([])
+            };
+
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: [openAIFinding],
+                },
+            });
+
             const user = userEvent.setup();
             render(<Findings />);
 
-            // Navigate to page 2 where OpenAI would be
-            const nextButton = screen.getByText('Next');
-            await user.click(nextButton);
+            const recheckButton = screen.getByLabelText('Recheck validity');
+            await user.click(recheckButton);
 
-            const recheckButtons = screen.getAllByTestId('rotate-cw');
-            await user.click(recheckButtons[0]); // OpenAI should be the first item on page 2
-
-            expect(mockOpenaiValidityHelper).toHaveBeenCalledWith(mockFindings[6]);
+            expect(mockOpenaiValidityHelper).toHaveBeenCalledWith(openAIFinding);
         });
 
         test('handles validity recheck for Gemini', async () => {
+            // Create a specific Gemini finding to test
+            const geminiFinding = {
+                fingerprint: 'gemini-test',
+                numOccurrences: 1,
+                secretType: 'Gemini',
+                validity: 'valid' as const,
+                validatedAt: '2025-05-30T12:00:00.000Z',
+                secretValue: { match: { api_key: 'test123', api_secret: 'secret123' } },
+                occurrences: new Set([])
+            };
+
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: [geminiFinding],
+                },
+            });
+
             const user = userEvent.setup();
             render(<Findings />);
 
-            const recheckButtons = screen.getAllByTestId('rotate-cw');
-            await user.click(recheckButtons[4]); // Gemini is index 4 in alphabetical order
+            const recheckButton = screen.getByLabelText('Recheck validity');
+            await user.click(recheckButton);
 
-            expect(mockGeminiValidityHelper).toHaveBeenCalledWith(mockFindings[7]);
+            expect(mockGeminiValidityHelper).toHaveBeenCalledWith(geminiFinding);
         });
 
         test('handles validity recheck for Hugging Face', async () => {
+            // Create a specific Hugging Face finding to test
+            const huggingFaceFinding = {
+                fingerprint: 'huggingface-test',
+                numOccurrences: 1,
+                secretType: 'Hugging Face',
+                validity: 'valid' as const,
+                validatedAt: '2025-05-30T12:00:00.000Z',
+                secretValue: { match: { api_key: 'hf_1234567890abcdefghijklmnopqrstuv12' } },
+                occurrences: new Set([])
+            };
+
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: [huggingFaceFinding],
+                },
+            });
+
             const user = userEvent.setup();
             render(<Findings />);
 
-            const recheckButtons = screen.getAllByTestId('rotate-cw');
-            await user.click(recheckButtons[6]); // Hugging Face is index 6 in alphabetical order
+            const recheckButton = screen.getByLabelText('Recheck validity');
+            await user.click(recheckButton);
 
-            expect(mockHuggingfaceValidityHelper).toHaveBeenCalledWith(mockFindings[8]);
+            expect(mockHuggingfaceValidityHelper).toHaveBeenCalledWith(huggingFaceFinding);
         });
 
         test('does not call validity helper for unknown secret types', async () => {
@@ -951,7 +1047,7 @@ describe('Findings Component', () => {
             const recheckButtons = screen.getAllByTestId('rotate-cw');
             await user.click(recheckButtons[3]); // Azure OpenAI is index 3 in alphabetical order
 
-            expect(mockAzureOpenAIValidityHelper).toHaveBeenCalledWith(mockFindings[9]);
+            expect(mockAzureOpenAIValidityHelper).toHaveBeenCalledWith(mockFindings[9]); // Azure OpenAI finding
         });
     });
 
@@ -1323,6 +1419,41 @@ describe('Findings Component', () => {
             fireEvent.click(recheckButton);
 
             expect(mockGcpValidityHelper).toHaveBeenCalledWith(gcpFinding);
+        });
+    });
+
+    describe('Docker Validity Checking', () => {
+        test('calls dockerValidityHelper when recheck button is clicked for Docker finding', async () => {
+            const dockerFinding = {
+                fingerprint: 'docker-test',
+                numOccurrences: 1,
+                secretType: 'Docker',
+                validity: 'valid' as const,
+                validatedAt: '2025-05-30T12:00:00.000Z',
+                secretValue: { 
+                    match: { 
+                        registry: "registry.example.com",
+                        auth: "dGVzdDp0ZXN0",
+                        username: "test",
+                        password: "test",
+                        email: "test@example.com"
+                    } 
+                },
+                occurrences: new Set([])
+            };
+
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: [dockerFinding],
+                },
+            });
+
+            render(<Findings />);
+
+            const recheckButton = screen.getByLabelText('Recheck validity');
+            fireEvent.click(recheckButton);
+
+            expect(mockDockerValidityHelper).toHaveBeenCalledWith(dockerFinding);
         });
     });
 });

@@ -20,6 +20,7 @@ import { artifactoryValidityHelper } from '../../utils/validators/artifactory/ar
 import { azureOpenAIValidityHelper } from '../../utils/validators/azure_openai/azureOpenAIValidityHelper';
 import { apolloValidityHelper } from '../../utils/validators/apollo/apolloValidityHelper';
 import { gcpValidityHelper } from '../../utils/validators/gcp/gcpValidityHelper';
+import { dockerValidityHelper } from '../../utils/validators/docker/dockerValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
@@ -36,6 +37,7 @@ jest.mock('../../utils/validators/artifactory/artifactoryValidityHelper');
 jest.mock('../../utils/validators/azure_openai/azureOpenAIValidityHelper');
 jest.mock('../../utils/validators/apollo/apolloValidityHelper');
 jest.mock('../../utils/validators/gcp/gcpValidityHelper');
+jest.mock('../../utils/validators/docker/dockerValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",
@@ -685,5 +687,63 @@ describe('Occurrences Component', () => {
         fireEvent.click(recheckButton);
 
         expect(gcpValidityHelper).toHaveBeenCalledWith(mockFindings[8]);
+    });
+
+    test('calls dockerValidityHelper on recheck button click for Docker', () => {
+        // Create a Docker finding and occurrence for testing
+        const dockerOccurrence = {
+            filePath: "docker-config.js",
+            fingerprint: "docker-fp",
+            type: "Docker Registry Credentials",
+            secretType: "Docker",
+            secretValue: {
+                match: {
+                    registry: "registry.example.com",
+                    auth: "dGVzdDp0ZXN0",
+                    username: "test",
+                    password: "test",
+                    email: "test@example.com"
+                }
+            },
+            url: "https://example.com/docker-config.js",
+            sourceContent: {
+                content: "const dockerAuth = { registry: 'registry.example.com', auth: 'dGVzdDp0ZXN0' };",
+                contentFilename: "docker-config.js",
+                contentStartLineNum: 5,
+                contentEndLineNum: 15,
+                exactMatchNumbers: [10]
+            }
+        };
+
+        const dockerFinding = {
+            fingerprint: "docker-fp",
+            numOccurrences: 1,
+            occurrences: new Set([dockerOccurrence]),
+            validity: "valid" as const,
+            validatedAt: "2025-05-30T12:00:00.000Z",
+            secretType: "Docker",
+            secretValue: {
+                match: {
+                    registry: "registry.example.com",
+                    auth: "dGVzdDp0ZXN0",
+                    username: "test",
+                    password: "test",
+                    email: "test@example.com"
+                }
+            }
+        };
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: {
+                findings: [dockerFinding],
+            },
+        });
+
+        render(<Occurrences filterFingerprint='docker-fp' />);
+
+        const recheckButton = screen.getByLabelText('Recheck validity');
+        fireEvent.click(recheckButton);
+
+        expect(dockerValidityHelper).toHaveBeenCalledWith(dockerFinding);
     });
 });

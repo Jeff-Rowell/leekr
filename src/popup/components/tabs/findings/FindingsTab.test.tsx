@@ -8,6 +8,7 @@ import { ArtifactoryOccurrence } from 'src/types/artifactory';
 import { AzureOpenAIOccurrence } from 'src/types/azure_openai';
 import { ApolloOccurrence } from 'src/types/apollo';
 import { GcpOccurrence } from 'src/types/gcp';
+import { DockerOccurrence } from 'src/types/docker';
 import { Finding, Occurrence } from 'src/types/findings.types';
 import { retrieveFindings, storeFindings } from '../../../../utils/helpers/common';
 import { awsValidityHelper } from '../../../../utils/validators/aws/aws_access_keys/awsValidityHelper';
@@ -20,6 +21,7 @@ import { artifactoryValidityHelper } from '../../../../utils/validators/artifact
 import { azureOpenAIValidityHelper } from '../../../../utils/validators/azure_openai/azureOpenAIValidityHelper';
 import { apolloValidityHelper } from '../../../../utils/validators/apollo/apolloValidityHelper';
 import { gcpValidityHelper } from '../../../../utils/validators/gcp/gcpValidityHelper';
+import { dockerValidityHelper } from '../../../../utils/validators/docker/dockerValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import FindingsTab from './FindingsTab';
 
@@ -65,6 +67,10 @@ jest.mock('../../../../utils/validators/apollo/apolloValidityHelper', () => ({
 
 jest.mock('../../../../utils/validators/gcp/gcpValidityHelper', () => ({
     gcpValidityHelper: jest.fn(),
+}));
+
+jest.mock('../../../../utils/validators/docker/dockerValidityHelper', () => ({
+    dockerValidityHelper: jest.fn(),
 }));
 
 jest.mock('../../../../utils/helpers/common', () => ({
@@ -574,6 +580,47 @@ describe('FindingsTab', () => {
                 validity: "valid"
             }
         },
+        {
+            fingerprint: "fp14",
+            numOccurrences: 1,
+            occurrences: new Set([{
+                fingerprint: "docker-fp",
+                secretType: "Docker",
+                filePath: "docker-config.json",
+                url: "http://localhost:3000/docker-config.json",
+                type: "Registry Credentials",
+                secretValue: {
+                    match: {
+                        registry: "registry.example.com",
+                        auth: "dGVzdDp0ZXN0",
+                        username: "test",
+                        password: "test",
+                        email: "test@example.com"
+                    }
+                },
+                sourceContent: {
+                    content: "test content",
+                    contentFilename: "docker-config.json",
+                    contentStartLineNum: 1,
+                    contentEndLineNum: 10,
+                    exactMatchNumbers: [5]
+                }
+            } as DockerOccurrence]),
+            validity: "valid",
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            secretType: "Docker",
+            secretValue: {
+                match: { 
+                    registry: "registry.example.com",
+                    auth: "dGVzdDp0ZXN0",
+                    username: "test",
+                    password: "test",
+                    email: "test@example.com"
+                },
+                validatedAt: "2025-05-17T18:16:16.870Z",
+                validity: "valid"
+            }
+        },
     ];
 
     beforeEach(() => {
@@ -653,14 +700,14 @@ describe('FindingsTab', () => {
     test('shows validity check icon for validated findings', () => {
         render(<FindingsTab />);
         const shieldIcons = screen.getAllByTestId('shield-check-icon');
-        expect(shieldIcons.length).toBe(13);
+        expect(shieldIcons.length).toBe(14);
     });
 
     test('opens settings menu when settings button is clicked', async () => {
         render(<FindingsTab />);
 
         const settingsButtons = screen.getAllByLabelText('Settings');
-        expect(settingsButtons.length).toBe(13);
+        expect(settingsButtons.length).toBe(14);
         fireEvent.click(settingsButtons[0]);
 
         await waitFor(() => {
@@ -721,7 +768,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(13);
+        expect(recheckButtons).toHaveLength(14);
 
         fireEvent.click(recheckButtons[0]);
         expect(awsValidityHelper).toHaveBeenCalledWith(mockFindings[0]);
@@ -731,7 +778,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(13);
+        expect(recheckButtons).toHaveLength(14);
 
         fireEvent.click(recheckButtons[4]);
         expect(awsSessionValidityHelper).toHaveBeenCalledWith(mockFindings[4]);
@@ -741,7 +788,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(13);
+        expect(recheckButtons).toHaveLength(14);
 
         fireEvent.click(recheckButtons[5]);
         expect(anthropicValidityHelper).toHaveBeenCalledWith(mockFindings[5]);
@@ -751,7 +798,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(13);
+        expect(recheckButtons).toHaveLength(14);
 
         fireEvent.click(recheckButtons[6]);
         expect(openaiValidityHelper).toHaveBeenCalledWith(mockFindings[6]);
@@ -761,7 +808,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(13);
+        expect(recheckButtons).toHaveLength(14);
 
         fireEvent.click(recheckButtons[7]);
         expect(geminiValidityHelper).toHaveBeenCalledWith(mockFindings[7]);
@@ -771,7 +818,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(13);
+        expect(recheckButtons).toHaveLength(14);
 
         fireEvent.click(recheckButtons[8]);
         expect(huggingfaceValidityHelper).toHaveBeenCalledWith(mockFindings[8]);
@@ -859,7 +906,7 @@ describe('FindingsTab', () => {
         
         // Find the Artifactory recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(13);
+        expect(recheckButtons).toHaveLength(14);
         
         // Click the Artifactory recheck button (10th button, index 9) 
         fireEvent.click(recheckButtons[9]);
@@ -873,7 +920,7 @@ describe('FindingsTab', () => {
         
         // Find the Azure OpenAI recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(13);
+        expect(recheckButtons).toHaveLength(14);
         
         // Click the last recheck button (Azure OpenAI finding)
         fireEvent.click(recheckButtons[10]);
@@ -887,7 +934,7 @@ describe('FindingsTab', () => {
         
         // Find the Apollo recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(13);
+        expect(recheckButtons).toHaveLength(14);
         
         // Click the Apollo recheck button (12th button, index 11)
         fireEvent.click(recheckButtons[11]);
@@ -901,7 +948,7 @@ describe('FindingsTab', () => {
         
         // Find the GCP recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(13);
+        expect(recheckButtons).toHaveLength(14);
         
         // Click the last recheck button (GCP finding)
         fireEvent.click(recheckButtons[12]);
@@ -960,5 +1007,19 @@ describe('FindingsTab', () => {
         // top = 320 - 175 + 0 = 145
         const dropdown = screen.getByText('Finding Options').closest('.settings-dropdown');
         expect(dropdown).toHaveStyle('top: 145px');
+    });
+
+    test('calls dockerValidityHelper for Docker findings', async () => {
+        render(<FindingsTab />);
+        
+        // Find the Docker recheck button directly (in the validity tooltip)
+        const recheckButtons = screen.getAllByLabelText('Recheck validity');
+        expect(recheckButtons).toHaveLength(14);
+        
+        // Click the Docker recheck button (14th button, index 13)
+        fireEvent.click(recheckButtons[13]);
+        
+        // Verify docker validity helper was called
+        expect(dockerValidityHelper).toHaveBeenCalledWith(mockFindings[13]);
     });
 });
