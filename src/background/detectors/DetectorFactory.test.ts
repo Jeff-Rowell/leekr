@@ -9,6 +9,7 @@ import { ArtifactoryDetector } from './artifactory/ArtifactoryDetector';
 import { AzureOpenAIDetector } from './azure_openai/AzureOpenAIDetector';
 import { ApolloDetector } from './apollo/ApolloDetector';
 import { GcpDetector } from './gcp/GcpDetector';
+import { DockerDetector } from './docker/DockerDetector';
 
 describe('ConcreteDetectorFactory', () => {
     let factory: ConcreteDetectorFactory;
@@ -20,7 +21,7 @@ describe('ConcreteDetectorFactory', () => {
     test('createDetectors returns all detector instances', () => {
         const detectors = factory.createDetectors();
         
-        expect(detectors).toHaveLength(10);
+        expect(detectors).toHaveLength(11);
         expect(detectors[0]).toBeInstanceOf(AwsAccessKeysDetector);
         expect(detectors[1]).toBeInstanceOf(AwsSessionKeysDetector);
         expect(detectors[2]).toBeInstanceOf(AnthropicDetector);
@@ -31,6 +32,7 @@ describe('ConcreteDetectorFactory', () => {
         expect(detectors[7]).toBeInstanceOf(AzureOpenAIDetector);
         expect(detectors[8]).toBeInstanceOf(ApolloDetector);
         expect(detectors[9]).toBeInstanceOf(GcpDetector);
+        expect(detectors[10]).toBeInstanceOf(DockerDetector);
     });
 
     test('createDetector returns specific detector by type', () => {
@@ -44,6 +46,7 @@ describe('ConcreteDetectorFactory', () => {
         const azureOpenAIDetector = factory.createDetector('Azure OpenAI');
         const apolloDetector = factory.createDetector('Apollo');
         const gcpDetector = factory.createDetector('gcp');
+        const dockerDetector = factory.createDetector('docker');
 
         expect(awsAccessKeysDetector).toBeInstanceOf(AwsAccessKeysDetector);
         expect(awsSessionKeysDetector).toBeInstanceOf(AwsSessionKeysDetector);
@@ -55,6 +58,7 @@ describe('ConcreteDetectorFactory', () => {
         expect(azureOpenAIDetector).toBeInstanceOf(AzureOpenAIDetector);
         expect(apolloDetector).toBeInstanceOf(ApolloDetector);
         expect(gcpDetector).toBeInstanceOf(GcpDetector);
+        expect(dockerDetector).toBeInstanceOf(DockerDetector);
     });
 
     test('createDetector returns undefined for unknown type', () => {
