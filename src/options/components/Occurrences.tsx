@@ -13,6 +13,7 @@ import { azureOpenAIValidityHelper } from '../../utils/validators/azure_openai/a
 import { apolloValidityHelper } from '../../utils/validators/apollo/apolloValidityHelper';
 import { gcpValidityHelper } from '../../utils/validators/gcp/gcpValidityHelper';
 import { dockerValidityHelper } from '../../utils/validators/docker/dockerValidityHelper';
+import { jotformValidityHelper } from '../../utils/validators/jotform/jotformValidityHelper';
 
 
 export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFingerprint }) => {
@@ -58,6 +59,8 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
             gcpValidityHelper(finding);
         } else if (finding.secretType === "Docker") {
             dockerValidityHelper(finding);
+        } else if (finding.secretType === "JotForm") {
+            jotformValidityHelper(finding);
         }
     };
 

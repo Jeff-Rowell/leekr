@@ -22,6 +22,7 @@ import { azureOpenAIValidityHelper } from '../../utils/validators/azure_openai/a
 import { apolloValidityHelper } from '../../utils/validators/apollo/apolloValidityHelper';
 import { gcpValidityHelper } from '../../utils/validators/gcp/gcpValidityHelper';
 import { dockerValidityHelper } from '../../utils/validators/docker/dockerValidityHelper';
+import { jotformValidityHelper } from '../../utils/validators/jotform/jotformValidityHelper';
 
 // Pagination constants
 const ITEMS_PER_PAGE = 10;
@@ -122,6 +123,8 @@ export const Findings: React.FC = () => {
             gcpValidityHelper(finding);
         } else if (finding.secretType === "Docker") {
             dockerValidityHelper(finding);
+        } else if (finding.secretType === "JotForm") {
+            jotformValidityHelper(finding);
         }
     };
 

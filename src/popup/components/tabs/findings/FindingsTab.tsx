@@ -13,6 +13,7 @@ import { azureOpenAIValidityHelper } from '../../../../utils/validators/azure_op
 import { apolloValidityHelper } from '../../../../utils/validators/apollo/apolloValidityHelper';
 import { gcpValidityHelper } from '../../../../utils/validators/gcp/gcpValidityHelper';
 import { dockerValidityHelper } from '../../../../utils/validators/docker/dockerValidityHelper';
+import { jotformValidityHelper } from '../../../../utils/validators/jotform/jotformValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import ModalHeader from '../../modalheader/ModalHeader';
 import './style.css';
@@ -47,6 +48,8 @@ const FindingsTab: React.FC = () => {
             gcpValidityHelper(finding);
         } else if (finding.secretType === "Docker") {
             dockerValidityHelper(finding);
+        } else if (finding.secretType === "JotForm") {
+            jotformValidityHelper(finding);
         }
     };
 
