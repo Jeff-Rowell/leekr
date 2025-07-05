@@ -10,6 +10,7 @@ import { AzureOpenAIDetector } from './azure_openai/AzureOpenAIDetector';
 import { ApolloDetector } from './apollo/ApolloDetector';
 import { GcpDetector } from './gcp/GcpDetector';
 import { DockerDetector } from './docker/DockerDetector';
+import { JotFormDetector } from './jotform/JotFormDetector';
 
 export class ConcreteDetectorFactory implements DetectorFactory {
     private readonly detectorClasses = [
@@ -23,7 +24,8 @@ export class ConcreteDetectorFactory implements DetectorFactory {
         AzureOpenAIDetector,
         ApolloDetector,
         GcpDetector,
-        DockerDetector
+        DockerDetector,
+        JotFormDetector
     ];
 
     createDetectors(): SecretDetector[] {
