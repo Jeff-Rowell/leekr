@@ -12,6 +12,7 @@ import { artifactoryValidityHelper } from '../../../../utils/validators/artifact
 import { azureOpenAIValidityHelper } from '../../../../utils/validators/azure_openai/azureOpenAIValidityHelper';
 import { apolloValidityHelper } from '../../../../utils/validators/apollo/apolloValidityHelper';
 import { gcpValidityHelper } from '../../../../utils/validators/gcp/gcpValidityHelper';
+import { dockerValidityHelper } from '../../../../utils/validators/docker/dockerValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import ModalHeader from '../../modalheader/ModalHeader';
 import './style.css';
@@ -44,6 +45,8 @@ const FindingsTab: React.FC = () => {
             apolloValidityHelper(finding);
         } else if (finding.secretType === "Google Cloud Platform") {
             gcpValidityHelper(finding);
+        } else if (finding.secretType === "Docker") {
+            dockerValidityHelper(finding);
         }
     };
 

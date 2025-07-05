@@ -21,6 +21,7 @@ import { artifactoryValidityHelper } from '../../utils/validators/artifactory/ar
 import { azureOpenAIValidityHelper } from '../../utils/validators/azure_openai/azureOpenAIValidityHelper';
 import { apolloValidityHelper } from '../../utils/validators/apollo/apolloValidityHelper';
 import { gcpValidityHelper } from '../../utils/validators/gcp/gcpValidityHelper';
+import { dockerValidityHelper } from '../../utils/validators/docker/dockerValidityHelper';
 
 // Pagination constants
 const ITEMS_PER_PAGE = 10;
@@ -119,6 +120,8 @@ export const Findings: React.FC = () => {
             apolloValidityHelper(finding);
         } else if (finding.secretType === "Google Cloud Platform") {
             gcpValidityHelper(finding);
+        } else if (finding.secretType === "Docker") {
+            dockerValidityHelper(finding);
         }
     };
 
