@@ -12,6 +12,7 @@ import { AzureOpenAIOccurrence } from '../../types/azure_openai';
 import { ApolloOccurrence } from '../../types/apollo';
 import { GcpOccurrence } from '../../types/gcp';
 import { DockerOccurrence } from '../../types/docker';
+import { JotFormOccurrence } from '../../types/jotform';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -24,6 +25,7 @@ import { azureOpenAIValidityHelper } from '../../utils/validators/azure_openai/a
 import { apolloValidityHelper } from '../../utils/validators/apollo/apolloValidityHelper';
 import { gcpValidityHelper } from '../../utils/validators/gcp/gcpValidityHelper';
 import { dockerValidityHelper } from '../../utils/validators/docker/dockerValidityHelper';
+import { jotformValidityHelper } from '../../utils/validators/jotform/jotformValidityHelper';
 import { Findings } from './Findings';
 
 jest.mock('../../popup/AppContext');
@@ -39,6 +41,7 @@ jest.mock('../../utils/validators/azure_openai/azureOpenAIValidityHelper');
 jest.mock('../../utils/validators/apollo/apolloValidityHelper');
 jest.mock('../../utils/validators/gcp/gcpValidityHelper');
 jest.mock('../../utils/validators/docker/dockerValidityHelper');
+jest.mock('../../utils/validators/jotform/jotformValidityHelper');
 
 const mockAwsValidityHelper = awsValidityHelper as jest.MockedFunction<typeof awsValidityHelper>;
 const mockAwsSessionValidityHelper = awsSessionValidityHelper as jest.MockedFunction<typeof awsSessionValidityHelper>;
@@ -51,6 +54,7 @@ const mockAzureOpenAIValidityHelper = azureOpenAIValidityHelper as jest.MockedFu
 const mockApolloValidityHelper = apolloValidityHelper as jest.MockedFunction<typeof apolloValidityHelper>;
 const mockGcpValidityHelper = gcpValidityHelper as jest.MockedFunction<typeof gcpValidityHelper>;
 const mockDockerValidityHelper = dockerValidityHelper as jest.MockedFunction<typeof dockerValidityHelper>;
+const mockJotformValidityHelper = jotformValidityHelper as jest.MockedFunction<typeof jotformValidityHelper>;
 
 const mockChrome = {
     runtime: {
@@ -517,6 +521,40 @@ const mockFindings: Finding[] = [
             validity: "valid"
         }
     },
+    {
+        fingerprint: "fp13",
+        numOccurrences: 1,
+        occurrences: new Set([{
+            filePath: "main.jotform.js",
+            fingerprint: "fp13",
+            type: "API Key",
+            secretType: "JotForm",
+            secretValue: {
+                match: { 
+                    apiKey: "abcdefghijklmnopqrstuvwxyz123456"
+                }
+            },
+            sourceContent: {
+                content: "foobar",
+                contentEndLineNum: 35,
+                contentFilename: "App.js",
+                contentStartLineNum: 18,
+                exactMatchNumbers: [23, 30]
+            },
+            url: "http://localhost:3000/static/js/main.jotform.js",
+            validity: "valid"
+        } as JotFormOccurrence]),
+        validity: "valid",
+        validatedAt: "2025-05-17T18:16:16.870Z",
+        secretType: "JotForm",
+        secretValue: {
+            match: { 
+                apiKey: "abcdefghijklmnopqrstuvwxyz123456"
+            },
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            validity: "valid"
+        }
+    },
 ];
 
 describe('Findings Component', () => {
@@ -600,7 +638,7 @@ describe('Findings Component', () => {
             await user.selectOptions(validityFilter, 'valid');
 
             const findings = container.querySelectorAll('.findings-td');
-            expect(findings).toHaveLength(9); // 9 valid findings now
+            expect(findings).toHaveLength(10); // 10 valid findings now
         });
 
         test('filters findings by invalid status', async () => {
@@ -645,7 +683,7 @@ describe('Findings Component', () => {
             await user.selectOptions(validityFilter, 'valid');
 
             const validFindings = container.querySelectorAll('.findings-td');
-            expect(validFindings).toHaveLength(9); // 9 valid findings now
+            expect(validFindings).toHaveLength(10); // 10 valid findings now
 
             await user.selectOptions(validityFilter, 'all');
             const allFindings = container.querySelectorAll('.findings-td');
@@ -660,7 +698,7 @@ describe('Findings Component', () => {
             const typeFilter = screen.getByLabelText('Secret Type:');
             const options = typeFilter.querySelectorAll('option');
 
-            expect(options).toHaveLength(10); // Added Docker
+            expect(options).toHaveLength(11); // Added Docker and JotForm
             expect(options[0]).toHaveTextContent('All Types');
             expect(options[1]).toHaveTextContent('AWS Access & Secret Keys');
             expect(options[2]).toHaveTextContent('AWS Session Keys');
@@ -952,6 +990,33 @@ describe('Findings Component', () => {
             expect(mockHuggingfaceValidityHelper).toHaveBeenCalledWith(huggingFaceFinding);
         });
 
+        test('handles validity recheck for JotForm', async () => {
+            // Create a specific JotForm finding to test
+            const jotformFinding = {
+                fingerprint: 'jotform-test',
+                numOccurrences: 1,
+                secretType: 'JotForm',
+                validity: 'valid' as const,
+                validatedAt: '2025-05-30T12:00:00.000Z',
+                secretValue: { match: { apiKey: 'abcdefghijklmnopqrstuvwxyz123456' } },
+                occurrences: new Set([])
+            };
+
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: [jotformFinding],
+                },
+            });
+
+            const user = userEvent.setup();
+            render(<Findings />);
+
+            const recheckButton = screen.getByLabelText('Recheck validity');
+            await user.click(recheckButton);
+
+            expect(mockJotformValidityHelper).toHaveBeenCalledWith(jotformFinding);
+        });
+
         test('does not call validity helper for unknown secret types', async () => {
             const unknownTypeFindings: Finding[] = [{
                 fingerprint: "fp6",
@@ -986,6 +1051,7 @@ describe('Findings Component', () => {
             expect(mockGeminiValidityHelper).not.toHaveBeenCalled();
             expect(mockArtifactoryValidityHelper).not.toHaveBeenCalled();
             expect(mockAzureOpenAIValidityHelper).not.toHaveBeenCalled();
+            expect(mockJotformValidityHelper).not.toHaveBeenCalled();
         });
 
         test('handles validity recheck for Artifactory tokens', async () => {

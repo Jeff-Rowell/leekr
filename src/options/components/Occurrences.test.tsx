@@ -9,6 +9,7 @@ import { ArtifactoryOccurrence } from '../../types/artifactory';
 import { AzureOpenAIOccurrence } from '../../types/azure_openai';
 import { ApolloOccurrence } from '../../types/apollo';
 import { GcpOccurrence } from '../../types/gcp';
+import { JotFormOccurrence } from '../../types/jotform';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -21,6 +22,7 @@ import { azureOpenAIValidityHelper } from '../../utils/validators/azure_openai/a
 import { apolloValidityHelper } from '../../utils/validators/apollo/apolloValidityHelper';
 import { gcpValidityHelper } from '../../utils/validators/gcp/gcpValidityHelper';
 import { dockerValidityHelper } from '../../utils/validators/docker/dockerValidityHelper';
+import { jotformValidityHelper } from '../../utils/validators/jotform/jotformValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
@@ -38,6 +40,7 @@ jest.mock('../../utils/validators/azure_openai/azureOpenAIValidityHelper');
 jest.mock('../../utils/validators/apollo/apolloValidityHelper');
 jest.mock('../../utils/validators/gcp/gcpValidityHelper');
 jest.mock('../../utils/validators/docker/dockerValidityHelper');
+jest.mock('../../utils/validators/jotform/jotformValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",
@@ -156,11 +159,33 @@ const mockHuggingFaceOccurrence: HuggingFaceOccurrence = {
     url: "http://localhost:3000/static/js/huggingface.foobar.js",
 };
 
+const mockJotFormOccurrence: JotFormOccurrence = {
+    filePath: "main.foobar.js",
+    fingerprint: "fp15",
+    type: "API Key",
+    secretType: "JotForm",
+    secretValue: {
+        match: { 
+            apiKey: "abcdefghijklmnopqrstuvwxyz123456"
+        }
+    },
+    sourceContent: {
+        content: "jotformfoobar\n".repeat(18),
+        contentEndLineNum: 35,
+        contentFilename: "JotFormApp.js",
+        contentStartLineNum: 18,
+        exactMatchNumbers: [23, 30]
+    },
+    url: "http://localhost:3000/static/js/jotform.foobar.js",
+    validity: "valid"
+};
+
 const mockOccurrences: Set<Occurrence> = new Set([mockOccurrence]);
 const mockSessionOccurrences: Set<Occurrence> = new Set([mockSessionOccurrence]);
 const mockAnthropicOccurrences: Set<Occurrence> = new Set([mockAnthropicOccurrence]);
 const mockOpenAIOccurrences: Set<Occurrence> = new Set([mockOpenAIOccurrence]);
 const mockGeminiOccurrences: Set<Occurrence> = new Set([mockGeminiOccurrence]);
+const mockJotFormOccurrences: Set<Occurrence> = new Set([mockJotFormOccurrence]);
 const mockGcpOccurrence: GcpOccurrence = {
     filePath: "main.foobar.js",
     fingerprint: "fp9",
@@ -360,6 +385,21 @@ const mockFindings: Finding[] = [
             validatedAt: "2025-05-17T18:16:16.870Z",
             validity: "valid"
         }
+    },
+    {
+        fingerprint: "fp15",
+        numOccurrences: mockJotFormOccurrences.size,
+        occurrences: mockJotFormOccurrences,
+        validity: "valid",
+        validatedAt: "2025-05-13T18:16:16.870Z",
+        secretType: "JotForm",
+        secretValue: {
+            match: { 
+                apiKey: "abcdefghijklmnopqrstuvwxyz123456"
+            },
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            validity: "valid"
+        }
     }
 ]
 
@@ -502,6 +542,23 @@ describe('Occurrences Component', () => {
         expect(huggingfaceValidityHelper).toHaveBeenCalledWith(mockFindings[5]);
     });
 
+    test('renders JotForm finding and occurrence', () => {
+        render(<Occurrences filterFingerprint='fp15' />);
+
+        expect(screen.getByText('JotForm')).toBeInTheDocument();
+        expect(screen.getByText('JotFormApp.js: Line 23')).toBeInTheDocument();
+        expect(screen.getByText('View JS Bundle')).toBeInTheDocument();
+    });
+
+    test('calls JotForm validity helper when recheck button is clicked', () => {
+        render(<Occurrences filterFingerprint='fp15' />);
+
+        const recheckButton = screen.getByLabelText('Recheck validity');
+        fireEvent.click(recheckButton);
+
+        expect(jotformValidityHelper).toHaveBeenCalledWith(mockFindings[9]);
+    });
+
     test('calls Azure OpenAI validity helper when recheck button is clicked', () => {
         render(<Occurrences filterFingerprint='fp8' />);
 
@@ -543,6 +600,7 @@ describe('Occurrences Component', () => {
         expect(openaiValidityHelper).not.toHaveBeenCalled();
         expect(geminiValidityHelper).not.toHaveBeenCalled();
         expect(azureOpenAIValidityHelper).not.toHaveBeenCalled();
+        expect(jotformValidityHelper).not.toHaveBeenCalled();
     });
 
     test('clicking download source code button calls URL.createObjectURL', () => {
