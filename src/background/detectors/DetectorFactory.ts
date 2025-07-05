@@ -9,6 +9,7 @@ import { ArtifactoryDetector } from './artifactory/ArtifactoryDetector';
 import { AzureOpenAIDetector } from './azure_openai/AzureOpenAIDetector';
 import { ApolloDetector } from './apollo/ApolloDetector';
 import { GcpDetector } from './gcp/GcpDetector';
+import { DockerDetector } from './docker/DockerDetector';
 
 export class ConcreteDetectorFactory implements DetectorFactory {
     private readonly detectorClasses = [
@@ -21,7 +22,8 @@ export class ConcreteDetectorFactory implements DetectorFactory {
         ArtifactoryDetector,
         AzureOpenAIDetector,
         ApolloDetector,
-        GcpDetector
+        GcpDetector,
+        DockerDetector
     ];
 
     createDetectors(): SecretDetector[] {
