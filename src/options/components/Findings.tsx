@@ -23,6 +23,7 @@ import { apolloValidityHelper } from '../../utils/validators/apollo/apolloValidi
 import { gcpValidityHelper } from '../../utils/validators/gcp/gcpValidityHelper';
 import { dockerValidityHelper } from '../../utils/validators/docker/dockerValidityHelper';
 import { jotformValidityHelper } from '../../utils/validators/jotform/jotformValidityHelper';
+import { groqValidityHelper } from '../../utils/validators/groq/groqValidityHelper';
 
 // Pagination constants
 const ITEMS_PER_PAGE = 10;
@@ -125,6 +126,8 @@ export const Findings: React.FC = () => {
             dockerValidityHelper(finding);
         } else if (finding.secretType === "JotForm") {
             jotformValidityHelper(finding);
+        } else if (finding.secretType === "Groq") {
+            groqValidityHelper(finding);
         }
     };
 
