@@ -13,6 +13,7 @@ import { DEFAULT_APOLLO_API_KEY_CONFIG } from './detectors/apollo/apollo';
 import { DEFAULT_GCP_SERVICE_ACCOUNT_CONFIG } from './detectors/gcp/gcp';
 import { DEFAULT_DOCKER_CONFIG } from './detectors/docker/docker';
 import { DEFAULT_JOTFORM_CONFIG } from './detectors/jotform/jotform';
+import { DEFAULT_GROQ_CONFIG } from './detectors/groq/groq';
 
 const awsAccessKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_ACCESS_KEY_CONFIG };
 const awsSessionKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_SESSION_KEY_CONFIG };
@@ -412,6 +413,16 @@ export const patterns: PatternsObj = {
         familyName: "JotForm",
         pattern: /\b([0-9A-Za-z]{32})\b/g,
         entropy: DEFAULT_JOTFORM_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Groq API Key": {
+        name: "Groq API Key",
+        familyName: "Groq",
+        pattern: /\b(gsk_[a-zA-Z0-9]{52})\b/g,
+        entropy: DEFAULT_GROQ_CONFIG.requiredEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
         validityEndpoints: [],
