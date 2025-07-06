@@ -10,6 +10,7 @@ import { AzureOpenAIOccurrence } from '../../types/azure_openai';
 import { ApolloOccurrence } from '../../types/apollo';
 import { GcpOccurrence } from '../../types/gcp';
 import { JotFormOccurrence } from '../../types/jotform';
+import { GroqOccurrence } from '../../types/groq';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -23,6 +24,7 @@ import { apolloValidityHelper } from '../../utils/validators/apollo/apolloValidi
 import { gcpValidityHelper } from '../../utils/validators/gcp/gcpValidityHelper';
 import { dockerValidityHelper } from '../../utils/validators/docker/dockerValidityHelper';
 import { jotformValidityHelper } from '../../utils/validators/jotform/jotformValidityHelper';
+import { groqValidityHelper } from '../../utils/validators/groq/groqValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
@@ -41,6 +43,7 @@ jest.mock('../../utils/validators/apollo/apolloValidityHelper');
 jest.mock('../../utils/validators/gcp/gcpValidityHelper');
 jest.mock('../../utils/validators/docker/dockerValidityHelper');
 jest.mock('../../utils/validators/jotform/jotformValidityHelper');
+jest.mock('../../utils/validators/groq/groqValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",
@@ -803,5 +806,56 @@ describe('Occurrences Component', () => {
         fireEvent.click(recheckButton);
 
         expect(dockerValidityHelper).toHaveBeenCalledWith(dockerFinding);
+    });
+
+    test('calls groqValidityHelper on recheck button click for Groq', () => {
+        // Create a Groq finding and occurrence for testing
+        const groqOccurrence = {
+            filePath: "groq-config.js",
+            fingerprint: "groq-fp",
+            type: "API_KEY",
+            secretType: "Groq",
+            secretValue: {
+                match: {
+                    apiKey: "gsk_" + "a".repeat(52)
+                }
+            },
+            url: "https://example.com/groq-config.js",
+            sourceContent: {
+                content: "const groqKey = 'gsk_" + "a".repeat(52) + "';",
+                contentFilename: "groq-config.js",
+                contentStartLineNum: 5,
+                contentEndLineNum: 15,
+                exactMatchNumbers: [10]
+            },
+            validity: "valid"
+        };
+
+        const groqFinding = {
+            fingerprint: "groq-fp",
+            numOccurrences: 1,
+            occurrences: new Set([groqOccurrence]),
+            validity: "valid" as const,
+            validatedAt: "2025-05-30T12:00:00.000Z",
+            secretType: "Groq",
+            secretValue: {
+                match: {
+                    apiKey: "gsk_" + "a".repeat(52)
+                }
+            }
+        };
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: {
+                findings: [groqFinding],
+            },
+        });
+
+        render(<Occurrences filterFingerprint='groq-fp' />);
+
+        const recheckButton = screen.getByLabelText('Recheck validity');
+        fireEvent.click(recheckButton);
+
+        expect(groqValidityHelper).toHaveBeenCalledWith(groqFinding);
     });
 });

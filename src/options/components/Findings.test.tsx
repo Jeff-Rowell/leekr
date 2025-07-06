@@ -13,6 +13,7 @@ import { ApolloOccurrence } from '../../types/apollo';
 import { GcpOccurrence } from '../../types/gcp';
 import { DockerOccurrence } from '../../types/docker';
 import { JotFormOccurrence } from '../../types/jotform';
+import { GroqOccurrence } from '../../types/groq';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -26,6 +27,7 @@ import { apolloValidityHelper } from '../../utils/validators/apollo/apolloValidi
 import { gcpValidityHelper } from '../../utils/validators/gcp/gcpValidityHelper';
 import { dockerValidityHelper } from '../../utils/validators/docker/dockerValidityHelper';
 import { jotformValidityHelper } from '../../utils/validators/jotform/jotformValidityHelper';
+import { groqValidityHelper } from '../../utils/validators/groq/groqValidityHelper';
 import { Findings } from './Findings';
 
 jest.mock('../../popup/AppContext');
@@ -42,6 +44,7 @@ jest.mock('../../utils/validators/apollo/apolloValidityHelper');
 jest.mock('../../utils/validators/gcp/gcpValidityHelper');
 jest.mock('../../utils/validators/docker/dockerValidityHelper');
 jest.mock('../../utils/validators/jotform/jotformValidityHelper');
+jest.mock('../../utils/validators/groq/groqValidityHelper');
 
 const mockAwsValidityHelper = awsValidityHelper as jest.MockedFunction<typeof awsValidityHelper>;
 const mockAwsSessionValidityHelper = awsSessionValidityHelper as jest.MockedFunction<typeof awsSessionValidityHelper>;
@@ -55,6 +58,7 @@ const mockApolloValidityHelper = apolloValidityHelper as jest.MockedFunction<typ
 const mockGcpValidityHelper = gcpValidityHelper as jest.MockedFunction<typeof gcpValidityHelper>;
 const mockDockerValidityHelper = dockerValidityHelper as jest.MockedFunction<typeof dockerValidityHelper>;
 const mockJotformValidityHelper = jotformValidityHelper as jest.MockedFunction<typeof jotformValidityHelper>;
+const mockGroqValidityHelper = groqValidityHelper as jest.MockedFunction<typeof groqValidityHelper>;
 
 const mockChrome = {
     runtime: {
@@ -555,6 +559,40 @@ const mockFindings: Finding[] = [
             validity: "valid"
         }
     },
+    {
+        fingerprint: "fp14",
+        numOccurrences: 1,
+        occurrences: new Set([{
+            filePath: "main.groq.js",
+            fingerprint: "fp14",
+            type: "API_KEY",
+            secretType: "Groq",
+            secretValue: {
+                match: { 
+                    apiKey: "gsk_" + "a".repeat(52)
+                }
+            },
+            sourceContent: {
+                content: "foobar",
+                contentEndLineNum: 35,
+                contentFilename: "App.js",
+                contentStartLineNum: 18,
+                exactMatchNumbers: [23, 30]
+            },
+            url: "http://localhost:3000/static/js/main.groq.js",
+            validity: "valid"
+        } as GroqOccurrence]),
+        validity: "valid",
+        validatedAt: "2025-05-17T18:16:16.870Z",
+        secretType: "Groq",
+        secretValue: {
+            match: { 
+                apiKey: "gsk_" + "a".repeat(52)
+            },
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            validity: "valid"
+        }
+    },
 ];
 
 describe('Findings Component', () => {
@@ -698,7 +736,7 @@ describe('Findings Component', () => {
             const typeFilter = screen.getByLabelText('Secret Type:');
             const options = typeFilter.querySelectorAll('option');
 
-            expect(options).toHaveLength(11); // Added Docker and JotForm
+            expect(options).toHaveLength(12); // Added Docker, JotForm, and Groq
             expect(options[0]).toHaveTextContent('All Types');
             expect(options[1]).toHaveTextContent('AWS Access & Secret Keys');
             expect(options[2]).toHaveTextContent('AWS Session Keys');
@@ -1052,6 +1090,7 @@ describe('Findings Component', () => {
             expect(mockArtifactoryValidityHelper).not.toHaveBeenCalled();
             expect(mockAzureOpenAIValidityHelper).not.toHaveBeenCalled();
             expect(mockJotformValidityHelper).not.toHaveBeenCalled();
+            expect(mockGroqValidityHelper).not.toHaveBeenCalled();
         });
 
         test('handles validity recheck for Artifactory tokens', async () => {
@@ -1520,6 +1559,37 @@ describe('Findings Component', () => {
             fireEvent.click(recheckButton);
 
             expect(mockDockerValidityHelper).toHaveBeenCalledWith(dockerFinding);
+        });
+    });
+
+    describe('Groq Validity Checking', () => {
+        test('calls groqValidityHelper when recheck button is clicked for Groq finding', async () => {
+            const groqFinding = {
+                fingerprint: 'groq-test',
+                numOccurrences: 1,
+                secretType: 'Groq',
+                validity: 'valid' as const,
+                validatedAt: '2025-05-30T12:00:00.000Z',
+                secretValue: { 
+                    match: { 
+                        apiKey: "gsk_" + "a".repeat(52)
+                    } 
+                },
+                occurrences: new Set([])
+            };
+
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: [groqFinding],
+                },
+            });
+
+            render(<Findings />);
+
+            const recheckButton = screen.getByLabelText('Recheck validity');
+            fireEvent.click(recheckButton);
+
+            expect(mockGroqValidityHelper).toHaveBeenCalledWith(groqFinding);
         });
     });
 });
