@@ -11,6 +11,7 @@ import { ApolloDetector } from './apollo/ApolloDetector';
 import { GcpDetector } from './gcp/GcpDetector';
 import { DockerDetector } from './docker/DockerDetector';
 import { JotFormDetector } from './jotform/JotFormDetector';
+import { GroqDetector } from './groq/GroqDetector';
 
 describe('ConcreteDetectorFactory', () => {
     let factory: ConcreteDetectorFactory;
@@ -22,7 +23,7 @@ describe('ConcreteDetectorFactory', () => {
     test('createDetectors returns all detector instances', () => {
         const detectors = factory.createDetectors();
         
-        expect(detectors).toHaveLength(12);
+        expect(detectors).toHaveLength(13);
         expect(detectors[0]).toBeInstanceOf(AwsAccessKeysDetector);
         expect(detectors[1]).toBeInstanceOf(AwsSessionKeysDetector);
         expect(detectors[2]).toBeInstanceOf(AnthropicDetector);
@@ -35,6 +36,7 @@ describe('ConcreteDetectorFactory', () => {
         expect(detectors[9]).toBeInstanceOf(GcpDetector);
         expect(detectors[10]).toBeInstanceOf(DockerDetector);
         expect(detectors[11]).toBeInstanceOf(JotFormDetector);
+        expect(detectors[12]).toBeInstanceOf(GroqDetector);
     });
 
     test('createDetector returns specific detector by type', () => {
@@ -50,6 +52,7 @@ describe('ConcreteDetectorFactory', () => {
         const gcpDetector = factory.createDetector('gcp');
         const dockerDetector = factory.createDetector('docker');
         const jotformDetector = factory.createDetector('jotform');
+        const groqDetector = factory.createDetector('Groq');
 
         expect(awsAccessKeysDetector).toBeInstanceOf(AwsAccessKeysDetector);
         expect(awsSessionKeysDetector).toBeInstanceOf(AwsSessionKeysDetector);
@@ -63,6 +66,7 @@ describe('ConcreteDetectorFactory', () => {
         expect(gcpDetector).toBeInstanceOf(GcpDetector);
         expect(dockerDetector).toBeInstanceOf(DockerDetector);
         expect(jotformDetector).toBeInstanceOf(JotFormDetector);
+        expect(groqDetector).toBeInstanceOf(GroqDetector);
     });
 
     test('createDetector returns undefined for unknown type', () => {
