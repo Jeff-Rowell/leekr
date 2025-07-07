@@ -14,6 +14,7 @@ import { DEFAULT_GCP_SERVICE_ACCOUNT_CONFIG } from './detectors/gcp/gcp';
 import { DEFAULT_DOCKER_CONFIG } from './detectors/docker/docker';
 import { DEFAULT_JOTFORM_CONFIG } from './detectors/jotform/jotform';
 import { DEFAULT_GROQ_CONFIG } from './detectors/groq/groq';
+import { DEFAULT_MAILGUN_CONFIG } from './detectors/mailgun/mailgun';
 
 const awsAccessKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_ACCESS_KEY_CONFIG };
 const awsSessionKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_SESSION_KEY_CONFIG };
@@ -423,6 +424,36 @@ export const patterns: PatternsObj = {
         familyName: "Groq",
         pattern: /\b(gsk_[a-zA-Z0-9]{52})\b/g,
         entropy: DEFAULT_GROQ_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Mailgun Original Token": {
+        name: "Mailgun Original Token",
+        familyName: "Mailgun",
+        pattern: /\b([a-zA-Z0-9-]{72})\b/g,
+        entropy: DEFAULT_MAILGUN_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Mailgun Key Token": {
+        name: "Mailgun Key Token", 
+        familyName: "Mailgun",
+        pattern: /\b(key-[a-z0-9]{32})\b/g,
+        entropy: DEFAULT_MAILGUN_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Mailgun Hex Token": {
+        name: "Mailgun Hex Token",
+        familyName: "Mailgun", 
+        pattern: /\b([a-f0-9]{32}-[a-f0-9]{8}-[a-f0-9]{8})\b/g,
+        entropy: DEFAULT_MAILGUN_CONFIG.requiredEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
         validityEndpoints: [],
