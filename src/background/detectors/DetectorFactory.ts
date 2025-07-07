@@ -12,6 +12,7 @@ import { GcpDetector } from './gcp/GcpDetector';
 import { DockerDetector } from './docker/DockerDetector';
 import { JotFormDetector } from './jotform/JotFormDetector';
 import { GroqDetector } from './groq/GroqDetector';
+import { MailgunDetector } from './mailgun/MailgunDetector';
 
 export class ConcreteDetectorFactory implements DetectorFactory {
     private readonly detectorClasses = [
@@ -27,7 +28,8 @@ export class ConcreteDetectorFactory implements DetectorFactory {
         GcpDetector,
         DockerDetector,
         JotFormDetector,
-        GroqDetector
+        GroqDetector,
+        MailgunDetector
     ];
 
     createDetectors(): SecretDetector[] {
