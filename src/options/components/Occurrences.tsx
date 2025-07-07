@@ -15,6 +15,7 @@ import { gcpValidityHelper } from '../../utils/validators/gcp/gcpValidityHelper'
 import { dockerValidityHelper } from '../../utils/validators/docker/dockerValidityHelper';
 import { jotformValidityHelper } from '../../utils/validators/jotform/jotformValidityHelper';
 import { groqValidityHelper } from '../../utils/validators/groq/groqValidityHelper';
+import { mailgunValidityHelper } from '../../utils/validators/mailgun/mailgunValidityHelper';
 
 
 export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFingerprint }) => {
@@ -64,6 +65,8 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
             jotformValidityHelper(finding);
         } else if (finding.secretType === "Groq") {
             groqValidityHelper(finding);
+        } else if (finding.secretType === "Mailgun") {
+            mailgunValidityHelper(finding);
         }
     };
 

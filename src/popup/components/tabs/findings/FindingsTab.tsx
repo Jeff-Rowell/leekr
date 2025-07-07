@@ -15,6 +15,7 @@ import { gcpValidityHelper } from '../../../../utils/validators/gcp/gcpValidityH
 import { dockerValidityHelper } from '../../../../utils/validators/docker/dockerValidityHelper';
 import { jotformValidityHelper } from '../../../../utils/validators/jotform/jotformValidityHelper';
 import { groqValidityHelper } from '../../../../utils/validators/groq/groqValidityHelper';
+import { mailgunValidityHelper } from '../../../../utils/validators/mailgun/mailgunValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import ModalHeader from '../../modalheader/ModalHeader';
 import './style.css';
@@ -53,6 +54,8 @@ const FindingsTab: React.FC = () => {
             jotformValidityHelper(finding);
         } else if (finding.secretType === "Groq") {
             groqValidityHelper(finding);
+        } else if (finding.secretType === "Mailgun") {
+            mailgunValidityHelper(finding);
         }
     };
 
