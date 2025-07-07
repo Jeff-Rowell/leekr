@@ -14,6 +14,7 @@ import { GcpOccurrence } from '../../types/gcp';
 import { DockerOccurrence } from '../../types/docker';
 import { JotFormOccurrence } from '../../types/jotform';
 import { GroqOccurrence } from '../../types/groq';
+import { MailgunOccurrence } from '../../types/mailgun';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -28,6 +29,7 @@ import { gcpValidityHelper } from '../../utils/validators/gcp/gcpValidityHelper'
 import { dockerValidityHelper } from '../../utils/validators/docker/dockerValidityHelper';
 import { jotformValidityHelper } from '../../utils/validators/jotform/jotformValidityHelper';
 import { groqValidityHelper } from '../../utils/validators/groq/groqValidityHelper';
+import { mailgunValidityHelper } from '../../utils/validators/mailgun/mailgunValidityHelper';
 import { Findings } from './Findings';
 
 jest.mock('../../popup/AppContext');
@@ -45,6 +47,7 @@ jest.mock('../../utils/validators/gcp/gcpValidityHelper');
 jest.mock('../../utils/validators/docker/dockerValidityHelper');
 jest.mock('../../utils/validators/jotform/jotformValidityHelper');
 jest.mock('../../utils/validators/groq/groqValidityHelper');
+jest.mock('../../utils/validators/mailgun/mailgunValidityHelper');
 
 const mockAwsValidityHelper = awsValidityHelper as jest.MockedFunction<typeof awsValidityHelper>;
 const mockAwsSessionValidityHelper = awsSessionValidityHelper as jest.MockedFunction<typeof awsSessionValidityHelper>;
@@ -59,6 +62,7 @@ const mockGcpValidityHelper = gcpValidityHelper as jest.MockedFunction<typeof gc
 const mockDockerValidityHelper = dockerValidityHelper as jest.MockedFunction<typeof dockerValidityHelper>;
 const mockJotformValidityHelper = jotformValidityHelper as jest.MockedFunction<typeof jotformValidityHelper>;
 const mockGroqValidityHelper = groqValidityHelper as jest.MockedFunction<typeof groqValidityHelper>;
+const mockMailgunValidityHelper = mailgunValidityHelper as jest.MockedFunction<typeof mailgunValidityHelper>;
 
 const mockChrome = {
     runtime: {
@@ -593,6 +597,40 @@ const mockFindings: Finding[] = [
             validity: "valid"
         }
     },
+    {
+        fingerprint: "fp15",
+        numOccurrences: 1,
+        occurrences: new Set([{
+            filePath: "main.mailgun.js",
+            fingerprint: "fp15",
+            type: "Mailgun API Key",
+            secretType: "Mailgun",
+            secretValue: {
+                match: { 
+                    apiKey: "key-" + "a".repeat(32)
+                }
+            },
+            sourceContent: {
+                content: "foobar",
+                contentEndLineNum: 35,
+                contentFilename: "App.js",
+                contentStartLineNum: 18,
+                exactMatchNumbers: [23, 30]
+            },
+            url: "http://localhost:3000/static/js/main.mailgun.js",
+            validity: "valid"
+        } as MailgunOccurrence]),
+        validity: "valid",
+        validatedAt: "2025-05-17T18:16:16.870Z",
+        secretType: "Mailgun",
+        secretValue: {
+            match: { 
+                apiKey: "key-" + "a".repeat(32)
+            },
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            validity: "valid"
+        }
+    },
 ];
 
 describe('Findings Component', () => {
@@ -736,7 +774,7 @@ describe('Findings Component', () => {
             const typeFilter = screen.getByLabelText('Secret Type:');
             const options = typeFilter.querySelectorAll('option');
 
-            expect(options).toHaveLength(12); // Added Docker, JotForm, and Groq
+            expect(options).toHaveLength(13); // Added Docker, JotForm, Groq, and Mailgun
             expect(options[0]).toHaveTextContent('All Types');
             expect(options[1]).toHaveTextContent('AWS Access & Secret Keys');
             expect(options[2]).toHaveTextContent('AWS Session Keys');
@@ -1091,6 +1129,7 @@ describe('Findings Component', () => {
             expect(mockAzureOpenAIValidityHelper).not.toHaveBeenCalled();
             expect(mockJotformValidityHelper).not.toHaveBeenCalled();
             expect(mockGroqValidityHelper).not.toHaveBeenCalled();
+            expect(mockMailgunValidityHelper).not.toHaveBeenCalled();
         });
 
         test('handles validity recheck for Artifactory tokens', async () => {
@@ -1590,6 +1629,33 @@ describe('Findings Component', () => {
             fireEvent.click(recheckButton);
 
             expect(mockGroqValidityHelper).toHaveBeenCalledWith(groqFinding);
+        });
+    });
+
+    describe('Mailgun Validity Checking', () => {
+        test('calls mailgunValidityHelper when recheck button is clicked for Mailgun finding', async () => {
+            const mailgunFinding = {
+                fingerprint: 'mailgun-test',
+                numOccurrences: 1,
+                secretType: 'Mailgun',
+                validity: 'valid' as const,
+                validatedAt: '2025-05-30T12:00:00.000Z',
+                secretValue: { match: { apiKey: 'key-' + 'a'.repeat(32) } },
+                occurrences: new Set([])
+            };
+
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: [mailgunFinding],
+                },
+            });
+
+            render(<Findings />);
+
+            const recheckButton = screen.getByLabelText('Recheck validity');
+            fireEvent.click(recheckButton);
+
+            expect(mockMailgunValidityHelper).toHaveBeenCalledWith(mailgunFinding);
         });
     });
 });

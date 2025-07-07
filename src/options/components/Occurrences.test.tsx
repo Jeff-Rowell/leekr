@@ -11,6 +11,7 @@ import { ApolloOccurrence } from '../../types/apollo';
 import { GcpOccurrence } from '../../types/gcp';
 import { JotFormOccurrence } from '../../types/jotform';
 import { GroqOccurrence } from '../../types/groq';
+import { MailgunOccurrence } from '../../types/mailgun';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -25,6 +26,7 @@ import { gcpValidityHelper } from '../../utils/validators/gcp/gcpValidityHelper'
 import { dockerValidityHelper } from '../../utils/validators/docker/dockerValidityHelper';
 import { jotformValidityHelper } from '../../utils/validators/jotform/jotformValidityHelper';
 import { groqValidityHelper } from '../../utils/validators/groq/groqValidityHelper';
+import { mailgunValidityHelper } from '../../utils/validators/mailgun/mailgunValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
@@ -44,6 +46,7 @@ jest.mock('../../utils/validators/gcp/gcpValidityHelper');
 jest.mock('../../utils/validators/docker/dockerValidityHelper');
 jest.mock('../../utils/validators/jotform/jotformValidityHelper');
 jest.mock('../../utils/validators/groq/groqValidityHelper');
+jest.mock('../../utils/validators/mailgun/mailgunValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",
@@ -403,6 +406,40 @@ const mockFindings: Finding[] = [
             validatedAt: "2025-05-17T18:16:16.870Z",
             validity: "valid"
         }
+    },
+    {
+        fingerprint: "fp16",
+        numOccurrences: 1,
+        occurrences: new Set([{
+            filePath: "mailgun-config.js",
+            fingerprint: "fp16",
+            type: "Mailgun API Key",
+            secretType: "Mailgun",
+            secretValue: {
+                match: { 
+                    apiKey: "key-" + "a".repeat(32)
+                }
+            },
+            sourceContent: {
+                content: "mailgunfoobar\n".repeat(18),
+                contentEndLineNum: 35,
+                contentFilename: "MailgunApp.js",
+                contentStartLineNum: 18,
+                exactMatchNumbers: [23, 30]
+            },
+            url: "http://localhost:3000/static/js/mailgun.foobar.js",
+            validity: "valid"
+        } as MailgunOccurrence]),
+        validity: "valid",
+        validatedAt: "2025-05-13T18:16:16.870Z",
+        secretType: "Mailgun",
+        secretValue: {
+            match: { 
+                apiKey: "key-" + "a".repeat(32)
+            },
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            validity: "valid"
+        }
     }
 ]
 
@@ -604,6 +641,7 @@ describe('Occurrences Component', () => {
         expect(geminiValidityHelper).not.toHaveBeenCalled();
         expect(azureOpenAIValidityHelper).not.toHaveBeenCalled();
         expect(jotformValidityHelper).not.toHaveBeenCalled();
+        expect(mailgunValidityHelper).not.toHaveBeenCalled();
     });
 
     test('clicking download source code button calls URL.createObjectURL', () => {
@@ -857,5 +895,56 @@ describe('Occurrences Component', () => {
         fireEvent.click(recheckButton);
 
         expect(groqValidityHelper).toHaveBeenCalledWith(groqFinding);
+    });
+
+    test('calls mailgunValidityHelper on recheck button click for Mailgun', () => {
+        // Create a Mailgun finding and occurrence for testing
+        const mailgunOccurrence = {
+            filePath: "mailgun-config.js",
+            fingerprint: "mailgun-fp",
+            type: "Mailgun API Key",
+            secretType: "Mailgun",
+            secretValue: {
+                match: {
+                    apiKey: "key-" + "a".repeat(32)
+                }
+            },
+            url: "https://example.com/mailgun-config.js",
+            sourceContent: {
+                content: "const mailgunKey = 'key-" + "a".repeat(32) + "';",
+                contentFilename: "mailgun-config.js",
+                contentStartLineNum: 5,
+                contentEndLineNum: 15,
+                exactMatchNumbers: [10]
+            },
+            validity: "valid"
+        };
+
+        const mailgunFinding = {
+            fingerprint: "mailgun-fp",
+            numOccurrences: 1,
+            occurrences: new Set([mailgunOccurrence]),
+            validity: "valid" as const,
+            validatedAt: "2025-05-30T12:00:00.000Z",
+            secretType: "Mailgun",
+            secretValue: {
+                match: {
+                    apiKey: "key-" + "a".repeat(32)
+                }
+            }
+        };
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: {
+                findings: [mailgunFinding],
+            },
+        });
+
+        render(<Occurrences filterFingerprint='mailgun-fp' />);
+
+        const recheckButton = screen.getByLabelText('Recheck validity');
+        fireEvent.click(recheckButton);
+
+        expect(mailgunValidityHelper).toHaveBeenCalledWith(mailgunFinding);
     });
 });
