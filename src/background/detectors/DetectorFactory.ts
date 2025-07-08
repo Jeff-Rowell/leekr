@@ -13,6 +13,7 @@ import { DockerDetector } from './docker/DockerDetector';
 import { JotFormDetector } from './jotform/JotFormDetector';
 import { GroqDetector } from './groq/GroqDetector';
 import { MailgunDetector } from './mailgun/MailgunDetector';
+import { MailchimpDetector } from './mailchimp/MailchimpDetector';
 
 export class ConcreteDetectorFactory implements DetectorFactory {
     private readonly detectorClasses = [
@@ -29,7 +30,8 @@ export class ConcreteDetectorFactory implements DetectorFactory {
         DockerDetector,
         JotFormDetector,
         GroqDetector,
-        MailgunDetector
+        MailgunDetector,
+        MailchimpDetector
     ];
 
     createDetectors(): SecretDetector[] {
