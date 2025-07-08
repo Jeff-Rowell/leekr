@@ -15,6 +15,7 @@ import { DEFAULT_DOCKER_CONFIG } from './detectors/docker/docker';
 import { DEFAULT_JOTFORM_CONFIG } from './detectors/jotform/jotform';
 import { DEFAULT_GROQ_CONFIG } from './detectors/groq/groq';
 import { DEFAULT_MAILGUN_CONFIG } from './detectors/mailgun/mailgun';
+import { DEFAULT_MAILCHIMP_CONFIG } from './detectors/mailchimp/mailchimp';
 
 const awsAccessKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_ACCESS_KEY_CONFIG };
 const awsSessionKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_SESSION_KEY_CONFIG };
@@ -454,6 +455,16 @@ export const patterns: PatternsObj = {
         familyName: "Mailgun", 
         pattern: /\b([a-f0-9]{32}-[a-f0-9]{8}-[a-f0-9]{8})\b/g,
         entropy: DEFAULT_MAILGUN_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Mailchimp API Key": {
+        name: "Mailchimp API Key",
+        familyName: "Mailchimp",
+        pattern: /\b([0-9a-f]{32}-us[0-9]{1,2})\b/g,
+        entropy: DEFAULT_MAILCHIMP_CONFIG.requiredEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
         validityEndpoints: [],
