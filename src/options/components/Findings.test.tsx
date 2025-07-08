@@ -15,6 +15,7 @@ import { DockerOccurrence } from '../../types/docker';
 import { JotFormOccurrence } from '../../types/jotform';
 import { GroqOccurrence } from '../../types/groq';
 import { MailgunOccurrence } from '../../types/mailgun';
+import { MailchimpOccurrence } from '../../types/mailchimp';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -30,6 +31,7 @@ import { dockerValidityHelper } from '../../utils/validators/docker/dockerValidi
 import { jotformValidityHelper } from '../../utils/validators/jotform/jotformValidityHelper';
 import { groqValidityHelper } from '../../utils/validators/groq/groqValidityHelper';
 import { mailgunValidityHelper } from '../../utils/validators/mailgun/mailgunValidityHelper';
+import { mailchimpValidityHelper } from '../../utils/validators/mailchimp/mailchimpValidityHelper';
 import { Findings } from './Findings';
 
 jest.mock('../../popup/AppContext');
@@ -48,6 +50,7 @@ jest.mock('../../utils/validators/docker/dockerValidityHelper');
 jest.mock('../../utils/validators/jotform/jotformValidityHelper');
 jest.mock('../../utils/validators/groq/groqValidityHelper');
 jest.mock('../../utils/validators/mailgun/mailgunValidityHelper');
+jest.mock('../../utils/validators/mailchimp/mailchimpValidityHelper');
 
 const mockAwsValidityHelper = awsValidityHelper as jest.MockedFunction<typeof awsValidityHelper>;
 const mockAwsSessionValidityHelper = awsSessionValidityHelper as jest.MockedFunction<typeof awsSessionValidityHelper>;
@@ -63,6 +66,7 @@ const mockDockerValidityHelper = dockerValidityHelper as jest.MockedFunction<typ
 const mockJotformValidityHelper = jotformValidityHelper as jest.MockedFunction<typeof jotformValidityHelper>;
 const mockGroqValidityHelper = groqValidityHelper as jest.MockedFunction<typeof groqValidityHelper>;
 const mockMailgunValidityHelper = mailgunValidityHelper as jest.MockedFunction<typeof mailgunValidityHelper>;
+const mockMailchimpValidityHelper = mailchimpValidityHelper as jest.MockedFunction<typeof mailchimpValidityHelper>;
 
 const mockChrome = {
     runtime: {
@@ -1656,6 +1660,33 @@ describe('Findings Component', () => {
             fireEvent.click(recheckButton);
 
             expect(mockMailgunValidityHelper).toHaveBeenCalledWith(mailgunFinding);
+        });
+    });
+
+    describe('Mailchimp Validity Checking', () => {
+        test('calls mailchimpValidityHelper when recheck button is clicked for Mailchimp finding', async () => {
+            const mailchimpFinding = {
+                fingerprint: 'mailchimp-test',
+                numOccurrences: 1,
+                secretType: 'Mailchimp',
+                validity: 'valid' as const,
+                validatedAt: '2025-05-30T12:00:00.000Z',
+                secretValue: { match: { apiKey: 'abcd1234567890abcd1234567890abcd-us12' } },
+                occurrences: new Set([])
+            };
+
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: [mailchimpFinding],
+                },
+            });
+
+            render(<Findings />);
+
+            const recheckButton = screen.getByLabelText('Recheck validity');
+            fireEvent.click(recheckButton);
+
+            expect(mockMailchimpValidityHelper).toHaveBeenCalledWith(mailchimpFinding);
         });
     });
 });

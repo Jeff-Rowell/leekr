@@ -12,6 +12,7 @@ import { GcpOccurrence } from '../../types/gcp';
 import { JotFormOccurrence } from '../../types/jotform';
 import { GroqOccurrence } from '../../types/groq';
 import { MailgunOccurrence } from '../../types/mailgun';
+import { MailchimpOccurrence } from '../../types/mailchimp';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -27,6 +28,7 @@ import { dockerValidityHelper } from '../../utils/validators/docker/dockerValidi
 import { jotformValidityHelper } from '../../utils/validators/jotform/jotformValidityHelper';
 import { groqValidityHelper } from '../../utils/validators/groq/groqValidityHelper';
 import { mailgunValidityHelper } from '../../utils/validators/mailgun/mailgunValidityHelper';
+import { mailchimpValidityHelper } from '../../utils/validators/mailchimp/mailchimpValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
@@ -47,6 +49,7 @@ jest.mock('../../utils/validators/docker/dockerValidityHelper');
 jest.mock('../../utils/validators/jotform/jotformValidityHelper');
 jest.mock('../../utils/validators/groq/groqValidityHelper');
 jest.mock('../../utils/validators/mailgun/mailgunValidityHelper');
+jest.mock('../../utils/validators/mailchimp/mailchimpValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",
@@ -946,5 +949,56 @@ describe('Occurrences Component', () => {
         fireEvent.click(recheckButton);
 
         expect(mailgunValidityHelper).toHaveBeenCalledWith(mailgunFinding);
+    });
+
+    test('calls mailchimpValidityHelper on recheck button click for Mailchimp', () => {
+        // Create a Mailchimp finding and occurrence for testing
+        const mailchimpOccurrence = {
+            filePath: "mailchimp-config.js",
+            fingerprint: "mailchimp-fp",
+            type: "Mailchimp API Key",
+            secretType: "Mailchimp",
+            secretValue: {
+                match: {
+                    apiKey: "abcd1234567890abcd1234567890abcd-us12"
+                }
+            },
+            url: "https://example.com/mailchimp-config.js",
+            sourceContent: {
+                content: "const mailchimpKey = 'abcd1234567890abcd1234567890abcd-us12';",
+                contentFilename: "mailchimp-config.js",
+                contentStartLineNum: 5,
+                contentEndLineNum: 15,
+                exactMatchNumbers: [10]
+            },
+            validity: "valid"
+        };
+
+        const mailchimpFinding = {
+            fingerprint: "mailchimp-fp",
+            numOccurrences: 1,
+            occurrences: new Set([mailchimpOccurrence]),
+            validity: "valid" as const,
+            validatedAt: "2025-05-30T12:00:00.000Z",
+            secretType: "Mailchimp",
+            secretValue: {
+                match: {
+                    apiKey: "abcd1234567890abcd1234567890abcd-us12"
+                }
+            }
+        };
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: {
+                findings: [mailchimpFinding],
+            },
+        });
+
+        render(<Occurrences filterFingerprint='mailchimp-fp' />);
+
+        const recheckButton = screen.getByLabelText('Recheck validity');
+        fireEvent.click(recheckButton);
+
+        expect(mailchimpValidityHelper).toHaveBeenCalledWith(mailchimpFinding);
     });
 });
