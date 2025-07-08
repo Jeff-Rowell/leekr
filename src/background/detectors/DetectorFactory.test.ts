@@ -13,6 +13,7 @@ import { DockerDetector } from './docker/DockerDetector';
 import { JotFormDetector } from './jotform/JotFormDetector';
 import { GroqDetector } from './groq/GroqDetector';
 import { MailgunDetector } from './mailgun/MailgunDetector';
+import { MailchimpDetector } from './mailchimp/MailchimpDetector';
 
 describe('ConcreteDetectorFactory', () => {
     let factory: ConcreteDetectorFactory;
@@ -24,7 +25,7 @@ describe('ConcreteDetectorFactory', () => {
     test('createDetectors returns all detector instances', () => {
         const detectors = factory.createDetectors();
         
-        expect(detectors).toHaveLength(14);
+        expect(detectors).toHaveLength(15);
         expect(detectors[0]).toBeInstanceOf(AwsAccessKeysDetector);
         expect(detectors[1]).toBeInstanceOf(AwsSessionKeysDetector);
         expect(detectors[2]).toBeInstanceOf(AnthropicDetector);
@@ -39,6 +40,7 @@ describe('ConcreteDetectorFactory', () => {
         expect(detectors[11]).toBeInstanceOf(JotFormDetector);
         expect(detectors[12]).toBeInstanceOf(GroqDetector);
         expect(detectors[13]).toBeInstanceOf(MailgunDetector);
+        expect(detectors[14]).toBeInstanceOf(MailchimpDetector);
     });
 
     test('createDetector returns specific detector by type', () => {
@@ -56,6 +58,7 @@ describe('ConcreteDetectorFactory', () => {
         const jotformDetector = factory.createDetector('jotform');
         const groqDetector = factory.createDetector('Groq');
         const mailgunDetector = factory.createDetector('Mailgun');
+        const mailchimpDetector = factory.createDetector('Mailchimp');
 
         expect(awsAccessKeysDetector).toBeInstanceOf(AwsAccessKeysDetector);
         expect(awsSessionKeysDetector).toBeInstanceOf(AwsSessionKeysDetector);
@@ -71,6 +74,7 @@ describe('ConcreteDetectorFactory', () => {
         expect(jotformDetector).toBeInstanceOf(JotFormDetector);
         expect(groqDetector).toBeInstanceOf(GroqDetector);
         expect(mailgunDetector).toBeInstanceOf(MailgunDetector);
+        expect(mailchimpDetector).toBeInstanceOf(MailchimpDetector);
     });
 
     test('createDetector returns undefined for unknown type', () => {
