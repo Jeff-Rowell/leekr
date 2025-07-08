@@ -25,6 +25,7 @@ import { dockerValidityHelper } from '../../utils/validators/docker/dockerValidi
 import { jotformValidityHelper } from '../../utils/validators/jotform/jotformValidityHelper';
 import { groqValidityHelper } from '../../utils/validators/groq/groqValidityHelper';
 import { mailgunValidityHelper } from '../../utils/validators/mailgun/mailgunValidityHelper';
+import { mailchimpValidityHelper } from '../../utils/validators/mailchimp/mailchimpValidityHelper';
 
 // Pagination constants
 const ITEMS_PER_PAGE = 10;
@@ -131,6 +132,8 @@ export const Findings: React.FC = () => {
             groqValidityHelper(finding);
         } else if (finding.secretType === "Mailgun") {
             mailgunValidityHelper(finding);
+        } else if (finding.secretType === "Mailchimp") {
+            mailchimpValidityHelper(finding);
         }
     };
 

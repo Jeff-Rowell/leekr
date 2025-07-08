@@ -16,6 +16,7 @@ import { dockerValidityHelper } from '../../../../utils/validators/docker/docker
 import { jotformValidityHelper } from '../../../../utils/validators/jotform/jotformValidityHelper';
 import { groqValidityHelper } from '../../../../utils/validators/groq/groqValidityHelper';
 import { mailgunValidityHelper } from '../../../../utils/validators/mailgun/mailgunValidityHelper';
+import { mailchimpValidityHelper } from '../../../../utils/validators/mailchimp/mailchimpValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import ModalHeader from '../../modalheader/ModalHeader';
 import './style.css';
@@ -56,6 +57,8 @@ const FindingsTab: React.FC = () => {
             groqValidityHelper(finding);
         } else if (finding.secretType === "Mailgun") {
             mailgunValidityHelper(finding);
+        } else if (finding.secretType === "Mailchimp") {
+            mailchimpValidityHelper(finding);
         }
     };
 
