@@ -1051,17 +1051,19 @@ describe('FindingsTab', () => {
         });
     });
 
-    test('handles sendMessage rejection in useEffect catch block', () => {
+    test('handles sendMessage rejection in useEffect catch block', async () => {
         const mockError = new Error('Connection failed');
         (chrome.runtime.sendMessage as jest.Mock).mockReturnValue(Promise.reject(mockError));
 
         render(<FindingsTab />);
 
-        expect(chrome.action.setBadgeText).toHaveBeenCalledWith({ text: '' });
-        expect(chrome.storage.local.set).toHaveBeenCalledWith({ "notifications": '' }, expect.any(Function));
-        expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({
-            type: 'CLEAR_NOTIFICATIONS',
-            payload: ''
+        await waitFor(() => {
+            expect(chrome.action.setBadgeText).toHaveBeenCalledWith({ text: '' });
+            expect(chrome.storage.local.set).toHaveBeenCalledWith({ "notifications": '' }, expect.any(Function));
+            expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({
+                type: 'CLEAR_NOTIFICATIONS',
+                payload: ''
+            });
         });
     });
 
@@ -1241,5 +1243,66 @@ describe('FindingsTab', () => {
         
         // Verify mailchimp validity helper was called
         expect(mailchimpValidityHelper).toHaveBeenCalledWith(mockFindings[17]);
+    });
+
+    test('renders recheck all button when findings exist', () => {
+        render(<FindingsTab />);
+        
+        // Check that the recheck all button is rendered
+        const recheckAllButton = screen.getByLabelText('Recheck all findings');
+        expect(recheckAllButton).toBeInTheDocument();
+    });
+
+    test('does not render recheck all button when no findings exist', () => {
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: { findings: [] }
+        });
+
+        render(<FindingsTab />);
+        
+        // Check that the recheck all button is not rendered
+        const recheckAllButton = screen.queryByLabelText('Recheck all findings');
+        expect(recheckAllButton).not.toBeInTheDocument();
+    });
+
+    test('calls handleRecheckAll when recheck all button is clicked', async () => {
+        render(<FindingsTab />);
+        
+        // Find and click the recheck all button
+        const recheckAllButton = screen.getByLabelText('Recheck all findings');
+        fireEvent.click(recheckAllButton);
+        
+        // Wait for all validity helpers to be called
+        await waitFor(() => {
+            // Check that awsValidityHelper was called for all AWS Access & Secret Keys findings
+            expect(awsValidityHelper).toHaveBeenCalledWith(mockFindings[0]);
+            expect(awsValidityHelper).toHaveBeenCalledWith(mockFindings[1]);
+            expect(awsValidityHelper).toHaveBeenCalledWith(mockFindings[2]);
+            expect(awsValidityHelper).toHaveBeenCalledWith(mockFindings[3]);
+            
+            // Check individual service validity helpers
+            expect(awsSessionValidityHelper).toHaveBeenCalledWith(mockFindings[4]);
+            expect(anthropicValidityHelper).toHaveBeenCalledWith(mockFindings[5]);
+            expect(openaiValidityHelper).toHaveBeenCalledWith(mockFindings[6]);
+            expect(geminiValidityHelper).toHaveBeenCalledWith(mockFindings[7]);
+            expect(huggingfaceValidityHelper).toHaveBeenCalledWith(mockFindings[8]);
+            expect(artifactoryValidityHelper).toHaveBeenCalledWith(mockFindings[9]);
+            expect(azureOpenAIValidityHelper).toHaveBeenCalledWith(mockFindings[10]);
+            expect(apolloValidityHelper).toHaveBeenCalledWith(mockFindings[11]);
+            expect(gcpValidityHelper).toHaveBeenCalledWith(mockFindings[12]);
+            expect(dockerValidityHelper).toHaveBeenCalledWith(mockFindings[13]);
+            expect(jotformValidityHelper).toHaveBeenCalledWith(mockFindings[14]);
+            expect(groqValidityHelper).toHaveBeenCalledWith(mockFindings[15]);
+            expect(mailgunValidityHelper).toHaveBeenCalledWith(mockFindings[16]);
+            expect(mailchimpValidityHelper).toHaveBeenCalledWith(mockFindings[17]);
+        });
+    });
+
+    test('renders tooltip icon and text for recheck all button', () => {
+        render(<FindingsTab />);
+        
+        // Check that the tooltip text is rendered
+        const tooltipText = screen.getByText('Recheck the validity of all findings');
+        expect(tooltipText).toBeInTheDocument();
     });
 });

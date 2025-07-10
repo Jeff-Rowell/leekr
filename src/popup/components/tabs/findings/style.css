@@ -2,7 +2,7 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    padding: 4px 16px 16px;
+    padding: 4px 16px 8px;
     background-color: var(--color-bg-dark);
     overflow: hidden;
 }
@@ -12,10 +12,10 @@
 }
 
 .findings-section {
-    margin-bottom: 24px;
+    margin-bottom: 8px;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    padding: 4px 4px 16px;
+    padding: 4px 4px 8px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -38,7 +38,7 @@
 .findings-table-container {
     overflow-x: auto;
     overflow-y: auto;
-    max-height: 340px;
+    max-height: 320px;
     border-radius: 6px;
 
     /* Firefox scrollbar */
@@ -195,4 +195,65 @@
     justify-content: center;
     align-items: center;
     width: 100%;
+}
+
+/* Recheck All button styles for header */
+.recheck-all-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.recheck-all-button-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 1px solid var(--color-link-text-border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.recheck-all-button-header:hover {
+    background-color: var(--color-bg-hover);
+}
+
+.recheck-icon {
+    width: 16px;
+    height: 16px;
+    opacity: .8;
+    color: var(--color-link-text);
+    text-decoration: none;
+}
+
+.recheck-icon:hover {
+    opacity: 1;
+}
+
+/* Override tooltip positioning for header */
+.recheck-all-button-header .tooltip-text {
+    top: 100%;
+    bottom: auto;
+    right: 0;
+    left: auto;
+    transform: none;
+    margin-top: 8px;
+    margin-left: 0;
+    z-index: 9999;
+    width: 220px;
+    position: absolute;
+}
+
+.recheck-all-button-header .tooltip-text::after {
+    top: -5px;
+    bottom: auto;
+    right: 20px;
+    left: auto;
+    transform: none;
+    margin-left: 0;
+    border-color: transparent transparent #242429 transparent;
 }

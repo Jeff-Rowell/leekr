@@ -62,6 +62,12 @@ const FindingsTab: React.FC = () => {
         }
     };
 
+    const handleRecheckAll = async () => {
+        for (const finding of findings) {
+            await handleValidityCheck(finding);
+        }
+    };
+
     React.useEffect(() => {
         chrome.action.setBadgeText({ text: '' });
         chrome.storage.local.set({ "notifications": '' }, function () {
@@ -166,7 +172,22 @@ const FindingsTab: React.FC = () => {
                                 <th>Type</th>
                                 <th>Validity</th>
                                 <th>Occurrences</th>
-                                <th>{/* Empty header for settings column */}</th>
+                                <th>
+                                    {findings.length > 0 && (
+                                        <div className="recheck-all-header">
+                                            <button
+                                                className="recheck-all-button-header tooltip"
+                                                onClick={handleRecheckAll}
+                                                aria-label="Recheck all findings"
+                                            >
+                                                <RotateCw size={16} className="recheck-icon" />
+                                                <span className="tooltip-text">
+                                                    Recheck the validity of all findings
+                                                </span>
+                                            </button>
+                                        </div>
+                                    )}
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
