@@ -15,6 +15,7 @@ import { GroqDetector } from './groq/GroqDetector';
 import { MailgunDetector } from './mailgun/MailgunDetector';
 import { MailchimpDetector } from './mailchimp/MailchimpDetector';
 import { DeepSeekDetector } from './deepseek/DeepSeekDetector';
+import { DeepAIDetector } from './deepai/DeepAIDetector';
 
 export class ConcreteDetectorFactory implements DetectorFactory {
     private readonly detectorClasses = [
@@ -33,7 +34,8 @@ export class ConcreteDetectorFactory implements DetectorFactory {
         GroqDetector,
         MailgunDetector,
         MailchimpDetector,
-        DeepSeekDetector
+        DeepSeekDetector,
+        DeepAIDetector
     ];
 
     createDetectors(): SecretDetector[] {
