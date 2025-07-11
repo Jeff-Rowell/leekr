@@ -14,6 +14,7 @@ import { GroqOccurrence } from '../../types/groq';
 import { MailgunOccurrence } from '../../types/mailgun';
 import { MailchimpOccurrence } from '../../types/mailchimp';
 import { DeepSeekOccurrence } from '../../types/deepseek';
+import { DeepAIOccurrence } from '../../types/deepai';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -31,6 +32,7 @@ import { groqValidityHelper } from '../../utils/validators/groq/groqValidityHelp
 import { mailgunValidityHelper } from '../../utils/validators/mailgun/mailgunValidityHelper';
 import { mailchimpValidityHelper } from '../../utils/validators/mailchimp/mailchimpValidityHelper';
 import { deepseekValidityHelper } from '../../utils/validators/deepseek/deepseekValidityHelper';
+import { deepaiValidityHelper } from '../../utils/validators/deepai/deepaiValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
@@ -53,6 +55,7 @@ jest.mock('../../utils/validators/groq/groqValidityHelper');
 jest.mock('../../utils/validators/mailgun/mailgunValidityHelper');
 jest.mock('../../utils/validators/mailchimp/mailchimpValidityHelper');
 jest.mock('../../utils/validators/deepseek/deepseekValidityHelper');
+jest.mock('../../utils/validators/deepai/deepaiValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",
@@ -1055,5 +1058,56 @@ describe('Occurrences Component', () => {
         fireEvent.click(recheckButton);
 
         expect(deepseekValidityHelper).toHaveBeenCalledWith(deepseekFinding);
+    });
+
+    test('calls deepaiValidityHelper on recheck button click for DeepAI', () => {
+        // Create a DeepAI finding and occurrence for testing
+        const deepaiOccurrence = {
+            filePath: "deepai-config.js",
+            fingerprint: "deepai-fp",
+            type: "API Key",
+            secretType: "DeepAI",
+            secretValue: {
+                match: {
+                    apiKey: "abcd1234-5678-90ab-cdef-123456789012"
+                }
+            },
+            url: "https://example.com/deepai-config.js",
+            sourceContent: {
+                content: "const deepaiKey = 'abcd1234-5678-90ab-cdef-123456789012';",
+                contentFilename: "deepai-config.js",
+                contentStartLineNum: 5,
+                contentEndLineNum: 15,
+                exactMatchNumbers: [10]
+            },
+            validity: "valid"
+        };
+
+        const deepaiFinding = {
+            fingerprint: "deepai-fp",
+            numOccurrences: 1,
+            occurrences: new Set([deepaiOccurrence]),
+            validity: "valid" as const,
+            validatedAt: "2025-05-30T12:00:00.000Z",
+            secretType: "DeepAI",
+            secretValue: {
+                match: {
+                    apiKey: "abcd1234-5678-90ab-cdef-123456789012"
+                }
+            }
+        };
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: {
+                findings: [deepaiFinding],
+            },
+        });
+
+        render(<Occurrences filterFingerprint='deepai-fp' />);
+
+        const recheckButton = screen.getByLabelText('Recheck validity');
+        fireEvent.click(recheckButton);
+
+        expect(deepaiValidityHelper).toHaveBeenCalledWith(deepaiFinding);
     });
 });

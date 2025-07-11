@@ -14,6 +14,7 @@ import { GroqOccurrence } from 'src/types/groq';
 import { MailgunOccurrence } from 'src/types/mailgun';
 import { MailchimpOccurrence } from 'src/types/mailchimp';
 import { DeepSeekOccurrence } from 'src/types/deepseek';
+import { DeepAIOccurrence } from 'src/types/deepai';
 import { Finding, Occurrence } from 'src/types/findings.types';
 import { retrieveFindings, storeFindings } from '../../../../utils/helpers/common';
 import { awsValidityHelper } from '../../../../utils/validators/aws/aws_access_keys/awsValidityHelper';
@@ -32,6 +33,7 @@ import { groqValidityHelper } from '../../../../utils/validators/groq/groqValidi
 import { mailgunValidityHelper } from '../../../../utils/validators/mailgun/mailgunValidityHelper';
 import { mailchimpValidityHelper } from '../../../../utils/validators/mailchimp/mailchimpValidityHelper';
 import { deepseekValidityHelper } from '../../../../utils/validators/deepseek/deepseekValidityHelper';
+import { deepaiValidityHelper } from '../../../../utils/validators/deepai/deepaiValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import FindingsTab from './FindingsTab';
 
@@ -101,6 +103,10 @@ jest.mock('../../../../utils/validators/mailchimp/mailchimpValidityHelper', () =
 
 jest.mock('../../../../utils/validators/deepseek/deepseekValidityHelper', () => ({
     deepseekValidityHelper: jest.fn(),
+}));
+
+jest.mock('../../../../utils/validators/deepai/deepaiValidityHelper', () => ({
+    deepaiValidityHelper: jest.fn(),
 }));
 
 jest.mock('../../../../utils/helpers/common', () => ({
@@ -387,6 +393,28 @@ describe('FindingsTab', () => {
     };
 
     const mockDeepSeekOccurrences: Set<Occurrence> = new Set([mockDeepSeekOccurrence]);
+
+    const mockDeepAIOccurrence: DeepAIOccurrence = {
+        filePath: "main.deepai.js",
+        fingerprint: "fp20",
+        type: "API Key",
+        secretType: "DeepAI",
+        secretValue: {
+            match: { 
+                apiKey: "abcd1234-5678-90ab-cdef-123456789012"
+            }
+        },
+        sourceContent: {
+            content: 'const apiKey = "abcd1234-5678-90ab-cdef-123456789012";',
+            contentFilename: "main.deepai.js",
+            contentStartLineNum: 5,
+            contentEndLineNum: 5,
+            exactMatchNumbers: [15, 51]
+        },
+        url: "http://localhost:3000/static/js/main.deepai.js"
+    };
+
+    const mockDeepAIOccurrences: Set<Occurrence> = new Set([mockDeepAIOccurrence]);
 
     const mockFindings: Finding[] = [
         {
@@ -828,6 +856,21 @@ describe('FindingsTab', () => {
                 validity: "valid"
             }
         },
+        {
+            fingerprint: "fp20",
+            numOccurrences: mockDeepAIOccurrences.size,
+            occurrences: mockDeepAIOccurrences,
+            validity: "valid",
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            secretType: "DeepAI",
+            secretValue: {
+                match: { 
+                    apiKey: "abcd1234-5678-90ab-cdef-123456789012"
+                },
+                validatedAt: "2025-05-17T18:16:16.870Z",
+                validity: "valid"
+            }
+        },
     ];
 
     beforeEach(() => {
@@ -907,14 +950,14 @@ describe('FindingsTab', () => {
     test('shows validity check icon for validated findings', () => {
         render(<FindingsTab />);
         const shieldIcons = screen.getAllByTestId('shield-check-icon');
-        expect(shieldIcons.length).toBe(19);
+        expect(shieldIcons.length).toBe(20);
     });
 
     test('opens settings menu when settings button is clicked', async () => {
         render(<FindingsTab />);
 
         const settingsButtons = screen.getAllByLabelText('Settings');
-        expect(settingsButtons.length).toBe(19);
+        expect(settingsButtons.length).toBe(20);
         fireEvent.click(settingsButtons[0]);
 
         await waitFor(() => {
@@ -975,7 +1018,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(19);
+        expect(recheckButtons).toHaveLength(20);
 
         fireEvent.click(recheckButtons[0]);
         expect(awsValidityHelper).toHaveBeenCalledWith(mockFindings[0]);
@@ -985,7 +1028,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(19);
+        expect(recheckButtons).toHaveLength(20);
 
         fireEvent.click(recheckButtons[4]);
         expect(awsSessionValidityHelper).toHaveBeenCalledWith(mockFindings[4]);
@@ -995,7 +1038,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(19);
+        expect(recheckButtons).toHaveLength(20);
 
         fireEvent.click(recheckButtons[5]);
         expect(anthropicValidityHelper).toHaveBeenCalledWith(mockFindings[5]);
@@ -1005,7 +1048,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(19);
+        expect(recheckButtons).toHaveLength(20);
 
         fireEvent.click(recheckButtons[6]);
         expect(openaiValidityHelper).toHaveBeenCalledWith(mockFindings[6]);
@@ -1015,7 +1058,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(19);
+        expect(recheckButtons).toHaveLength(20);
 
         fireEvent.click(recheckButtons[7]);
         expect(geminiValidityHelper).toHaveBeenCalledWith(mockFindings[7]);
@@ -1025,7 +1068,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(19);
+        expect(recheckButtons).toHaveLength(20);
 
         fireEvent.click(recheckButtons[8]);
         expect(huggingfaceValidityHelper).toHaveBeenCalledWith(mockFindings[8]);
@@ -1115,7 +1158,7 @@ describe('FindingsTab', () => {
         
         // Find the Artifactory recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(19);
+        expect(recheckButtons).toHaveLength(20);
         
         // Click the Artifactory recheck button (10th button, index 9) 
         fireEvent.click(recheckButtons[9]);
@@ -1129,7 +1172,7 @@ describe('FindingsTab', () => {
         
         // Find the Azure OpenAI recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(19);
+        expect(recheckButtons).toHaveLength(20);
         
         // Click the last recheck button (Azure OpenAI finding)
         fireEvent.click(recheckButtons[10]);
@@ -1143,7 +1186,7 @@ describe('FindingsTab', () => {
         
         // Find the Apollo recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(19);
+        expect(recheckButtons).toHaveLength(20);
         
         // Click the Apollo recheck button (12th button, index 11)
         fireEvent.click(recheckButtons[11]);
@@ -1157,7 +1200,7 @@ describe('FindingsTab', () => {
         
         // Find the GCP recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(19);
+        expect(recheckButtons).toHaveLength(20);
         
         // Click the last recheck button (GCP finding)
         fireEvent.click(recheckButtons[12]);
@@ -1223,7 +1266,7 @@ describe('FindingsTab', () => {
         
         // Find the Docker recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(19);
+        expect(recheckButtons).toHaveLength(20);
         
         // Click the Docker recheck button (14th button, index 13)
         fireEvent.click(recheckButtons[13]);
@@ -1237,7 +1280,7 @@ describe('FindingsTab', () => {
         
         // Find the JotForm recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(19);
+        expect(recheckButtons).toHaveLength(20);
         
         // Click the JotForm recheck button (15th button, index 14)
         fireEvent.click(recheckButtons[14]);
@@ -1251,7 +1294,7 @@ describe('FindingsTab', () => {
         
         // Find the Groq recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(19);
+        expect(recheckButtons).toHaveLength(20);
         
         // Click the Groq recheck button (16th button, index 15)
         fireEvent.click(recheckButtons[15]);
@@ -1265,7 +1308,7 @@ describe('FindingsTab', () => {
         
         // Find the Mailgun recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(19);
+        expect(recheckButtons).toHaveLength(20);
         
         // Click the Mailgun recheck button (17th button, index 16)
         fireEvent.click(recheckButtons[16]);
@@ -1279,7 +1322,7 @@ describe('FindingsTab', () => {
         
         // Find the Mailchimp recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(19);
+        expect(recheckButtons).toHaveLength(20);
         
         // Click the Mailchimp recheck button (18th button, index 17)
         fireEvent.click(recheckButtons[17]);
@@ -1293,13 +1336,27 @@ describe('FindingsTab', () => {
         
         // Find the DeepSeek recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(19);
+        expect(recheckButtons).toHaveLength(20);
         
         // Click the DeepSeek recheck button (19th button, index 18)
         fireEvent.click(recheckButtons[18]);
         
         // Verify deepseek validity helper was called
         expect(deepseekValidityHelper).toHaveBeenCalledWith(mockFindings[18]);
+    });
+
+    test('calls deepaiValidityHelper when recheck button is clicked for DeepAI', async () => {
+        render(<FindingsTab />);
+        
+        // Find the DeepAI recheck button directly (in the validity tooltip)
+        const recheckButtons = screen.getAllByLabelText('Recheck validity');
+        expect(recheckButtons).toHaveLength(20);
+        
+        // Click the DeepAI recheck button (20th button, index 19)
+        fireEvent.click(recheckButtons[19]);
+        
+        // Verify deepai validity helper was called
+        expect(deepaiValidityHelper).toHaveBeenCalledWith(mockFindings[19]);
     });
 
     test('renders recheck all button when findings exist', () => {
