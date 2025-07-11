@@ -18,6 +18,7 @@ import { groqValidityHelper } from '../../../../utils/validators/groq/groqValidi
 import { mailgunValidityHelper } from '../../../../utils/validators/mailgun/mailgunValidityHelper';
 import { mailchimpValidityHelper } from '../../../../utils/validators/mailchimp/mailchimpValidityHelper';
 import { deepseekValidityHelper } from '../../../../utils/validators/deepseek/deepseekValidityHelper';
+import { deepaiValidityHelper } from '../../../../utils/validators/deepai/deepaiValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import ModalHeader from '../../modalheader/ModalHeader';
 import './style.css';
@@ -62,6 +63,8 @@ const FindingsTab: React.FC = () => {
             mailchimpValidityHelper(finding);
         } else if (finding.secretType === "DeepSeek") {
             deepseekValidityHelper(finding);
+        } else if (finding.secretType === "DeepAI") {
+            deepaiValidityHelper(finding);
         }
     };
 

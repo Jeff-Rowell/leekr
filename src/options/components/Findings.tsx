@@ -27,6 +27,7 @@ import { groqValidityHelper } from '../../utils/validators/groq/groqValidityHelp
 import { mailgunValidityHelper } from '../../utils/validators/mailgun/mailgunValidityHelper';
 import { mailchimpValidityHelper } from '../../utils/validators/mailchimp/mailchimpValidityHelper';
 import { deepseekValidityHelper } from '../../utils/validators/deepseek/deepseekValidityHelper';
+import { deepaiValidityHelper } from '../../utils/validators/deepai/deepaiValidityHelper';
 
 // Pagination constants
 const ITEMS_PER_PAGE = 10;
@@ -137,6 +138,8 @@ export const Findings: React.FC = () => {
             mailchimpValidityHelper(finding);
         } else if (finding.secretType === "DeepSeek") {
             deepseekValidityHelper(finding);
+        } else if (finding.secretType === "DeepAI") {
+            deepaiValidityHelper(finding);
         }
     };
 
