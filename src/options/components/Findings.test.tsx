@@ -16,6 +16,7 @@ import { JotFormOccurrence } from '../../types/jotform';
 import { GroqOccurrence } from '../../types/groq';
 import { MailgunOccurrence } from '../../types/mailgun';
 import { MailchimpOccurrence } from '../../types/mailchimp';
+import { DeepSeekOccurrence } from '../../types/deepseek';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -32,6 +33,7 @@ import { jotformValidityHelper } from '../../utils/validators/jotform/jotformVal
 import { groqValidityHelper } from '../../utils/validators/groq/groqValidityHelper';
 import { mailgunValidityHelper } from '../../utils/validators/mailgun/mailgunValidityHelper';
 import { mailchimpValidityHelper } from '../../utils/validators/mailchimp/mailchimpValidityHelper';
+import { deepseekValidityHelper } from '../../utils/validators/deepseek/deepseekValidityHelper';
 import { Findings } from './Findings';
 
 jest.mock('../../popup/AppContext');
@@ -51,6 +53,7 @@ jest.mock('../../utils/validators/jotform/jotformValidityHelper');
 jest.mock('../../utils/validators/groq/groqValidityHelper');
 jest.mock('../../utils/validators/mailgun/mailgunValidityHelper');
 jest.mock('../../utils/validators/mailchimp/mailchimpValidityHelper');
+jest.mock('../../utils/validators/deepseek/deepseekValidityHelper');
 
 const mockAwsValidityHelper = awsValidityHelper as jest.MockedFunction<typeof awsValidityHelper>;
 const mockAwsSessionValidityHelper = awsSessionValidityHelper as jest.MockedFunction<typeof awsSessionValidityHelper>;
@@ -67,6 +70,7 @@ const mockJotformValidityHelper = jotformValidityHelper as jest.MockedFunction<t
 const mockGroqValidityHelper = groqValidityHelper as jest.MockedFunction<typeof groqValidityHelper>;
 const mockMailgunValidityHelper = mailgunValidityHelper as jest.MockedFunction<typeof mailgunValidityHelper>;
 const mockMailchimpValidityHelper = mailchimpValidityHelper as jest.MockedFunction<typeof mailchimpValidityHelper>;
+const mockDeepseekValidityHelper = deepseekValidityHelper as jest.MockedFunction<typeof deepseekValidityHelper>;
 
 const mockChrome = {
     runtime: {
@@ -635,6 +639,40 @@ const mockFindings: Finding[] = [
             validity: "valid"
         }
     },
+    {
+        fingerprint: "fp16",
+        numOccurrences: 1,
+        occurrences: new Set([{
+            filePath: "main.deepseek.js",
+            fingerprint: "fp16",
+            type: "API Key",
+            secretType: "DeepSeek",
+            secretValue: {
+                match: { 
+                    apiKey: "sk-abcdefghijklmnopqrstuvwxyz123456"
+                }
+            },
+            sourceContent: {
+                content: "foobar",
+                contentEndLineNum: 35,
+                contentFilename: "App.js",
+                contentStartLineNum: 18,
+                exactMatchNumbers: [23, 30]
+            },
+            url: "http://localhost:3000/static/js/main.deepseek.js",
+            validity: "valid"
+        } as DeepSeekOccurrence]),
+        validity: "valid",
+        validatedAt: "2025-05-17T18:16:16.870Z",
+        secretType: "DeepSeek",
+        secretValue: {
+            match: { 
+                apiKey: "sk-abcdefghijklmnopqrstuvwxyz123456"
+            },
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            validity: "valid"
+        }
+    },
 ];
 
 describe('Findings Component', () => {
@@ -778,7 +816,7 @@ describe('Findings Component', () => {
             const typeFilter = screen.getByLabelText('Secret Type:');
             const options = typeFilter.querySelectorAll('option');
 
-            expect(options).toHaveLength(13); // Added Docker, JotForm, Groq, and Mailgun
+            expect(options).toHaveLength(14); // Added Docker, JotForm, Groq, Mailgun, Mailchimp, and DeepSeek
             expect(options[0]).toHaveTextContent('All Types');
             expect(options[1]).toHaveTextContent('AWS Access & Secret Keys');
             expect(options[2]).toHaveTextContent('AWS Session Keys');
@@ -1134,6 +1172,7 @@ describe('Findings Component', () => {
             expect(mockJotformValidityHelper).not.toHaveBeenCalled();
             expect(mockGroqValidityHelper).not.toHaveBeenCalled();
             expect(mockMailgunValidityHelper).not.toHaveBeenCalled();
+            expect(mockDeepseekValidityHelper).not.toHaveBeenCalled();
         });
 
         test('handles validity recheck for Artifactory tokens', async () => {
@@ -1687,6 +1726,33 @@ describe('Findings Component', () => {
             fireEvent.click(recheckButton);
 
             expect(mockMailchimpValidityHelper).toHaveBeenCalledWith(mailchimpFinding);
+        });
+    });
+
+    describe('DeepSeek Validity Checking', () => {
+        test('calls deepseekValidityHelper when recheck button is clicked for DeepSeek finding', async () => {
+            const deepseekFinding = {
+                fingerprint: 'deepseek-test',
+                numOccurrences: 1,
+                secretType: 'DeepSeek',
+                validity: 'valid' as const,
+                validatedAt: '2025-05-30T12:00:00.000Z',
+                secretValue: { match: { apiKey: 'sk-abcdefghijklmnopqrstuvwxyz123456' } },
+                occurrences: new Set([])
+            };
+
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: [deepseekFinding],
+                },
+            });
+
+            render(<Findings />);
+
+            const recheckButton = screen.getByLabelText('Recheck validity');
+            fireEvent.click(recheckButton);
+
+            expect(mockDeepseekValidityHelper).toHaveBeenCalledWith(deepseekFinding);
         });
     });
 });

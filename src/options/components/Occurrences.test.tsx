@@ -13,6 +13,7 @@ import { JotFormOccurrence } from '../../types/jotform';
 import { GroqOccurrence } from '../../types/groq';
 import { MailgunOccurrence } from '../../types/mailgun';
 import { MailchimpOccurrence } from '../../types/mailchimp';
+import { DeepSeekOccurrence } from '../../types/deepseek';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -29,6 +30,7 @@ import { jotformValidityHelper } from '../../utils/validators/jotform/jotformVal
 import { groqValidityHelper } from '../../utils/validators/groq/groqValidityHelper';
 import { mailgunValidityHelper } from '../../utils/validators/mailgun/mailgunValidityHelper';
 import { mailchimpValidityHelper } from '../../utils/validators/mailchimp/mailchimpValidityHelper';
+import { deepseekValidityHelper } from '../../utils/validators/deepseek/deepseekValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
@@ -50,6 +52,7 @@ jest.mock('../../utils/validators/jotform/jotformValidityHelper');
 jest.mock('../../utils/validators/groq/groqValidityHelper');
 jest.mock('../../utils/validators/mailgun/mailgunValidityHelper');
 jest.mock('../../utils/validators/mailchimp/mailchimpValidityHelper');
+jest.mock('../../utils/validators/deepseek/deepseekValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",
@@ -645,6 +648,7 @@ describe('Occurrences Component', () => {
         expect(azureOpenAIValidityHelper).not.toHaveBeenCalled();
         expect(jotformValidityHelper).not.toHaveBeenCalled();
         expect(mailgunValidityHelper).not.toHaveBeenCalled();
+        expect(deepseekValidityHelper).not.toHaveBeenCalled();
     });
 
     test('clicking download source code button calls URL.createObjectURL', () => {
@@ -1000,5 +1004,56 @@ describe('Occurrences Component', () => {
         fireEvent.click(recheckButton);
 
         expect(mailchimpValidityHelper).toHaveBeenCalledWith(mailchimpFinding);
+    });
+
+    test('calls deepseekValidityHelper on recheck button click for DeepSeek', () => {
+        // Create a DeepSeek finding and occurrence for testing
+        const deepseekOccurrence = {
+            filePath: "deepseek-config.js",
+            fingerprint: "deepseek-fp",
+            type: "API Key",
+            secretType: "DeepSeek",
+            secretValue: {
+                match: {
+                    apiKey: "sk-abcdefghijklmnopqrstuvwxyz123456"
+                }
+            },
+            url: "https://example.com/deepseek-config.js",
+            sourceContent: {
+                content: "const deepseekKey = 'sk-abcdefghijklmnopqrstuvwxyz123456';",
+                contentFilename: "deepseek-config.js",
+                contentStartLineNum: 5,
+                contentEndLineNum: 15,
+                exactMatchNumbers: [10]
+            },
+            validity: "valid"
+        };
+
+        const deepseekFinding = {
+            fingerprint: "deepseek-fp",
+            numOccurrences: 1,
+            occurrences: new Set([deepseekOccurrence]),
+            validity: "valid" as const,
+            validatedAt: "2025-05-30T12:00:00.000Z",
+            secretType: "DeepSeek",
+            secretValue: {
+                match: {
+                    apiKey: "sk-abcdefghijklmnopqrstuvwxyz123456"
+                }
+            }
+        };
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: {
+                findings: [deepseekFinding],
+            },
+        });
+
+        render(<Occurrences filterFingerprint='deepseek-fp' />);
+
+        const recheckButton = screen.getByLabelText('Recheck validity');
+        fireEvent.click(recheckButton);
+
+        expect(deepseekValidityHelper).toHaveBeenCalledWith(deepseekFinding);
     });
 });
