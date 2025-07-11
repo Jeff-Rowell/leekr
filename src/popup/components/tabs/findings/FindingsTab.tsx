@@ -17,6 +17,7 @@ import { jotformValidityHelper } from '../../../../utils/validators/jotform/jotf
 import { groqValidityHelper } from '../../../../utils/validators/groq/groqValidityHelper';
 import { mailgunValidityHelper } from '../../../../utils/validators/mailgun/mailgunValidityHelper';
 import { mailchimpValidityHelper } from '../../../../utils/validators/mailchimp/mailchimpValidityHelper';
+import { deepseekValidityHelper } from '../../../../utils/validators/deepseek/deepseekValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import ModalHeader from '../../modalheader/ModalHeader';
 import './style.css';
@@ -59,6 +60,8 @@ const FindingsTab: React.FC = () => {
             mailgunValidityHelper(finding);
         } else if (finding.secretType === "Mailchimp") {
             mailchimpValidityHelper(finding);
+        } else if (finding.secretType === "DeepSeek") {
+            deepseekValidityHelper(finding);
         }
     };
 

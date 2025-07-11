@@ -17,6 +17,7 @@ import { jotformValidityHelper } from '../../utils/validators/jotform/jotformVal
 import { groqValidityHelper } from '../../utils/validators/groq/groqValidityHelper';
 import { mailgunValidityHelper } from '../../utils/validators/mailgun/mailgunValidityHelper';
 import { mailchimpValidityHelper } from '../../utils/validators/mailchimp/mailchimpValidityHelper';
+import { deepseekValidityHelper } from '../../utils/validators/deepseek/deepseekValidityHelper';
 
 
 export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFingerprint }) => {
@@ -70,6 +71,8 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
             mailgunValidityHelper(finding);
         } else if (finding.secretType === "Mailchimp") {
             mailchimpValidityHelper(finding);
+        } else if (finding.secretType === "DeepSeek") {
+            deepseekValidityHelper(finding);
         }
     };
 
