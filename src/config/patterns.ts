@@ -17,6 +17,7 @@ import { DEFAULT_GROQ_CONFIG } from './detectors/groq/groq';
 import { DEFAULT_MAILGUN_CONFIG } from './detectors/mailgun/mailgun';
 import { DEFAULT_MAILCHIMP_CONFIG } from './detectors/mailchimp/mailchimp';
 import { deepseekConfig } from './detectors/deepseek/deepseek';
+import { deepaiConfig } from './detectors/deepai/deepai';
 
 const awsAccessKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_ACCESS_KEY_CONFIG };
 const awsSessionKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_SESSION_KEY_CONFIG };
@@ -476,6 +477,16 @@ export const patterns: PatternsObj = {
         familyName: "DeepSeek",
         pattern: /\b(sk-[a-z0-9]{32})\b/g,
         entropy: deepseekConfig.patterns.apiKey.entropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "DeepAI API Key": {
+        name: "DeepAI API Key",
+        familyName: "DeepAI",
+        pattern: /\b([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})\b/g,
+        entropy: deepaiConfig.patterns.apiKey.entropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
         validityEndpoints: [],
