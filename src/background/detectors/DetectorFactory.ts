@@ -14,6 +14,7 @@ import { JotFormDetector } from './jotform/JotFormDetector';
 import { GroqDetector } from './groq/GroqDetector';
 import { MailgunDetector } from './mailgun/MailgunDetector';
 import { MailchimpDetector } from './mailchimp/MailchimpDetector';
+import { DeepSeekDetector } from './deepseek/DeepSeekDetector';
 
 export class ConcreteDetectorFactory implements DetectorFactory {
     private readonly detectorClasses = [
@@ -31,7 +32,8 @@ export class ConcreteDetectorFactory implements DetectorFactory {
         JotFormDetector,
         GroqDetector,
         MailgunDetector,
-        MailchimpDetector
+        MailchimpDetector,
+        DeepSeekDetector
     ];
 
     createDetectors(): SecretDetector[] {

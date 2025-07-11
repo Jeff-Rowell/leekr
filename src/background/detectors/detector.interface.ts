@@ -29,3 +29,5 @@ export interface DetectorFactory {
      */
     createDetector(type: string): SecretDetector | undefined;
 }
+
+export type Detector = SecretDetector;
