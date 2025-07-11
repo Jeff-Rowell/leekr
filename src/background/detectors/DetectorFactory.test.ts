@@ -15,6 +15,7 @@ import { GroqDetector } from './groq/GroqDetector';
 import { MailgunDetector } from './mailgun/MailgunDetector';
 import { MailchimpDetector } from './mailchimp/MailchimpDetector';
 import { DeepSeekDetector } from './deepseek/DeepSeekDetector';
+import { DeepAIDetector } from './deepai/DeepAIDetector';
 
 describe('ConcreteDetectorFactory', () => {
     let factory: ConcreteDetectorFactory;
@@ -26,7 +27,7 @@ describe('ConcreteDetectorFactory', () => {
     test('createDetectors returns all detector instances', () => {
         const detectors = factory.createDetectors();
         
-        expect(detectors).toHaveLength(16);
+        expect(detectors).toHaveLength(17);
         expect(detectors[0]).toBeInstanceOf(AwsAccessKeysDetector);
         expect(detectors[1]).toBeInstanceOf(AwsSessionKeysDetector);
         expect(detectors[2]).toBeInstanceOf(AnthropicDetector);
@@ -43,6 +44,7 @@ describe('ConcreteDetectorFactory', () => {
         expect(detectors[13]).toBeInstanceOf(MailgunDetector);
         expect(detectors[14]).toBeInstanceOf(MailchimpDetector);
         expect(detectors[15]).toBeInstanceOf(DeepSeekDetector);
+        expect(detectors[16]).toBeInstanceOf(DeepAIDetector);
     });
 
     test('createDetector returns specific detector by type', () => {
@@ -62,6 +64,7 @@ describe('ConcreteDetectorFactory', () => {
         const mailgunDetector = factory.createDetector('Mailgun');
         const mailchimpDetector = factory.createDetector('Mailchimp');
         const deepseekDetector = factory.createDetector('DeepSeek');
+        const deepaiDetector = factory.createDetector('DeepAI');
 
         expect(awsAccessKeysDetector).toBeInstanceOf(AwsAccessKeysDetector);
         expect(awsSessionKeysDetector).toBeInstanceOf(AwsSessionKeysDetector);
@@ -79,6 +82,7 @@ describe('ConcreteDetectorFactory', () => {
         expect(mailgunDetector).toBeInstanceOf(MailgunDetector);
         expect(mailchimpDetector).toBeInstanceOf(MailchimpDetector);
         expect(deepseekDetector).toBeInstanceOf(DeepSeekDetector);
+        expect(deepaiDetector).toBeInstanceOf(DeepAIDetector);
     });
 
     test('createDetector returns undefined for unknown type', () => {
@@ -115,5 +119,9 @@ describe('ConcreteDetectorFactory', () => {
         const deepseekDetector = detectors[15];
         expect(deepseekDetector.type).toBe('DeepSeek');
         expect(deepseekDetector.name).toBe('DeepSeek');
+
+        const deepaiDetector = detectors[16];
+        expect(deepaiDetector.type).toBe('DeepAI');
+        expect(deepaiDetector.name).toBe('DeepAI');
     });
 });
