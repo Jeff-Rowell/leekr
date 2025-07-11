@@ -16,6 +16,7 @@ import { DEFAULT_JOTFORM_CONFIG } from './detectors/jotform/jotform';
 import { DEFAULT_GROQ_CONFIG } from './detectors/groq/groq';
 import { DEFAULT_MAILGUN_CONFIG } from './detectors/mailgun/mailgun';
 import { DEFAULT_MAILCHIMP_CONFIG } from './detectors/mailchimp/mailchimp';
+import { deepseekConfig } from './detectors/deepseek/deepseek';
 
 const awsAccessKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_ACCESS_KEY_CONFIG };
 const awsSessionKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_SESSION_KEY_CONFIG };
@@ -465,6 +466,16 @@ export const patterns: PatternsObj = {
         familyName: "Mailchimp",
         pattern: /\b([0-9a-f]{32}-us[0-9]{1,2})\b/g,
         entropy: DEFAULT_MAILCHIMP_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "DeepSeek API Key": {
+        name: "DeepSeek API Key",
+        familyName: "DeepSeek",
+        pattern: /\b(sk-[a-z0-9]{32})\b/g,
+        entropy: deepseekConfig.patterns.apiKey.entropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
         validityEndpoints: [],
