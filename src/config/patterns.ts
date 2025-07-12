@@ -475,7 +475,7 @@ export const patterns: PatternsObj = {
     "DeepSeek API Key": {
         name: "DeepSeek API Key",
         familyName: "DeepSeek",
-        pattern: /\b(sk-[a-z0-9]{32})\b/g,
+        pattern: /\b(sk-[a-zA-Z0-9]{32})\b/g,
         entropy: deepseekConfig.patterns.apiKey.entropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
