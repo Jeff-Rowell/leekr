@@ -36,13 +36,13 @@ describe('detectDeepSeekKeys', () => {
     });
 
     test('should detect valid DeepSeek API key', async () => {
-        const content = 'const apiKey = "sk-test1234567890abcd1234567890abcd1234567890123456";';
+        const content = 'const apiKey = "sk-test1234567890abcd1234567890abcd";';
         const url = 'http://example.com/file.js';
 
         const occurrences = await detectDeepSeekKeys(content, url);
 
         expect(occurrences).toHaveLength(1);
-        expect(mockValidateDeepSeekApiKey).toHaveBeenCalledWith('sk-test1234567890abcd1234567890abcd1234567890123456');
+        expect(mockValidateDeepSeekApiKey).toHaveBeenCalledWith('sk-test1234567890abcd1234567890abcd');
         
         const occurrence = occurrences[0] as DeepSeekOccurrence;
         expect(occurrence).toEqual({
@@ -52,12 +52,12 @@ describe('detectDeepSeekKeys', () => {
             secretType: 'DeepSeek',
             secretValue: {
                 match: {
-                    apiKey: 'sk-test1234567890abcd1234567890abcd1234567890123456'
+                    apiKey: 'sk-test1234567890abcd1234567890abcd'
                 }
             },
             sourceContent: {
                 content: JSON.stringify({
-                    apiKey: 'sk-test1234567890abcd1234567890abcd1234567890123456'
+                    apiKey: 'sk-test1234567890abcd1234567890abcd'
                 }),
                 contentFilename: 'file.js',
                 contentStartLineNum: -1,
@@ -81,19 +81,19 @@ describe('detectDeepSeekKeys', () => {
     test('should filter out invalid API keys', async () => {
         mockValidateDeepSeekApiKey.mockResolvedValue({ valid: false, error: 'Invalid API key' });
         
-        const content = 'const apiKey = "sk-test1234567890abcd1234567890abcd1234567890123456";';
+        const content = 'const apiKey = "sk-test1234567890abcd1234567890abcd";';
         const url = 'http://example.com/file.js';
 
         const occurrences = await detectDeepSeekKeys(content, url);
 
         expect(occurrences).toHaveLength(0);
-        expect(mockValidateDeepSeekApiKey).toHaveBeenCalledWith('sk-test1234567890abcd1234567890abcd1234567890123456');
+        expect(mockValidateDeepSeekApiKey).toHaveBeenCalledWith('sk-test1234567890abcd1234567890abcd');
     });
 
     test('should deduplicate API keys', async () => {
         const content = `
-            const key1 = "sk-test1234567890abcd1234567890abcd1234567890123456";
-            const key2 = "sk-test1234567890abcd1234567890abcd1234567890123456";
+            const key1 = "sk-test1234567890abcd1234567890abcd";
+            const key2 = "sk-test1234567890abcd1234567890abcd";
         `;
         const url = 'http://example.com/file.js';
 
@@ -109,7 +109,7 @@ describe('detectDeepSeekKeys', () => {
                 secretValue: {
                     someKey: {
                         match: {
-                            apiKey: 'sk-test1234567890abcd1234567890abcd1234567890123456'
+                            apiKey: 'sk-test1234567890abcd1234567890abcd'
                         }
                     }
                 }
@@ -117,7 +117,7 @@ describe('detectDeepSeekKeys', () => {
         ];
         mockGetExistingFindings.mockResolvedValue(existingFindings as any);
 
-        const content = 'const apiKey = "sk-test1234567890abcd1234567890abcd1234567890123456";';
+        const content = 'const apiKey = "sk-test1234567890abcd1234567890abcd";';
         const url = 'http://example.com/file.js';
 
         const occurrences = await detectDeepSeekKeys(content, url);
@@ -128,8 +128,8 @@ describe('detectDeepSeekKeys', () => {
 
     test('should handle multiple different API keys', async () => {
         const content = `
-            const key1 = "sk-test1234567890abcd1234567890abcd1234567890123456";
-            const key2 = "sk-abcd1234567890efgh1234567890ijkl1234567890123456";
+            const key1 = "sk-test1234567890abcd1234567890abcd";
+            const key2 = "sk-abcd1234567890efgh1234567890ijkl";
         `;
         const url = 'http://example.com/file.js';
 
@@ -137,12 +137,12 @@ describe('detectDeepSeekKeys', () => {
 
         expect(occurrences).toHaveLength(2);
         expect(mockValidateDeepSeekApiKey).toHaveBeenCalledTimes(2);
-        expect(mockValidateDeepSeekApiKey).toHaveBeenCalledWith('sk-test1234567890abcd1234567890abcd1234567890123456');
-        expect(mockValidateDeepSeekApiKey).toHaveBeenCalledWith('sk-abcd1234567890efgh1234567890ijkl1234567890123456');
+        expect(mockValidateDeepSeekApiKey).toHaveBeenCalledWith('sk-test1234567890abcd1234567890abcd');
+        expect(mockValidateDeepSeekApiKey).toHaveBeenCalledWith('sk-abcd1234567890efgh1234567890ijkl');
     });
 
     test('should extract filename correctly', async () => {
-        const content = 'const apiKey = "sk-test1234567890abcd1234567890abcd1234567890123456";';
+        const content = 'const apiKey = "sk-test1234567890abcd1234567890abcd";';
         const url = 'http://example.com/path/to/deep/file.js';
 
         const occurrences = await detectDeepSeekKeys(content, url);
@@ -151,7 +151,7 @@ describe('detectDeepSeekKeys', () => {
     });
 
     test('should handle URL without filename', async () => {
-        const content = 'const apiKey = "sk-test1234567890abcd1234567890abcd1234567890123456";';
+        const content = 'const apiKey = "sk-test1234567890abcd1234567890abcd";';
         const url = 'http://example.com/';
 
         const occurrences = await detectDeepSeekKeys(content, url);
@@ -160,20 +160,20 @@ describe('detectDeepSeekKeys', () => {
     });
 
     test('should use computeFingerprint for fingerprint generation', async () => {
-        const content = 'const apiKey = "sk-test1234567890abcd1234567890abcd1234567890123456";';
+        const content = 'const apiKey = "sk-test1234567890abcd1234567890abcd";';
         const url = 'http://example.com/file.js';
 
         await detectDeepSeekKeys(content, url);
 
         expect(mockComputeFingerprint).toHaveBeenCalledWith({
-            apiKey: 'sk-test1234567890abcd1234567890abcd1234567890123456'
+            apiKey: 'sk-test1234567890abcd1234567890abcd'
         });
     });
 
     test('should handle source map processing', async () => {
         const mockSourceMapUrl = new URL('http://example.com/app.js.map');
         const mockSourceMapContent = '{"version":3,"sources":["src/app.js"],"mappings":"AAAA"}';
-        const mockOriginalSource = 'const deepSeekKey = "sk-test1234567890abcd1234567890abcd1234567890123456";';
+        const mockOriginalSource = 'const deepSeekKey = "sk-test1234567890abcd1234567890abcd";';
         
         mockGetSourceMapUrl.mockReturnValue(mockSourceMapUrl);
         (global.fetch as jest.Mock).mockResolvedValue({
@@ -194,7 +194,7 @@ describe('detectDeepSeekKeys', () => {
             with: jest.fn((content, options, callback) => callback(mockConsumer))
         };
 
-        const content = 'var t="sk-test1234567890abcd1234567890abcd1234567890123456";';
+        const content = 'var t="sk-test1234567890abcd1234567890abcd";';
         const url = 'http://example.com/bundle.js';
 
         const occurrences = await detectDeepSeekKeys(content, url);
@@ -214,7 +214,7 @@ describe('detectDeepSeekKeys', () => {
         mockGetSourceMapUrl.mockReturnValue(mockSourceMapUrl);
         (global.fetch as jest.Mock).mockRejectedValue(new Error('Failed to fetch source map'));
 
-        const content = 'var t="sk-test1234567890abcd1234567890abcd1234567890123456";';
+        const content = 'var t="sk-test1234567890abcd1234567890abcd";';
         const url = 'http://example.com/bundle.js';
 
         const occurrences = await detectDeepSeekKeys(content, url);
@@ -230,25 +230,25 @@ describe('detectDeepSeekKeys', () => {
         // Test that our pattern matches valid DeepSeek keys
         const pattern = patterns['DeepSeek API Key'].pattern;
         
-        // Valid keys (51 characters total: sk- + 48 characters)
-        expect('sk-test1234567890abcd1234567890abcd1234567890123456'.match(pattern)).toBeTruthy();
-        expect('sk-ABCD1234567890abcd1234567890abcd1234567890123456'.match(pattern)).toBeTruthy();
-        expect('sk-aBcD1234567890eFgH1234567890ijKl1234567890123456'.match(pattern)).toBeTruthy();
+        // Valid keys (35 characters total: sk- + 32 characters)
+        expect('sk-test1234567890abcd1234567890abcd'.match(pattern)).toBeTruthy();
+        expect('sk-ABCD1234567890abcd1234567890ABCD'.match(pattern)).toBeTruthy();
+        expect('sk-aBcD1234567890eFgH1234567890ijKl'.match(pattern)).toBeTruthy();
         
         // Invalid keys
-        expect('ak-test1234567890abcd1234567890abcd1234567890123456'.match(pattern)).toBeFalsy(); // wrong prefix
+        expect('ak-test1234567890abcd1234567890abcd'.match(pattern)).toBeFalsy(); // wrong prefix
         expect('sk-test123456789012345'.match(pattern)).toBeFalsy(); // too short
-        expect('sk-test1234567890abcd1234567890abcd1234567890123456123'.match(pattern)).toBeFalsy(); // too long
-        expect('sk-test!@#$567890abcd1234567890abcd1234567890123456'.match(pattern)).toBeFalsy(); // invalid chars
+        expect('sk-test1234567890abcd1234567890abcd123'.match(pattern)).toBeFalsy(); // too long
+        expect('sk-test!@#$567890abcd1234567890abcd'.match(pattern)).toBeFalsy(); // invalid chars
     });
 
     test('should not process keys that do not match the exact expected structure', async () => {
         // Test with keys that might partially match but should be filtered out
         const content = `
             const shortKey = "sk-tooshort";
-            const longKey = "sk-test1234567890abcd1234567890abcd1234567890123456extra";
-            const wrongPrefix = "ak-test1234567890abcd1234567890abcd1234567890123456";
-            const validKey = "sk-test1234567890abcd1234567890abcd1234567890123456";
+            const longKey = "sk-test1234567890abcd1234567890abcdextra";
+            const wrongPrefix = "ak-test1234567890abcd1234567890abcd";
+            const validKey = "sk-test1234567890abcd1234567890abcd";
         `;
         const url = 'http://example.com/file.js';
 
@@ -257,6 +257,6 @@ describe('detectDeepSeekKeys', () => {
         // Only the valid key should be processed
         expect(occurrences).toHaveLength(1);
         expect(mockValidateDeepSeekApiKey).toHaveBeenCalledTimes(1);
-        expect(mockValidateDeepSeekApiKey).toHaveBeenCalledWith('sk-test1234567890abcd1234567890abcd1234567890123456');
+        expect(mockValidateDeepSeekApiKey).toHaveBeenCalledWith('sk-test1234567890abcd1234567890abcd');
     });
 });
