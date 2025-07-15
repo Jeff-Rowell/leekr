@@ -30,7 +30,20 @@ chrome.webRequest.onCompleted.addListener(
                         existingFinding.fingerprint === finding.fingerprint
                     )
                 );
-                storeFindings(updatedFindings);
+                
+                // Mark only brand new findings as new, preserve existing isNew status for others
+                const finalFindings = updatedFindings.map(finding => {
+                    const isBrandNew = brandNewFindings.some(bf => bf.fingerprint === finding.fingerprint);
+                    const existingFinding = existingFindings.find(ef => ef.fingerprint === finding.fingerprint);
+                    
+                    return {
+                        ...finding,
+                        isNew: isBrandNew ? true : (existingFinding?.isNew || false),
+                        discoveredAt: existingFinding?.discoveredAt || finding.discoveredAt
+                    };
+                });
+                
+                storeFindings(finalFindings);
                 chrome.storage.local.set({ "notifications": brandNewFindings.length.toString() }, function () {
                     if (brandNewFindings.length > 0) {
                         chrome.action.setBadgeText({ text: brandNewFindings.length.toString() });

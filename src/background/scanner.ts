@@ -29,7 +29,9 @@ async function createFindings(findings: Finding[], matches: Occurrence[]) {
                 validity: "valid",
                 validatedAt: new Date().toISOString(),
                 fingerprint: occurrence.fingerprint,
-                occurrences: new Set([occurrence])
+                occurrences: new Set([occurrence]),
+                isNew: true,
+                discoveredAt: new Date().toISOString()
             }
             findings.push(f);
         });

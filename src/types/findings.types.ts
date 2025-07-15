@@ -25,6 +25,8 @@ export interface Finding {
     validatedAt?: string;
     fingerprint: string;
     occurrences: Set<Occurrence>;
+    isNew?: boolean;
+    discoveredAt?: string;
 }
 
 export type NullableFinding = Finding | null;

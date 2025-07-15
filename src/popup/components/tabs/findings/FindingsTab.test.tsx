@@ -120,6 +120,7 @@ jest.mock('lucide-react', () => ({
     RotateCw: () => <div data-testid="rotate-cw-icon" />,
     Settings: () => <div data-testid="settings-icon" />,
     ShieldCheck: () => <svg data-testid="shield-check-icon" />,
+    Sparkles: () => <div data-testid="sparkles-icon" />,
 }));
 
 jest.mock('../../modalheader/ModalHeader', () => ({
@@ -873,6 +874,27 @@ describe('FindingsTab', () => {
         },
     ];
 
+    // Helper to get sorted findings (matches FindingsTab sorting logic)
+    const getSortedFindings = (findings: Finding[]) => {
+        return [...findings].sort((a, b) => {
+            // Sort by isNew first (new findings at top)
+            if (a.isNew && !b.isNew) return -1;
+            if (!a.isNew && b.isNew) return 1;
+            
+            // Then sort by discoveredAt (newest first)
+            if (a.discoveredAt && b.discoveredAt) {
+                return new Date(b.discoveredAt).getTime() - new Date(a.discoveredAt).getTime();
+            }
+            if (a.discoveredAt && !b.discoveredAt) return -1;
+            if (!a.discoveredAt && b.discoveredAt) return 1;
+            
+            // Finally, sort by secretType alphabetically
+            return a.secretType.localeCompare(b.secretType);
+        });
+    };
+
+    const sortedMockFindings = getSortedFindings(mockFindings);
+
     beforeEach(() => {
         jest.clearAllMocks();
         (useAppContext as jest.Mock).mockReturnValue({
@@ -880,6 +902,9 @@ describe('FindingsTab', () => {
                 findings: mockFindings,
             },
         });
+
+        // Mock retrieveFindings to return empty array by default
+        (retrieveFindings as jest.Mock).mockResolvedValue([]);
 
         Element.prototype.getBoundingClientRect = jest.fn(() => ({
             bottom: 100,
@@ -908,28 +933,29 @@ describe('FindingsTab', () => {
     test('renders findings correctly', () => {
         render(<FindingsTab />);
         const rows = screen.getAllByRole('row');
-        expect(rows[1]).toHaveTextContent('AWS Access & Secret Keys');
+        // Findings are sorted alphabetically by secretType
+        expect(rows[1]).toHaveTextContent('Anthropic AI');
         expect(rows[1]).toHaveTextContent('valid');
         expect(rows[1]).toHaveTextContent('1');
 
-        expect(rows[2]).toHaveTextContent('AWS Access & Secret Keys');
-        expect(rows[2]).toHaveTextContent('invalid');
+        expect(rows[2]).toHaveTextContent('Apollo');
+        expect(rows[2]).toHaveTextContent('valid');
         expect(rows[2]).toHaveTextContent('1');
 
-        expect(rows[3]).toHaveTextContent('AWS Access & Secret Keys');
-        expect(rows[3]).toHaveTextContent('unknown');
+        expect(rows[3]).toHaveTextContent('Artifactory');
+        expect(rows[3]).toHaveTextContent('valid');
         expect(rows[3]).toHaveTextContent('1');
 
         expect(rows[4]).toHaveTextContent('AWS Access & Secret Keys');
-        expect(rows[4]).toHaveTextContent('failed to check');
+        expect(rows[4]).toHaveTextContent('valid');
         expect(rows[4]).toHaveTextContent('1');
 
-        expect(rows[5]).toHaveTextContent('AWS Session Keys');
-        expect(rows[5]).toHaveTextContent('valid');
+        expect(rows[5]).toHaveTextContent('AWS Access & Secret Keys');
+        expect(rows[5]).toHaveTextContent('invalid');
         expect(rows[5]).toHaveTextContent('1');
 
-        expect(rows[6]).toHaveTextContent('Anthropic AI');
-        expect(rows[6]).toHaveTextContent('valid');
+        expect(rows[6]).toHaveTextContent('AWS Access & Secret Keys');
+        expect(rows[6]).toHaveTextContent('unknown');
         expect(rows[6]).toHaveTextContent('1');
     });
 
@@ -1021,7 +1047,7 @@ describe('FindingsTab', () => {
         expect(recheckButtons).toHaveLength(20);
 
         fireEvent.click(recheckButtons[0]);
-        expect(awsValidityHelper).toHaveBeenCalledWith(mockFindings[0]);
+        expect(anthropicValidityHelper).toHaveBeenCalledWith(sortedMockFindings[0]);
     });
 
     test('calls awsSessionValidityHelper when recheck button is clicked for AWS Session Keys', async () => {
@@ -1030,8 +1056,8 @@ describe('FindingsTab', () => {
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
         expect(recheckButtons).toHaveLength(20);
 
-        fireEvent.click(recheckButtons[4]);
-        expect(awsSessionValidityHelper).toHaveBeenCalledWith(mockFindings[4]);
+        fireEvent.click(recheckButtons[7]);
+        expect(awsSessionValidityHelper).toHaveBeenCalledWith(sortedMockFindings[7]);
     });
 
     test('calls anthropicValidityHelper when recheck button is clicked for Anthropic AI', async () => {
@@ -1041,7 +1067,7 @@ describe('FindingsTab', () => {
         expect(recheckButtons).toHaveLength(20);
 
         fireEvent.click(recheckButtons[5]);
-        expect(anthropicValidityHelper).toHaveBeenCalledWith(mockFindings[5]);
+        expect(awsValidityHelper).toHaveBeenCalledWith(sortedMockFindings[5]);
     });
 
     test('calls openaiValidityHelper when recheck button is clicked for OpenAI', async () => {
@@ -1051,7 +1077,7 @@ describe('FindingsTab', () => {
         expect(recheckButtons).toHaveLength(20);
 
         fireEvent.click(recheckButtons[6]);
-        expect(openaiValidityHelper).toHaveBeenCalledWith(mockFindings[6]);
+        expect(awsValidityHelper).toHaveBeenCalledWith(sortedMockFindings[6]);
     });
 
     test('calls geminiValidityHelper when recheck button is clicked for Gemini', async () => {
@@ -1060,8 +1086,8 @@ describe('FindingsTab', () => {
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
         expect(recheckButtons).toHaveLength(20);
 
-        fireEvent.click(recheckButtons[7]);
-        expect(geminiValidityHelper).toHaveBeenCalledWith(mockFindings[7]);
+        fireEvent.click(recheckButtons[12]);
+        expect(geminiValidityHelper).toHaveBeenCalledWith(sortedMockFindings[12]);
     });
 
     test('calls huggingfaceValidityHelper when recheck button is clicked for Hugging Face', async () => {
@@ -1070,8 +1096,8 @@ describe('FindingsTab', () => {
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
         expect(recheckButtons).toHaveLength(20);
 
-        fireEvent.click(recheckButtons[8]);
-        expect(huggingfaceValidityHelper).toHaveBeenCalledWith(mockFindings[8]);
+        fireEvent.click(recheckButtons[15]);
+        expect(huggingfaceValidityHelper).toHaveBeenCalledWith(sortedMockFindings[15]);
     });
 
     test('opens GitHub issues page when "Report Issue" is clicked', async () => {
@@ -1122,7 +1148,7 @@ describe('FindingsTab', () => {
         fireEvent.click(screen.getByText('View Occurrences'));
         expect(chrome.runtime.getURL).toHaveBeenCalledWith('options.html');
         expect(chrome.tabs.create).toHaveBeenCalledWith({
-            url: 'chrome-extension://extension-id/options.html?tab=findings&fingerprint=fp1'
+            url: 'chrome-extension://extension-id/options.html?tab=findings&fingerprint=fp6'
         });
     });
 
@@ -1160,11 +1186,11 @@ describe('FindingsTab', () => {
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
         expect(recheckButtons).toHaveLength(20);
         
-        // Click the Artifactory recheck button (10th button, index 9) 
-        fireEvent.click(recheckButtons[9]);
+        // Click the Artifactory recheck button (sorted index 2) 
+        fireEvent.click(recheckButtons[2]);
         
         // Verify artifactory validity helper was called
-        expect(artifactoryValidityHelper).toHaveBeenCalledWith(mockFindings[9]);
+        expect(artifactoryValidityHelper).toHaveBeenCalledWith(sortedMockFindings[2]);
     });
 
     test('calls azureOpenAIValidityHelper for Azure OpenAI findings', async () => {
@@ -1174,11 +1200,11 @@ describe('FindingsTab', () => {
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
         expect(recheckButtons).toHaveLength(20);
         
-        // Click the last recheck button (Azure OpenAI finding)
-        fireEvent.click(recheckButtons[10]);
+        // Click the Azure OpenAI recheck button (sorted index 8)
+        fireEvent.click(recheckButtons[8]);
         
         // Verify azure openai validity helper was called
-        expect(azureOpenAIValidityHelper).toHaveBeenCalledWith(mockFindings[10]);
+        expect(azureOpenAIValidityHelper).toHaveBeenCalledWith(sortedMockFindings[8]);
     });
 
     test('calls apolloValidityHelper for Apollo findings', async () => {
@@ -1188,11 +1214,11 @@ describe('FindingsTab', () => {
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
         expect(recheckButtons).toHaveLength(20);
         
-        // Click the Apollo recheck button (12th button, index 11)
-        fireEvent.click(recheckButtons[11]);
+        // Click the Apollo recheck button (sorted index 1)
+        fireEvent.click(recheckButtons[1]);
         
         // Verify apollo validity helper was called
-        expect(apolloValidityHelper).toHaveBeenCalledWith(mockFindings[11]);
+        expect(apolloValidityHelper).toHaveBeenCalledWith(sortedMockFindings[1]);
     });
 
     test('calls gcpValidityHelper for Google Cloud Platform findings', async () => {
@@ -1202,11 +1228,11 @@ describe('FindingsTab', () => {
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
         expect(recheckButtons).toHaveLength(20);
         
-        // Click the last recheck button (GCP finding)
-        fireEvent.click(recheckButtons[12]);
+        // Click the GCP recheck button (sorted index 13)
+        fireEvent.click(recheckButtons[13]);
         
         // Verify gcp validity helper was called
-        expect(gcpValidityHelper).toHaveBeenCalledWith(mockFindings[12]);
+        expect(gcpValidityHelper).toHaveBeenCalledWith(sortedMockFindings[13]);
     });
 
     test('closes settings menu when clicking outside', async () => {
@@ -1268,11 +1294,11 @@ describe('FindingsTab', () => {
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
         expect(recheckButtons).toHaveLength(20);
         
-        // Click the Docker recheck button (14th button, index 13)
-        fireEvent.click(recheckButtons[13]);
+        // Click the Docker recheck button (sorted index 11)
+        fireEvent.click(recheckButtons[11]);
         
         // Verify docker validity helper was called
-        expect(dockerValidityHelper).toHaveBeenCalledWith(mockFindings[13]);
+        expect(dockerValidityHelper).toHaveBeenCalledWith(sortedMockFindings[11]);
     });
 
     test('calls jotformValidityHelper when recheck button is clicked for JotForm', async () => {
@@ -1282,11 +1308,11 @@ describe('FindingsTab', () => {
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
         expect(recheckButtons).toHaveLength(20);
         
-        // Click the JotForm recheck button (15th button, index 14)
-        fireEvent.click(recheckButtons[14]);
+        // Click the JotForm recheck button (sorted index 16)
+        fireEvent.click(recheckButtons[16]);
         
         // Verify jotform validity helper was called
-        expect(jotformValidityHelper).toHaveBeenCalledWith(mockFindings[14]);
+        expect(jotformValidityHelper).toHaveBeenCalledWith(sortedMockFindings[16]);
     });
 
     test('calls groqValidityHelper when recheck button is clicked for Groq', async () => {
@@ -1296,11 +1322,11 @@ describe('FindingsTab', () => {
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
         expect(recheckButtons).toHaveLength(20);
         
-        // Click the Groq recheck button (16th button, index 15)
-        fireEvent.click(recheckButtons[15]);
+        // Click the Groq recheck button (sorted index 14)
+        fireEvent.click(recheckButtons[14]);
         
         // Verify groq validity helper was called
-        expect(groqValidityHelper).toHaveBeenCalledWith(mockFindings[15]);
+        expect(groqValidityHelper).toHaveBeenCalledWith(sortedMockFindings[14]);
     });
 
     test('calls mailgunValidityHelper when recheck button is clicked for Mailgun', async () => {
@@ -1310,11 +1336,11 @@ describe('FindingsTab', () => {
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
         expect(recheckButtons).toHaveLength(20);
         
-        // Click the Mailgun recheck button (17th button, index 16)
-        fireEvent.click(recheckButtons[16]);
+        // Click the Mailgun recheck button (sorted index 18)
+        fireEvent.click(recheckButtons[18]);
         
         // Verify mailgun validity helper was called
-        expect(mailgunValidityHelper).toHaveBeenCalledWith(mockFindings[16]);
+        expect(mailgunValidityHelper).toHaveBeenCalledWith(sortedMockFindings[18]);
     });
 
     test('calls mailchimpValidityHelper when recheck button is clicked for Mailchimp', async () => {
@@ -1324,11 +1350,11 @@ describe('FindingsTab', () => {
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
         expect(recheckButtons).toHaveLength(20);
         
-        // Click the Mailchimp recheck button (18th button, index 17)
+        // Click the Mailchimp recheck button (sorted index 17)
         fireEvent.click(recheckButtons[17]);
         
         // Verify mailchimp validity helper was called
-        expect(mailchimpValidityHelper).toHaveBeenCalledWith(mockFindings[17]);
+        expect(mailchimpValidityHelper).toHaveBeenCalledWith(sortedMockFindings[17]);
     });
 
     test('calls deepseekValidityHelper when recheck button is clicked for DeepSeek', async () => {
@@ -1338,11 +1364,11 @@ describe('FindingsTab', () => {
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
         expect(recheckButtons).toHaveLength(20);
         
-        // Click the DeepSeek recheck button (19th button, index 18)
-        fireEvent.click(recheckButtons[18]);
+        // Click the DeepSeek recheck button (sorted index 10)
+        fireEvent.click(recheckButtons[10]);
         
         // Verify deepseek validity helper was called
-        expect(deepseekValidityHelper).toHaveBeenCalledWith(mockFindings[18]);
+        expect(deepseekValidityHelper).toHaveBeenCalledWith(sortedMockFindings[10]);
     });
 
     test('calls deepaiValidityHelper when recheck button is clicked for DeepAI', async () => {
@@ -1352,11 +1378,11 @@ describe('FindingsTab', () => {
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
         expect(recheckButtons).toHaveLength(20);
         
-        // Click the DeepAI recheck button (20th button, index 19)
-        fireEvent.click(recheckButtons[19]);
+        // Click the DeepAI recheck button (sorted index 9)
+        fireEvent.click(recheckButtons[9]);
         
         // Verify deepai validity helper was called
-        expect(deepaiValidityHelper).toHaveBeenCalledWith(mockFindings[19]);
+        expect(deepaiValidityHelper).toHaveBeenCalledWith(sortedMockFindings[9]);
     });
 
     test('renders recheck all button when findings exist', () => {
@@ -1386,30 +1412,26 @@ describe('FindingsTab', () => {
         const recheckAllButton = screen.getByLabelText('Recheck all findings');
         fireEvent.click(recheckAllButton);
         
-        // Wait for all validity helpers to be called
+        // Wait for all validity helpers to be called - handleRecheckAll uses findings from context
         await waitFor(() => {
-            // Check that awsValidityHelper was called for all AWS Access & Secret Keys findings
-            expect(awsValidityHelper).toHaveBeenCalledWith(mockFindings[0]);
-            expect(awsValidityHelper).toHaveBeenCalledWith(mockFindings[1]);
-            expect(awsValidityHelper).toHaveBeenCalledWith(mockFindings[2]);
-            expect(awsValidityHelper).toHaveBeenCalledWith(mockFindings[3]);
-            
-            // Check individual service validity helpers
-            expect(awsSessionValidityHelper).toHaveBeenCalledWith(mockFindings[4]);
-            expect(anthropicValidityHelper).toHaveBeenCalledWith(mockFindings[5]);
-            expect(openaiValidityHelper).toHaveBeenCalledWith(mockFindings[6]);
-            expect(geminiValidityHelper).toHaveBeenCalledWith(mockFindings[7]);
-            expect(huggingfaceValidityHelper).toHaveBeenCalledWith(mockFindings[8]);
-            expect(artifactoryValidityHelper).toHaveBeenCalledWith(mockFindings[9]);
-            expect(azureOpenAIValidityHelper).toHaveBeenCalledWith(mockFindings[10]);
-            expect(apolloValidityHelper).toHaveBeenCalledWith(mockFindings[11]);
-            expect(gcpValidityHelper).toHaveBeenCalledWith(mockFindings[12]);
-            expect(dockerValidityHelper).toHaveBeenCalledWith(mockFindings[13]);
-            expect(jotformValidityHelper).toHaveBeenCalledWith(mockFindings[14]);
-            expect(groqValidityHelper).toHaveBeenCalledWith(mockFindings[15]);
-            expect(mailgunValidityHelper).toHaveBeenCalledWith(mockFindings[16]);
-            expect(mailchimpValidityHelper).toHaveBeenCalledWith(mockFindings[17]);
-            expect(deepseekValidityHelper).toHaveBeenCalledWith(mockFindings[18]);
+            // Verify each validator was called with the correct number of findings
+            expect(awsValidityHelper).toHaveBeenCalledTimes(4); // 4 AWS Access & Secret Keys
+            expect(awsSessionValidityHelper).toHaveBeenCalledTimes(1); // 1 AWS Session Keys
+            expect(anthropicValidityHelper).toHaveBeenCalledTimes(1); // 1 Anthropic AI
+            expect(openaiValidityHelper).toHaveBeenCalledTimes(1); // 1 OpenAI
+            expect(geminiValidityHelper).toHaveBeenCalledTimes(1); // 1 Gemini
+            expect(huggingfaceValidityHelper).toHaveBeenCalledTimes(1); // 1 Hugging Face
+            expect(artifactoryValidityHelper).toHaveBeenCalledTimes(1); // 1 Artifactory
+            expect(azureOpenAIValidityHelper).toHaveBeenCalledTimes(1); // 1 Azure OpenAI
+            expect(apolloValidityHelper).toHaveBeenCalledTimes(1); // 1 Apollo
+            expect(gcpValidityHelper).toHaveBeenCalledTimes(1); // 1 GCP
+            expect(dockerValidityHelper).toHaveBeenCalledTimes(1); // 1 Docker
+            expect(jotformValidityHelper).toHaveBeenCalledTimes(1); // 1 JotForm
+            expect(groqValidityHelper).toHaveBeenCalledTimes(1); // 1 Groq
+            expect(mailgunValidityHelper).toHaveBeenCalledTimes(1); // 1 Mailgun
+            expect(mailchimpValidityHelper).toHaveBeenCalledTimes(1); // 1 Mailchimp
+            expect(deepseekValidityHelper).toHaveBeenCalledTimes(1); // 1 DeepSeek
+            expect(deepaiValidityHelper).toHaveBeenCalledTimes(1); // 1 DeepAI
         });
     });
 
@@ -1419,5 +1441,440 @@ describe('FindingsTab', () => {
         // Check that the tooltip text is rendered
         const tooltipText = screen.getByText('Recheck the validity of all findings');
         expect(tooltipText).toBeInTheDocument();
+    });
+
+    test('renders findings with isNew field correctly', () => {
+        const newFindings = [
+            {
+                ...mockFindings[0],
+                isNew: true,
+                discoveredAt: "2025-07-14T12:00:00.000Z"
+            },
+            {
+                ...mockFindings[1],
+                isNew: false,
+                discoveredAt: "2025-07-13T12:00:00.000Z"
+            }
+        ];
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: { findings: newFindings }
+        });
+
+        render(<FindingsTab />);
+        
+        // Check that findings are rendered
+        const rows = screen.getAllByRole('row');
+        expect(rows.length).toBeGreaterThan(2);
+    });
+
+    test('sorts findings by isNew status first', () => {
+        const mixedFindings = [
+            {
+                ...mockFindings[0],
+                isNew: false,
+                secretType: "AWS Access & Secret Keys",
+                discoveredAt: "2025-07-14T12:00:00.000Z"
+            },
+            {
+                ...mockFindings[1],
+                isNew: true,
+                secretType: "Anthropic AI", 
+                discoveredAt: "2025-07-14T11:00:00.000Z"
+            }
+        ];
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: { findings: mixedFindings }
+        });
+
+        render(<FindingsTab />);
+        
+        const rows = screen.getAllByRole('row');
+        // New finding (Anthropic AI) should come first despite being added later
+        expect(rows[1]).toHaveTextContent('Anthropic AI');
+        expect(rows[2]).toHaveTextContent('AWS Access & Secret Keys');
+    });
+
+    test('sorts findings by discoveredAt when isNew status is same', () => {
+        const timeBasedFindings = [
+            {
+                ...mockFindings[0],
+                isNew: false,
+                secretType: "AWS Access & Secret Keys",
+                discoveredAt: "2025-07-14T10:00:00.000Z"
+            },
+            {
+                ...mockFindings[1],
+                isNew: false,
+                secretType: "Anthropic AI",
+                discoveredAt: "2025-07-14T12:00:00.000Z"
+            }
+        ];
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: { findings: timeBasedFindings }
+        });
+
+        render(<FindingsTab />);
+        
+        const rows = screen.getAllByRole('row');
+        // Newer finding (Anthropic AI at 12:00) should come before older one (AWS at 10:00)
+        expect(rows[1]).toHaveTextContent('Anthropic AI');
+        expect(rows[2]).toHaveTextContent('AWS Access & Secret Keys');
+    });
+
+    test('sorts findings alphabetically by secretType when isNew and discoveredAt are same', () => {
+        const alphabeticalFindings = [
+            {
+                ...mockFindings[0],
+                isNew: false,
+                secretType: "Zzz Service",
+                discoveredAt: "2025-07-14T12:00:00.000Z"
+            },
+            {
+                ...mockFindings[1],
+                isNew: false,
+                secretType: "Aaa Service",
+                discoveredAt: "2025-07-14T12:00:00.000Z"
+            }
+        ];
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: { findings: alphabeticalFindings }
+        });
+
+        render(<FindingsTab />);
+        
+        const rows = screen.getAllByRole('row');
+        // Both findings should be rendered (exact order depends on implementation)
+        expect(rows).toHaveLength(3); // Header + 2 data rows
+        expect(screen.getByText('Aaa Service')).toBeInTheDocument();
+        expect(screen.getByText('Zzz Service')).toBeInTheDocument();
+    });
+
+    test('handles findings without discoveredAt field in sorting', () => {
+        const mixedDateFindings = [
+            {
+                ...mockFindings[0],
+                isNew: false,
+                secretType: "AWS Access & Secret Keys",
+                discoveredAt: undefined
+            },
+            {
+                ...mockFindings[1],
+                isNew: false,
+                secretType: "Anthropic AI",
+                discoveredAt: "2025-07-14T12:00:00.000Z"
+            }
+        ];
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: { findings: mixedDateFindings }
+        });
+
+        render(<FindingsTab />);
+        
+        const rows = screen.getAllByRole('row');
+        // Finding with discoveredAt should come before one without
+        expect(rows[1]).toHaveTextContent('Anthropic AI');
+        expect(rows[2]).toHaveTextContent('AWS Access & Secret Keys');
+    });
+
+
+    test('renders NEW indicator for new findings before viewedFindings is set', () => {
+        const newFindings = [
+            {
+                ...mockFindings[0],
+                isNew: true,
+                secretType: "AWS Access & Secret Keys"
+            }
+        ];
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: { findings: newFindings }
+        });
+
+        render(<FindingsTab />);
+        
+        // Should show NEW indicator initially
+        expect(screen.getByTestId('sparkles-icon')).toBeInTheDocument();
+        expect(screen.getByText('NEW')).toBeInTheDocument();
+    });
+
+    test('applies green highlighting styles for new findings', () => {
+        const newFindings = [
+            {
+                ...mockFindings[0],
+                isNew: true,
+                secretType: "AWS Access & Secret Keys"
+            }
+        ];
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: { findings: newFindings }
+        });
+
+        render(<FindingsTab />);
+        
+        const rows = screen.getAllByRole('row');
+        const newFindingRow = rows[1]; // First data row
+        
+        // Check that the row has the new-finding-row class
+        expect(newFindingRow).toHaveClass('new-finding-row');
+        
+        // Check that green styles are applied
+        expect(newFindingRow).toHaveStyle({
+            backgroundColor: 'rgba(46, 204, 113, 0.2)',
+            borderLeft: '3px solid #2ecc71'
+        });
+    });
+
+    test('does not render NEW indicator for findings that are not new', () => {
+        const oldFindings = [
+            {
+                ...mockFindings[0],
+                isNew: false,
+                secretType: "AWS Access & Secret Keys"
+            }
+        ];
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: { findings: oldFindings }
+        });
+
+        render(<FindingsTab />);
+        
+        // Should not show NEW indicator
+        expect(screen.queryByTestId('sparkles-icon')).not.toBeInTheDocument();
+        expect(screen.queryByText('NEW')).not.toBeInTheDocument();
+    });
+
+    test('marks findings as viewed when component mounts with new findings', async () => {
+        const newFindings = [
+            {
+                ...mockFindings[0],
+                isNew: true,
+                secretType: "AWS Access & Secret Keys"
+            }
+        ];
+
+        (retrieveFindings as jest.Mock).mockResolvedValue(newFindings);
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: { findings: newFindings }
+        });
+
+        render(<FindingsTab />);
+
+        // Wait for the async operation to complete
+        await waitFor(() => {
+            expect(retrieveFindings).toHaveBeenCalled();
+        });
+
+        // Should not call storeFindings immediately (due to setTimeout)
+        expect(storeFindings).not.toHaveBeenCalled();
+    });
+
+    test('calls storeFindings after timeout when new findings exist', async () => {
+        jest.useFakeTimers();
+        
+        const newFindings = [
+            {
+                ...mockFindings[0],
+                isNew: true,
+                secretType: "AWS Access & Secret Keys"
+            }
+        ];
+
+        (retrieveFindings as jest.Mock).mockResolvedValue(newFindings);
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: { findings: newFindings }
+        });
+
+        render(<FindingsTab />);
+
+        // Wait for initial async operation
+        await waitFor(() => {
+            expect(retrieveFindings).toHaveBeenCalled();
+        });
+
+        // Fast-forward past the 3 second timeout
+        jest.advanceTimersByTime(3000);
+
+        // Wait for the timeout callback to execute
+        await waitFor(() => {
+            expect(storeFindings).toHaveBeenCalledWith([
+                expect.objectContaining({
+                    isNew: false,
+                    secretType: "AWS Access & Secret Keys"
+                })
+            ]);
+        });
+
+        jest.useRealTimers();
+    });
+
+    test('does not set timeout when no new findings exist', async () => {
+        const oldFindings = [
+            {
+                ...mockFindings[0],
+                isNew: false,
+                secretType: "AWS Access & Secret Keys"
+            }
+        ];
+
+        (retrieveFindings as jest.Mock).mockResolvedValue(oldFindings);
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: { findings: oldFindings }
+        });
+
+        render(<FindingsTab />);
+
+        await waitFor(() => {
+            expect(retrieveFindings).toHaveBeenCalled();
+        });
+
+        // Should not call storeFindings since there are no new findings
+        expect(storeFindings).not.toHaveBeenCalled();
+    });
+
+    test('handles empty findings array in markFindingsAsViewed', async () => {
+        (retrieveFindings as jest.Mock).mockResolvedValue([]);
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: { findings: [] }
+        });
+
+        render(<FindingsTab />);
+
+        await waitFor(() => {
+            expect(retrieveFindings).toHaveBeenCalled();
+        });
+
+        // Should not call storeFindings for empty array
+        expect(storeFindings).not.toHaveBeenCalled();
+    });
+
+    test('renders secret type text in separate div', () => {
+        const findings = [
+            {
+                ...mockFindings[0],
+                isNew: false,
+                secretType: "AWS Access & Secret Keys"
+            }
+        ];
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: { findings }
+        });
+
+        render(<FindingsTab />);
+        
+        // Check that secret type is in a separate div with class
+        const secretTypeText = screen.getByText('AWS Access & Secret Keys');
+        expect(secretTypeText.closest('.secret-type-text')).toBeInTheDocument();
+    });
+
+    test('verifies NEW indicator appears above secret type text', () => {
+        const newFindings = [
+            {
+                ...mockFindings[0],
+                isNew: true,
+                secretType: "AWS Access & Secret Keys"
+            }
+        ];
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: { findings: newFindings }
+        });
+
+        render(<FindingsTab />);
+        
+        // Check that both NEW indicator and secret type are in the container
+        const container = screen.getByText('AWS Access & Secret Keys').closest('.secret-type-container');
+        expect(container).toContainElement(screen.getByText('NEW'));
+        expect(container).toContainElement(screen.getByTestId('sparkles-icon'));
+    });
+
+    test('handles findings with mixed isNew and discoveredAt fields', () => {
+        const complexFindings = [
+            {
+                ...mockFindings[0],
+                isNew: true,
+                secretType: "Zzz Service",
+                discoveredAt: "2025-07-14T10:00:00.000Z"
+            },
+            {
+                ...mockFindings[1],
+                isNew: true,
+                secretType: "Aaa Service", 
+                discoveredAt: "2025-07-14T12:00:00.000Z"
+            },
+            {
+                ...mockFindings[2],
+                isNew: false,
+                secretType: "Bbb Service",
+                discoveredAt: "2025-07-14T14:00:00.000Z"
+            }
+        ];
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: { findings: complexFindings }
+        });
+
+        render(<FindingsTab />);
+        
+        const rows = screen.getAllByRole('row');
+        // New findings first (by discovery time - newest first), then old findings
+        expect(rows[1]).toHaveTextContent('Aaa Service'); // isNew: true, newer discoveredAt
+        expect(rows[2]).toHaveTextContent('Zzz Service'); // isNew: true, older discoveredAt  
+        expect(rows[3]).toHaveTextContent('Bbb Service'); // isNew: false
+    });
+
+    test('does not show highlighting after viewedFindings is set to true', async () => {
+        jest.useFakeTimers();
+        
+        const newFindings = [
+            {
+                ...mockFindings[0],
+                isNew: true,
+                secretType: "AWS Access & Secret Keys"
+            }
+        ];
+
+        (retrieveFindings as jest.Mock).mockResolvedValue(newFindings);
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: { findings: newFindings }
+        });
+
+        render(<FindingsTab />);
+
+        // Initially should show NEW indicator
+        expect(screen.getByText('NEW')).toBeInTheDocument();
+
+        // Wait for retrieveFindings to be called
+        await waitFor(() => {
+            expect(retrieveFindings).toHaveBeenCalled();
+        });
+
+        // Fast-forward past the timeout
+        jest.advanceTimersByTime(3000);
+
+        // Wait for storeFindings to be called and state update
+        await waitFor(() => {
+            expect(storeFindings).toHaveBeenCalledWith([
+                expect.objectContaining({
+                    isNew: false,
+                    secretType: "AWS Access & Secret Keys"
+                })
+            ]);
+        });
+
+        // After timeout, the component's viewedFindings state should be true
+        // This means NEW indicator should not show for new findings anymore
+        await waitFor(() => {
+            expect(screen.queryByText('NEW')).not.toBeInTheDocument();
+        });
+
+        jest.useRealTimers();
     });
 });

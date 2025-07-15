@@ -1,4 +1,4 @@
-import { RotateCw, Settings, ShieldCheck } from 'lucide-react';
+import { RotateCw, Settings, ShieldCheck, Sparkles } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { Finding, ValidityStatus } from 'src/types/findings.types';
 import { retrieveFindings, storeFindings } from '../../../../utils/helpers/common';
@@ -29,6 +29,7 @@ const FindingsTab: React.FC = () => {
     const settingsButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
     const settingsDropdownRef = useRef<HTMLDivElement>(null);
     const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+    const [viewedFindings, setViewedFindings] = useState(false);
 
     const handleValidityCheck = async (finding: Finding) => {
         if (finding.secretType === "AWS Access & Secret Keys") {
@@ -82,6 +83,26 @@ const FindingsTab: React.FC = () => {
                 payload: ''
             }).catch(() => { });
         });
+
+        // Mark all findings as viewed after a delay to let user see the highlighting
+        const markFindingsAsViewed = async () => {
+            const existingFindings = await retrieveFindings();
+            const hasNewFindings = existingFindings.some(finding => finding.isNew === true);
+            
+            if (hasNewFindings) {
+                // Wait 3 seconds to let user see the highlighting, then clear it
+                setTimeout(async () => {
+                    const updatedFindings = existingFindings.map(finding => ({
+                        ...finding,
+                        isNew: false
+                    }));
+                    await storeFindings(updatedFindings);
+                    setViewedFindings(true);
+                }, 3000);
+            }
+        };
+
+        markFindingsAsViewed();
     }, []);
 
     const getValidityColorClass = (validity: ValidityStatus): string => {
@@ -197,10 +218,49 @@ const FindingsTab: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {findings.map((finding, index) => (
-                                <tr key={index}>
-                                    <td className="findings-td">{finding.secretType}</td>
-                                    <td className="validity-cell">
+                            {[...findings]
+                                .sort((a, b) => {
+                                    // Sort by isNew first (new findings at top)
+                                    if (a.isNew && !b.isNew) return -1;
+                                    if (!a.isNew && b.isNew) return 1;
+                                    
+                                    // Then sort by discoveredAt (newest first)
+                                    if (a.discoveredAt && b.discoveredAt) {
+                                        return new Date(b.discoveredAt).getTime() - new Date(a.discoveredAt).getTime();
+                                    }
+                                    if (a.discoveredAt && !b.discoveredAt) return -1;
+                                    
+                                    // Finally, sort by secretType alphabetically
+                                    return a.secretType.localeCompare(b.secretType);
+                                })
+                                .map((finding, index) => {
+                                    const newFindingStyle = {
+                                        backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                                        borderLeft: '3px solid #2ecc71',
+                                        fontWeight: '600',
+                                        color: '#2ecc71'
+                                    };
+                                    
+                                    const shouldHighlight = finding.isNew === true && !viewedFindings;
+                                    
+                                    return (
+                                <tr 
+                                    key={index} 
+                                    className={shouldHighlight ? 'new-finding-row' : ''}
+                                    style={shouldHighlight ? newFindingStyle : {}}
+                                >
+                                    <td className="findings-td" style={shouldHighlight ? { fontWeight: '600', color: '#2ecc71' } : {}}>
+                                        <div className="secret-type-container">
+                                            {shouldHighlight && (
+                                                <div className="new-indicator">
+                                                    <Sparkles size={14} className="new-icon" />
+                                                    <span className="new-text">NEW</span>
+                                                </div>
+                                            )}
+                                            <div className="secret-type-text">{finding.secretType}</div>
+                                        </div>
+                                    </td>
+                                    <td className="validity-cell" style={shouldHighlight ? { fontWeight: '600', color: '#2ecc71' } : {}}>
                                         <div className={`validity-status ${getValidityColorClass(finding.validity)}`}>
                                             {finding.validity.replace(/_/g, ' ')}
 
@@ -222,7 +282,7 @@ const FindingsTab: React.FC = () => {
 
                                         </div>
                                     </td>
-                                    <td className="findings-td">{finding.numOccurrences}</td>
+                                    <td className="findings-td" style={shouldHighlight ? { fontWeight: '600', color: '#2ecc71' } : {}}>{finding.numOccurrences}</td>
                                     <td className="settings-cell">
                                         <div className="settings-container">
                                             <button
@@ -236,7 +296,9 @@ const FindingsTab: React.FC = () => {
                                         </div>
                                     </td>
                                 </tr>
-                            ))}
+                                    );
+                                })
+                            }
                         </tbody>
                     </table>
                 </div>

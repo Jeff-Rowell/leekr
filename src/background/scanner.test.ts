@@ -106,6 +106,8 @@ describe('findSecrets', () => {
             validatedAt: '2025-05-17T18:16:16.870Z',
             fingerprint: 'fp1',
             occurrences: new Set([mockOccurrenceOne]),
+            isNew: true,
+            discoveredAt: '2025-05-17T18:16:16.870Z',
         });
         expect(mockDetectAwsAccessKeys).toHaveBeenCalledWith(content, url);
     });
@@ -129,6 +131,8 @@ describe('findSecrets', () => {
             validatedAt: '2025-05-17T18:16:16.870Z',
             fingerprint: 'fp1',
             occurrences: new Set([mockOccurrenceOne]),
+            isNew: true,
+            discoveredAt: '2025-05-17T18:16:16.870Z',
         });
         expect(result[1]).toEqual({
             numOccurrences: 1,
@@ -140,6 +144,8 @@ describe('findSecrets', () => {
             validatedAt: '2025-05-17T18:16:16.870Z',
             fingerprint: 'fp2',
             occurrences: new Set([mockOccurrenceTwo]),
+            isNew: true,
+            discoveredAt: '2025-05-17T18:16:16.870Z',
         });
     });
 
