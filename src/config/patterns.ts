@@ -18,6 +18,7 @@ import { DEFAULT_MAILGUN_CONFIG } from './detectors/mailgun/mailgun';
 import { DEFAULT_MAILCHIMP_CONFIG } from './detectors/mailchimp/mailchimp';
 import { deepseekConfig } from './detectors/deepseek/deepseek';
 import { deepaiConfig } from './detectors/deepai/deepai';
+import { DEFAULT_TELEGRAM_BOT_TOKEN_CONFIG } from './detectors/telegram_bot_token/telegram_bot_token';
 
 const awsAccessKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_ACCESS_KEY_CONFIG };
 const awsSessionKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_SESSION_KEY_CONFIG };
@@ -487,6 +488,16 @@ export const patterns: PatternsObj = {
         familyName: "DeepAI",
         pattern: /\b([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})\b/g,
         entropy: deepaiConfig.patterns.apiKey.entropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Telegram Bot Token": {
+        name: "Telegram Bot Token",
+        familyName: "Telegram Bot Token",
+        pattern: /\b([0-9]{8,10}:[a-zA-Z0-9_-]{35})\b/g,
+        entropy: DEFAULT_TELEGRAM_BOT_TOKEN_CONFIG.requiredEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
         validityEndpoints: [],
