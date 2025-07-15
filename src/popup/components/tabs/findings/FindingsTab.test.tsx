@@ -15,6 +15,7 @@ import { MailgunOccurrence } from 'src/types/mailgun';
 import { MailchimpOccurrence } from 'src/types/mailchimp';
 import { DeepSeekOccurrence } from 'src/types/deepseek';
 import { DeepAIOccurrence } from 'src/types/deepai';
+import { TelegramBotTokenOccurrence } from 'src/types/telegram_bot_token';
 import { Finding, Occurrence } from 'src/types/findings.types';
 import { retrieveFindings, storeFindings } from '../../../../utils/helpers/common';
 import { awsValidityHelper } from '../../../../utils/validators/aws/aws_access_keys/awsValidityHelper';
@@ -34,6 +35,7 @@ import { mailgunValidityHelper } from '../../../../utils/validators/mailgun/mail
 import { mailchimpValidityHelper } from '../../../../utils/validators/mailchimp/mailchimpValidityHelper';
 import { deepseekValidityHelper } from '../../../../utils/validators/deepseek/deepseekValidityHelper';
 import { deepaiValidityHelper } from '../../../../utils/validators/deepai/deepaiValidityHelper';
+import { telegramBotTokenValidityHelper } from '../../../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import FindingsTab from './FindingsTab';
 
@@ -107,6 +109,10 @@ jest.mock('../../../../utils/validators/deepseek/deepseekValidityHelper', () => 
 
 jest.mock('../../../../utils/validators/deepai/deepaiValidityHelper', () => ({
     deepaiValidityHelper: jest.fn(),
+}));
+
+jest.mock('../../../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper', () => ({
+    telegramBotTokenValidityHelper: jest.fn(),
 }));
 
 jest.mock('../../../../utils/helpers/common', () => ({
@@ -416,6 +422,28 @@ describe('FindingsTab', () => {
     };
 
     const mockDeepAIOccurrences: Set<Occurrence> = new Set([mockDeepAIOccurrence]);
+
+    const mockTelegramBotTokenOccurrence: TelegramBotTokenOccurrence = {
+        filePath: "main.telegram.js",
+        fingerprint: "fp21",
+        type: "Bot Token",
+        secretType: "Telegram Bot Token",
+        secretValue: {
+            match: { 
+                bot_token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghi"
+            }
+        },
+        sourceContent: {
+            content: 'const botToken = "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghi";',
+            contentFilename: "main.telegram.js",
+            contentStartLineNum: 5,
+            contentEndLineNum: 5,
+            exactMatchNumbers: [18, 63]
+        },
+        url: "http://localhost:3000/static/js/main.telegram.js"
+    };
+
+    const mockTelegramBotTokenOccurrences: Set<Occurrence> = new Set([mockTelegramBotTokenOccurrence]);
 
     const mockFindings: Finding[] = [
         {
@@ -872,6 +900,21 @@ describe('FindingsTab', () => {
                 validity: "valid"
             }
         },
+        {
+            fingerprint: "fp21",
+            numOccurrences: mockTelegramBotTokenOccurrences.size,
+            occurrences: mockTelegramBotTokenOccurrences,
+            validity: "valid",
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            secretType: "Telegram Bot Token",
+            secretValue: {
+                match: { 
+                    bot_token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghi"
+                },
+                validatedAt: "2025-05-17T18:16:16.870Z",
+                validity: "valid"
+            }
+        },
     ];
 
     // Helper to get sorted findings (matches FindingsTab sorting logic)
@@ -976,14 +1019,14 @@ describe('FindingsTab', () => {
     test('shows validity check icon for validated findings', () => {
         render(<FindingsTab />);
         const shieldIcons = screen.getAllByTestId('shield-check-icon');
-        expect(shieldIcons.length).toBe(20);
+        expect(shieldIcons.length).toBe(21);
     });
 
     test('opens settings menu when settings button is clicked', async () => {
         render(<FindingsTab />);
 
         const settingsButtons = screen.getAllByLabelText('Settings');
-        expect(settingsButtons.length).toBe(20);
+        expect(settingsButtons.length).toBe(21);
         fireEvent.click(settingsButtons[0]);
 
         await waitFor(() => {
@@ -1044,7 +1087,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(20);
+        expect(recheckButtons).toHaveLength(21);
 
         fireEvent.click(recheckButtons[0]);
         expect(anthropicValidityHelper).toHaveBeenCalledWith(sortedMockFindings[0]);
@@ -1054,7 +1097,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(20);
+        expect(recheckButtons).toHaveLength(21);
 
         fireEvent.click(recheckButtons[7]);
         expect(awsSessionValidityHelper).toHaveBeenCalledWith(sortedMockFindings[7]);
@@ -1064,7 +1107,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(20);
+        expect(recheckButtons).toHaveLength(21);
 
         fireEvent.click(recheckButtons[5]);
         expect(awsValidityHelper).toHaveBeenCalledWith(sortedMockFindings[5]);
@@ -1074,7 +1117,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(20);
+        expect(recheckButtons).toHaveLength(21);
 
         fireEvent.click(recheckButtons[6]);
         expect(awsValidityHelper).toHaveBeenCalledWith(sortedMockFindings[6]);
@@ -1084,7 +1127,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(20);
+        expect(recheckButtons).toHaveLength(21);
 
         fireEvent.click(recheckButtons[12]);
         expect(geminiValidityHelper).toHaveBeenCalledWith(sortedMockFindings[12]);
@@ -1094,7 +1137,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(20);
+        expect(recheckButtons).toHaveLength(21);
 
         fireEvent.click(recheckButtons[15]);
         expect(huggingfaceValidityHelper).toHaveBeenCalledWith(sortedMockFindings[15]);
@@ -1184,7 +1227,7 @@ describe('FindingsTab', () => {
         
         // Find the Artifactory recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(20);
+        expect(recheckButtons).toHaveLength(21);
         
         // Click the Artifactory recheck button (sorted index 2) 
         fireEvent.click(recheckButtons[2]);
@@ -1198,7 +1241,7 @@ describe('FindingsTab', () => {
         
         // Find the Azure OpenAI recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(20);
+        expect(recheckButtons).toHaveLength(21);
         
         // Click the Azure OpenAI recheck button (sorted index 8)
         fireEvent.click(recheckButtons[8]);
@@ -1212,7 +1255,7 @@ describe('FindingsTab', () => {
         
         // Find the Apollo recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(20);
+        expect(recheckButtons).toHaveLength(21);
         
         // Click the Apollo recheck button (sorted index 1)
         fireEvent.click(recheckButtons[1]);
@@ -1226,7 +1269,7 @@ describe('FindingsTab', () => {
         
         // Find the GCP recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(20);
+        expect(recheckButtons).toHaveLength(21);
         
         // Click the GCP recheck button (sorted index 13)
         fireEvent.click(recheckButtons[13]);
@@ -1292,7 +1335,7 @@ describe('FindingsTab', () => {
         
         // Find the Docker recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(20);
+        expect(recheckButtons).toHaveLength(21);
         
         // Click the Docker recheck button (sorted index 11)
         fireEvent.click(recheckButtons[11]);
@@ -1306,7 +1349,7 @@ describe('FindingsTab', () => {
         
         // Find the JotForm recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(20);
+        expect(recheckButtons).toHaveLength(21);
         
         // Click the JotForm recheck button (sorted index 16)
         fireEvent.click(recheckButtons[16]);
@@ -1320,7 +1363,7 @@ describe('FindingsTab', () => {
         
         // Find the Groq recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(20);
+        expect(recheckButtons).toHaveLength(21);
         
         // Click the Groq recheck button (sorted index 14)
         fireEvent.click(recheckButtons[14]);
@@ -1334,7 +1377,7 @@ describe('FindingsTab', () => {
         
         // Find the Mailgun recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(20);
+        expect(recheckButtons).toHaveLength(21);
         
         // Click the Mailgun recheck button (sorted index 18)
         fireEvent.click(recheckButtons[18]);
@@ -1348,7 +1391,7 @@ describe('FindingsTab', () => {
         
         // Find the Mailchimp recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(20);
+        expect(recheckButtons).toHaveLength(21);
         
         // Click the Mailchimp recheck button (sorted index 17)
         fireEvent.click(recheckButtons[17]);
@@ -1362,7 +1405,7 @@ describe('FindingsTab', () => {
         
         // Find the DeepSeek recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(20);
+        expect(recheckButtons).toHaveLength(21);
         
         // Click the DeepSeek recheck button (sorted index 10)
         fireEvent.click(recheckButtons[10]);
@@ -1376,13 +1419,27 @@ describe('FindingsTab', () => {
         
         // Find the DeepAI recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(20);
+        expect(recheckButtons).toHaveLength(21);
         
         // Click the DeepAI recheck button (sorted index 9)
         fireEvent.click(recheckButtons[9]);
         
         // Verify deepai validity helper was called
         expect(deepaiValidityHelper).toHaveBeenCalledWith(sortedMockFindings[9]);
+    });
+
+    test('calls telegramBotTokenValidityHelper when recheck button is clicked for Telegram Bot Token', async () => {
+        render(<FindingsTab />);
+        
+        // Find the Telegram Bot Token recheck button directly (in the validity tooltip)
+        const recheckButtons = screen.getAllByLabelText('Recheck validity');
+        expect(recheckButtons).toHaveLength(21);
+        
+        // Click the Telegram Bot Token recheck button (sorted index 20)
+        fireEvent.click(recheckButtons[20]);
+        
+        // Verify telegram bot token validity helper was called
+        expect(telegramBotTokenValidityHelper).toHaveBeenCalledWith(sortedMockFindings[20]);
     });
 
     test('renders recheck all button when findings exist', () => {

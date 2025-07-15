@@ -36,6 +36,7 @@ import { mailgunValidityHelper } from '../../utils/validators/mailgun/mailgunVal
 import { mailchimpValidityHelper } from '../../utils/validators/mailchimp/mailchimpValidityHelper';
 import { deepseekValidityHelper } from '../../utils/validators/deepseek/deepseekValidityHelper';
 import { deepaiValidityHelper } from '../../utils/validators/deepai/deepaiValidityHelper';
+import { telegramBotTokenValidityHelper } from '../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper';
 import { Findings } from './Findings';
 
 jest.mock('../../popup/AppContext');
@@ -57,6 +58,7 @@ jest.mock('../../utils/validators/mailgun/mailgunValidityHelper');
 jest.mock('../../utils/validators/mailchimp/mailchimpValidityHelper');
 jest.mock('../../utils/validators/deepseek/deepseekValidityHelper');
 jest.mock('../../utils/validators/deepai/deepaiValidityHelper');
+jest.mock('../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper');
 
 const mockAwsValidityHelper = awsValidityHelper as jest.MockedFunction<typeof awsValidityHelper>;
 const mockAwsSessionValidityHelper = awsSessionValidityHelper as jest.MockedFunction<typeof awsSessionValidityHelper>;
@@ -75,6 +77,7 @@ const mockMailgunValidityHelper = mailgunValidityHelper as jest.MockedFunction<t
 const mockMailchimpValidityHelper = mailchimpValidityHelper as jest.MockedFunction<typeof mailchimpValidityHelper>;
 const mockDeepseekValidityHelper = deepseekValidityHelper as jest.MockedFunction<typeof deepseekValidityHelper>;
 const mockDeepaiValidityHelper = deepaiValidityHelper as jest.MockedFunction<typeof deepaiValidityHelper>;
+const mockTelegramBotTokenValidityHelper = telegramBotTokenValidityHelper as jest.MockedFunction<typeof telegramBotTokenValidityHelper>;
 
 const mockChrome = {
     runtime: {
@@ -1784,6 +1787,33 @@ describe('Findings Component', () => {
             fireEvent.click(recheckButton);
 
             expect(mockDeepaiValidityHelper).toHaveBeenCalledWith(deepaiFinding);
+        });
+    });
+
+    describe('Telegram Bot Token Validity Checking', () => {
+        test('calls telegramBotTokenValidityHelper when recheck button is clicked for Telegram Bot Token finding', async () => {
+            const telegramBotTokenFinding = {
+                fingerprint: 'telegram-bot-token-test',
+                numOccurrences: 1,
+                secretType: 'Telegram Bot Token',
+                validity: 'valid' as const,
+                validatedAt: '2025-05-30T12:00:00.000Z',
+                secretValue: { match: { bot_token: '123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghi' } },
+                occurrences: new Set([])
+            };
+
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: [telegramBotTokenFinding],
+                },
+            });
+
+            render(<Findings />);
+
+            const recheckButton = screen.getByLabelText('Recheck validity');
+            fireEvent.click(recheckButton);
+
+            expect(mockTelegramBotTokenValidityHelper).toHaveBeenCalledWith(telegramBotTokenFinding);
         });
     });
 });

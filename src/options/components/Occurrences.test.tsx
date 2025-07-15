@@ -33,6 +33,7 @@ import { mailgunValidityHelper } from '../../utils/validators/mailgun/mailgunVal
 import { mailchimpValidityHelper } from '../../utils/validators/mailchimp/mailchimpValidityHelper';
 import { deepseekValidityHelper } from '../../utils/validators/deepseek/deepseekValidityHelper';
 import { deepaiValidityHelper } from '../../utils/validators/deepai/deepaiValidityHelper';
+import { telegramBotTokenValidityHelper } from '../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
@@ -56,6 +57,7 @@ jest.mock('../../utils/validators/mailgun/mailgunValidityHelper');
 jest.mock('../../utils/validators/mailchimp/mailchimpValidityHelper');
 jest.mock('../../utils/validators/deepseek/deepseekValidityHelper');
 jest.mock('../../utils/validators/deepai/deepaiValidityHelper');
+jest.mock('../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",
@@ -1109,5 +1111,55 @@ describe('Occurrences Component', () => {
         fireEvent.click(recheckButton);
 
         expect(deepaiValidityHelper).toHaveBeenCalledWith(deepaiFinding);
+    });
+
+    test('calls telegramBotTokenValidityHelper on recheck button click for Telegram Bot Token', async () => {
+        const telegramBotTokenOccurrence = {
+            fingerprint: "telegram-bot-token-fp",
+            filePath: "telegram-bot-config.js",
+            type: "Bot Token",
+            secretType: "Telegram Bot Token",
+            secretValue: {
+                match: {
+                    bot_token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghi"
+                }
+            },
+            url: "https://example.com/telegram-bot-config.js",
+            sourceContent: {
+                content: "const botToken = '123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghi';",
+                contentFilename: "telegram-bot-config.js",
+                contentStartLineNum: 5,
+                contentEndLineNum: 15,
+                exactMatchNumbers: [10]
+            },
+            validity: "valid"
+        };
+
+        const telegramBotTokenFinding = {
+            fingerprint: "telegram-bot-token-fp",
+            numOccurrences: 1,
+            occurrences: new Set([telegramBotTokenOccurrence]),
+            validity: "valid" as const,
+            validatedAt: "2025-05-30T12:00:00.000Z",
+            secretType: "Telegram Bot Token",
+            secretValue: {
+                match: {
+                    bot_token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghi"
+                }
+            }
+        };
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: {
+                findings: [telegramBotTokenFinding],
+            },
+        });
+
+        render(<Occurrences filterFingerprint='telegram-bot-token-fp' />);
+
+        const recheckButton = screen.getByLabelText('Recheck validity');
+        fireEvent.click(recheckButton);
+
+        expect(telegramBotTokenValidityHelper).toHaveBeenCalledWith(telegramBotTokenFinding);
     });
 });
