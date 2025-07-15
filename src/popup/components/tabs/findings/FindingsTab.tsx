@@ -19,6 +19,7 @@ import { mailgunValidityHelper } from '../../../../utils/validators/mailgun/mail
 import { mailchimpValidityHelper } from '../../../../utils/validators/mailchimp/mailchimpValidityHelper';
 import { deepseekValidityHelper } from '../../../../utils/validators/deepseek/deepseekValidityHelper';
 import { deepaiValidityHelper } from '../../../../utils/validators/deepai/deepaiValidityHelper';
+import { telegramBotTokenValidityHelper } from '../../../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import ModalHeader from '../../modalheader/ModalHeader';
 import './style.css';
@@ -66,6 +67,8 @@ const FindingsTab: React.FC = () => {
             deepseekValidityHelper(finding);
         } else if (finding.secretType === "DeepAI") {
             deepaiValidityHelper(finding);
+        } else if (finding.secretType === "Telegram Bot Token") {
+            telegramBotTokenValidityHelper(finding);
         }
     };
 

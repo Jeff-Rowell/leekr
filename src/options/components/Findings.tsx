@@ -28,6 +28,7 @@ import { mailgunValidityHelper } from '../../utils/validators/mailgun/mailgunVal
 import { mailchimpValidityHelper } from '../../utils/validators/mailchimp/mailchimpValidityHelper';
 import { deepseekValidityHelper } from '../../utils/validators/deepseek/deepseekValidityHelper';
 import { deepaiValidityHelper } from '../../utils/validators/deepai/deepaiValidityHelper';
+import { telegramBotTokenValidityHelper } from '../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper';
 
 // Pagination constants
 const ITEMS_PER_PAGE = 10;
@@ -140,6 +141,8 @@ export const Findings: React.FC = () => {
             deepseekValidityHelper(finding);
         } else if (finding.secretType === "DeepAI") {
             deepaiValidityHelper(finding);
+        } else if (finding.secretType === "Telegram Bot Token") {
+            telegramBotTokenValidityHelper(finding);
         }
     };
 
