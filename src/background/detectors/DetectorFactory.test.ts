@@ -16,6 +16,7 @@ import { MailgunDetector } from './mailgun/MailgunDetector';
 import { MailchimpDetector } from './mailchimp/MailchimpDetector';
 import { DeepSeekDetector } from './deepseek/DeepSeekDetector';
 import { DeepAIDetector } from './deepai/DeepAIDetector';
+import { TelegramBotTokenDetector } from './telegram_bot_token/TelegramBotTokenDetector';
 
 describe('ConcreteDetectorFactory', () => {
     let factory: ConcreteDetectorFactory;
@@ -27,7 +28,7 @@ describe('ConcreteDetectorFactory', () => {
     test('createDetectors returns all detector instances', () => {
         const detectors = factory.createDetectors();
         
-        expect(detectors).toHaveLength(17);
+        expect(detectors).toHaveLength(18);
         expect(detectors[0]).toBeInstanceOf(AwsAccessKeysDetector);
         expect(detectors[1]).toBeInstanceOf(AwsSessionKeysDetector);
         expect(detectors[2]).toBeInstanceOf(AnthropicDetector);
@@ -45,6 +46,7 @@ describe('ConcreteDetectorFactory', () => {
         expect(detectors[14]).toBeInstanceOf(MailchimpDetector);
         expect(detectors[15]).toBeInstanceOf(DeepSeekDetector);
         expect(detectors[16]).toBeInstanceOf(DeepAIDetector);
+        expect(detectors[17]).toBeInstanceOf(TelegramBotTokenDetector);
     });
 
     test('createDetector returns specific detector by type', () => {
@@ -65,6 +67,7 @@ describe('ConcreteDetectorFactory', () => {
         const mailchimpDetector = factory.createDetector('Mailchimp');
         const deepseekDetector = factory.createDetector('DeepSeek');
         const deepaiDetector = factory.createDetector('DeepAI');
+        const telegramBotTokenDetector = factory.createDetector('telegram_bot_token');
 
         expect(awsAccessKeysDetector).toBeInstanceOf(AwsAccessKeysDetector);
         expect(awsSessionKeysDetector).toBeInstanceOf(AwsSessionKeysDetector);
@@ -83,6 +86,7 @@ describe('ConcreteDetectorFactory', () => {
         expect(mailchimpDetector).toBeInstanceOf(MailchimpDetector);
         expect(deepseekDetector).toBeInstanceOf(DeepSeekDetector);
         expect(deepaiDetector).toBeInstanceOf(DeepAIDetector);
+        expect(telegramBotTokenDetector).toBeInstanceOf(TelegramBotTokenDetector);
     });
 
     test('createDetector returns undefined for unknown type', () => {
@@ -123,5 +127,9 @@ describe('ConcreteDetectorFactory', () => {
         const deepaiDetector = detectors[16];
         expect(deepaiDetector.type).toBe('DeepAI');
         expect(deepaiDetector.name).toBe('DeepAI');
+
+        const telegramBotTokenDetector = detectors[17];
+        expect(telegramBotTokenDetector.type).toBe('telegram_bot_token');
+        expect(telegramBotTokenDetector.name).toBe('Telegram Bot Token');
     });
 });
