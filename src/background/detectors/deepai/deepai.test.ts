@@ -53,9 +53,9 @@ describe('detectDeepAIKeys', () => {
         const occurrences = await detectDeepAIKeys(content, url);
 
         expect(occurrences).toHaveLength(1);
-        expect(occurrences[0].secretValue.match.apiKey).toBe('abcd1234-5678-90ab-cdef-123456789012');
+        expect((occurrences[0] as any).secretValue.match.apiKey).toBe('abcd1234-5678-90ab-cdef-123456789012');
         expect(occurrences[0].fingerprint).toBe('deepai-abc12345');
-        expect(occurrences[0].type).toBe('API Key');
+        expect((occurrences[0] as any).type).toBe('API Key');
         expect(occurrences[0].secretType).toBe('DeepAI');
     });
 
@@ -73,6 +73,11 @@ describe('detectDeepAIKeys', () => {
 
     test('should skip duplicate API keys', async () => {
         const existingFindings = [{
+            fingerprint: "test-fingerprint",
+            numOccurrences: 1,
+            secretType: "DeepAI",
+            validity: "unknown" as const,
+            occurrences: new Set(),
             secretValue: {
                 someMatch: {
                     match: {
@@ -81,7 +86,7 @@ describe('detectDeepAIKeys', () => {
                 }
             }
         }];
-        jest.spyOn(common, 'getExistingFindings').mockResolvedValue(existingFindings);
+        jest.spyOn(common, 'getExistingFindings').mockResolvedValue(existingFindings as any);
         
         const content = 'const apiKey = "abcd1234-5678-90ab-cdef-123456789012";';
         const url = 'http://example.com/file.js';
@@ -225,13 +230,18 @@ describe('detectDeepAIKeys', () => {
 
     test('should handle existing findings with malformed secretValue', async () => {
         const existingFindings = [{
+            fingerprint: "test-fingerprint",
+            numOccurrences: 1,
+            secretType: "DeepAI",
+            validity: "unknown" as const,
+            occurrences: new Set(),
             secretValue: {
                 someMatch: {
                     match: null // This covers the optional chaining branch
                 }
             }
         }];
-        jest.spyOn(common, 'getExistingFindings').mockResolvedValue(existingFindings);
+        jest.spyOn(common, 'getExistingFindings').mockResolvedValue(existingFindings as any);
         
         const content = 'const apiKey = "abcd1234-5678-90ab-cdef-123456789012";';
         const url = 'http://example.com/file.js';

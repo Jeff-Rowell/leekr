@@ -118,6 +118,11 @@ describe('DeepAIDetector', () => {
 
         test('should not detect API key when already exists in findings', async () => {
             const existingFindings = [{
+                fingerprint: "test-fingerprint",
+                numOccurrences: 1,
+                secretType: "DeepAI",
+                validity: "unknown" as const,
+                occurrences: new Set(),
                 secretValue: {
                     someMatch: {
                         match: {
@@ -126,7 +131,7 @@ describe('DeepAIDetector', () => {
                     }
                 }
             }];
-            jest.spyOn(common, 'getExistingFindings').mockResolvedValue(existingFindings);
+            jest.spyOn(common, 'getExistingFindings').mockResolvedValue(existingFindings as any);
             
             const content = 'const apiKey = "abcd1234-5678-90ab-cdef-123456789012";';
             const url = 'http://example.com/file.js';
