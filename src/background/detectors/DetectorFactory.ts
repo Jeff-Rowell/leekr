@@ -17,6 +17,7 @@ import { MailchimpDetector } from './mailchimp/MailchimpDetector';
 import { DeepSeekDetector } from './deepseek/DeepSeekDetector';
 import { DeepAIDetector } from './deepai/DeepAIDetector';
 import { TelegramBotTokenDetector } from './telegram_bot_token/TelegramBotTokenDetector';
+import { RapidApiDetector } from './rapid_api/RapidApiDetector';
 
 export class ConcreteDetectorFactory implements DetectorFactory {
     private readonly detectorClasses = [
@@ -37,7 +38,8 @@ export class ConcreteDetectorFactory implements DetectorFactory {
         MailchimpDetector,
         DeepSeekDetector,
         DeepAIDetector,
-        TelegramBotTokenDetector
+        TelegramBotTokenDetector,
+        RapidApiDetector
     ];
 
     createDetectors(): SecretDetector[] {
