@@ -37,7 +37,15 @@ export const COMMON_PROGRAMMING_FALSE_POSITIVE_PATTERNS = [
     
     // File extensions and paths (only if they clearly contain file extensions)
     // Examples: configjsonparser, indexhtmlbuffer (must have at least 3 chars before extension)
-    /^[a-z]{3,}(html|json|xml|css|jsx|tsx|php|java|cpp|hpp|swift|scala|yaml|toml|conf|properties)[a-z]+$/i
+    /^[a-z]{3,}(html|json|xml|css|jsx|tsx|php|java|cpp|hpp|swift|scala|yaml|toml|conf|properties)[a-z]+$/i,
+    
+    // AWS/Header/Configuration patterns with dashes - specific keywords
+    // Examples: amz-fwd-header-x-amz-server-side-encryption-bucket, x-forwarded-for-header
+    /^(amz|aws|fwd|header|x)(-[a-z0-9]+){3,}-?$/,
+    
+    // Long dash-separated patterns (5+ parts, letters only to avoid API keys)
+    // Examples: header-x-amz-server-side-encryption-customer
+    /^[a-z]+(-[a-z]+){4,}-?$/
 ];
 
 export function isProgrammingPattern(text: string): boolean {

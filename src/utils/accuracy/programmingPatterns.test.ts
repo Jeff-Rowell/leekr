@@ -111,6 +111,19 @@ describe('programmingPatterns', () => {
             expect(isProgrammingPattern('simple')).toBe(false);
             expect(isProgrammingPattern('SIMPLE')).toBe(false);
         });
+
+        test('should detect AWS/header patterns with dashes', () => {
+            expect(isProgrammingPattern('amz-fwd-header-x-amz-server-side-encryption-bucket')).toBe(true);
+            expect(isProgrammingPattern('fwd-header-x-amz-server-side-encryption-customer-')).toBe(true);
+            expect(isProgrammingPattern('x-forwarded-for-header')).toBe(true);
+            expect(isProgrammingPattern('aws-s3-bucket-name')).toBe(true);
+            expect(isProgrammingPattern('header-content-type-application-json')).toBe(true);
+        });
+
+        test('should not detect valid API keys with dashes', () => {
+            expect(isProgrammingPattern('sk-proj-abc123def456')).toBe(false);
+            expect(isProgrammingPattern('sk-ant-api03-abc123')).toBe(false);
+        });
     });
 
     describe('filterProgrammingPatterns', () => {
