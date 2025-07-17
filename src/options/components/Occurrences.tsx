@@ -20,6 +20,7 @@ import { mailchimpValidityHelper } from '../../utils/validators/mailchimp/mailch
 import { deepseekValidityHelper } from '../../utils/validators/deepseek/deepseekValidityHelper';
 import { deepaiValidityHelper } from '../../utils/validators/deepai/deepaiValidityHelper';
 import { telegramBotTokenValidityHelper } from '../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper';
+import { rapidApiValidityHelper } from '../../utils/validators/rapid_api/rapidApiValidityHelper';
 
 
 export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFingerprint }) => {
@@ -79,6 +80,8 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
             deepaiValidityHelper(finding);
         } else if (finding.secretType === "Telegram Bot Token") {
             telegramBotTokenValidityHelper(finding);
+        } else if (finding.secretType === "RapidAPI") {
+            rapidApiValidityHelper(finding);
         }
     };
 

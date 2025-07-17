@@ -29,6 +29,7 @@ import { mailchimpValidityHelper } from '../../utils/validators/mailchimp/mailch
 import { deepseekValidityHelper } from '../../utils/validators/deepseek/deepseekValidityHelper';
 import { deepaiValidityHelper } from '../../utils/validators/deepai/deepaiValidityHelper';
 import { telegramBotTokenValidityHelper } from '../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper';
+import { rapidApiValidityHelper } from '../../utils/validators/rapid_api/rapidApiValidityHelper';
 
 // Pagination constants
 const ITEMS_PER_PAGE = 10;
@@ -143,6 +144,8 @@ export const Findings: React.FC = () => {
             deepaiValidityHelper(finding);
         } else if (finding.secretType === "Telegram Bot Token") {
             telegramBotTokenValidityHelper(finding);
+        } else if (finding.secretType === "RapidAPI") {
+            rapidApiValidityHelper(finding);
         }
     };
 
