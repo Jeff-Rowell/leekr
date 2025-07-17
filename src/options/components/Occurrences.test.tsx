@@ -34,6 +34,7 @@ import { mailchimpValidityHelper } from '../../utils/validators/mailchimp/mailch
 import { deepseekValidityHelper } from '../../utils/validators/deepseek/deepseekValidityHelper';
 import { deepaiValidityHelper } from '../../utils/validators/deepai/deepaiValidityHelper';
 import { telegramBotTokenValidityHelper } from '../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper';
+import { rapidApiValidityHelper } from '../../utils/validators/rapid_api/rapidApiValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
@@ -58,6 +59,7 @@ jest.mock('../../utils/validators/mailchimp/mailchimpValidityHelper');
 jest.mock('../../utils/validators/deepseek/deepseekValidityHelper');
 jest.mock('../../utils/validators/deepai/deepaiValidityHelper');
 jest.mock('../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper');
+jest.mock('../../utils/validators/rapid_api/rapidApiValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",
@@ -1161,5 +1163,55 @@ describe('Occurrences Component', () => {
         fireEvent.click(recheckButton);
 
         expect(telegramBotTokenValidityHelper).toHaveBeenCalledWith(telegramBotTokenFinding);
+    });
+
+    test('calls rapidApiValidityHelper on recheck button click for RapidAPI', async () => {
+        const rapidApiOccurrence = {
+            fingerprint: "rapidapi-fp",
+            filePath: "rapidapi-config.js",
+            type: "API Key",
+            secretType: "RapidAPI",
+            secretValue: {
+                match: {
+                    api_key: "abcdefghij1234567890ABCDEFGHIJ1234567890123456789A"
+                }
+            },
+            url: "https://example.com/rapidapi-config.js",
+            sourceContent: {
+                content: "const apiKey = 'abcdefghij1234567890ABCDEFGHIJ1234567890123456789A';",
+                contentFilename: "rapidapi-config.js",
+                contentStartLineNum: 5,
+                contentEndLineNum: 15,
+                exactMatchNumbers: [10]
+            },
+            validity: "valid"
+        };
+
+        const rapidApiFinding = {
+            fingerprint: "rapidapi-fp",
+            numOccurrences: 1,
+            occurrences: new Set([rapidApiOccurrence]),
+            validity: "valid" as const,
+            validatedAt: "2025-05-30T12:00:00.000Z",
+            secretType: "RapidAPI",
+            secretValue: {
+                match: {
+                    api_key: "abcdefghij1234567890ABCDEFGHIJ1234567890123456789A"
+                }
+            }
+        };
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: {
+                findings: [rapidApiFinding],
+            },
+        });
+
+        render(<Occurrences filterFingerprint='rapidapi-fp' />);
+
+        const recheckButton = screen.getByLabelText('Recheck validity');
+        fireEvent.click(recheckButton);
+
+        expect(rapidApiValidityHelper).toHaveBeenCalledWith(rapidApiFinding);
     });
 });

@@ -37,6 +37,7 @@ import { mailchimpValidityHelper } from '../../utils/validators/mailchimp/mailch
 import { deepseekValidityHelper } from '../../utils/validators/deepseek/deepseekValidityHelper';
 import { deepaiValidityHelper } from '../../utils/validators/deepai/deepaiValidityHelper';
 import { telegramBotTokenValidityHelper } from '../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper';
+import { rapidApiValidityHelper } from '../../utils/validators/rapid_api/rapidApiValidityHelper';
 import { Findings } from './Findings';
 
 jest.mock('../../popup/AppContext');
@@ -59,6 +60,7 @@ jest.mock('../../utils/validators/mailchimp/mailchimpValidityHelper');
 jest.mock('../../utils/validators/deepseek/deepseekValidityHelper');
 jest.mock('../../utils/validators/deepai/deepaiValidityHelper');
 jest.mock('../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper');
+jest.mock('../../utils/validators/rapid_api/rapidApiValidityHelper');
 
 const mockAwsValidityHelper = awsValidityHelper as jest.MockedFunction<typeof awsValidityHelper>;
 const mockAwsSessionValidityHelper = awsSessionValidityHelper as jest.MockedFunction<typeof awsSessionValidityHelper>;
@@ -78,6 +80,7 @@ const mockMailchimpValidityHelper = mailchimpValidityHelper as jest.MockedFuncti
 const mockDeepseekValidityHelper = deepseekValidityHelper as jest.MockedFunction<typeof deepseekValidityHelper>;
 const mockDeepaiValidityHelper = deepaiValidityHelper as jest.MockedFunction<typeof deepaiValidityHelper>;
 const mockTelegramBotTokenValidityHelper = telegramBotTokenValidityHelper as jest.MockedFunction<typeof telegramBotTokenValidityHelper>;
+const mockRapidApiValidityHelper = rapidApiValidityHelper as jest.MockedFunction<typeof rapidApiValidityHelper>;
 
 const mockChrome = {
     runtime: {
@@ -1814,6 +1817,31 @@ describe('Findings Component', () => {
             fireEvent.click(recheckButton);
 
             expect(mockTelegramBotTokenValidityHelper).toHaveBeenCalledWith(telegramBotTokenFinding);
+        });
+
+        test('calls rapidApiValidityHelper when recheck button is clicked for RapidAPI finding', async () => {
+            const rapidApiFinding = {
+                fingerprint: 'rapidapi-test',
+                numOccurrences: 1,
+                secretType: 'RapidAPI',
+                validity: 'valid' as const,
+                validatedAt: '2025-05-30T12:00:00.000Z',
+                secretValue: { match: { api_key: 'abcdefghij1234567890ABCDEFGHIJ1234567890123456789A' } },
+                occurrences: new Set([])
+            };
+
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: [rapidApiFinding],
+                },
+            });
+
+            render(<Findings />);
+
+            const recheckButton = screen.getByLabelText('Recheck validity');
+            fireEvent.click(recheckButton);
+
+            expect(mockRapidApiValidityHelper).toHaveBeenCalledWith(rapidApiFinding);
         });
     });
 });
