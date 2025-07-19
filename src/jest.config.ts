@@ -17,6 +17,7 @@ const config: Config = {
         '\\.(png|jpg|jpeg|gif)$': '<rootDir>/__mocks__/fileMock.js',
 
     },
+    silent: true,
 };
 
 export default config;
