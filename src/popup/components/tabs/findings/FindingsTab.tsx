@@ -32,53 +32,67 @@ const FindingsTab: React.FC = () => {
     const settingsDropdownRef = useRef<HTMLDivElement>(null);
     const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
     const [viewedFindings, setViewedFindings] = useState(false);
+    const [isRechecking, setIsRechecking] = useState(false);
+    const [recheckProgress, setRecheckProgress] = useState({ current: 0, total: 0 });
+
 
     const handleValidityCheck = async (finding: Finding) => {
-        if (finding.secretType === "AWS Access & Secret Keys") {
-            awsValidityHelper(finding);
-        } else if (finding.secretType === "AWS Session Keys") {
-            awsSessionValidityHelper(finding);
-        } else if (finding.secretType === "Anthropic AI") {
-            anthropicValidityHelper(finding);
-        } else if (finding.secretType === "OpenAI") {
-            openaiValidityHelper(finding);
-        } else if (finding.secretType === "Gemini") {
-            geminiValidityHelper(finding);
-        } else if (finding.secretType === "Hugging Face") {
-            huggingfaceValidityHelper(finding);
-        } else if (finding.secretType === "Artifactory") {
-            artifactoryValidityHelper(finding);
-        } else if (finding.secretType === "Azure OpenAI") {
-            azureOpenAIValidityHelper(finding);
-        } else if (finding.secretType === "Apollo") {
-            apolloValidityHelper(finding);
-        } else if (finding.secretType === "Google Cloud Platform") {
-            gcpValidityHelper(finding);
-        } else if (finding.secretType === "Docker") {
-            dockerValidityHelper(finding);
-        } else if (finding.secretType === "JotForm") {
-            jotformValidityHelper(finding);
-        } else if (finding.secretType === "Groq") {
-            groqValidityHelper(finding);
-        } else if (finding.secretType === "Mailgun") {
-            mailgunValidityHelper(finding);
-        } else if (finding.secretType === "Mailchimp") {
-            mailchimpValidityHelper(finding);
-        } else if (finding.secretType === "DeepSeek") {
-            deepseekValidityHelper(finding);
-        } else if (finding.secretType === "DeepAI") {
-            deepaiValidityHelper(finding);
-        } else if (finding.secretType === "Telegram Bot Token") {
-            telegramBotTokenValidityHelper(finding);
-        } else if (finding.secretType === "RapidAPI") {
-            rapidApiValidityHelper(finding);
+        try {
+            if (finding.secretType === "AWS Access & Secret Keys") {
+                await awsValidityHelper(finding);
+            } else if (finding.secretType === "AWS Session Keys") {
+                await awsSessionValidityHelper(finding);
+            } else if (finding.secretType === "Anthropic AI") {
+                await anthropicValidityHelper(finding);
+            } else if (finding.secretType === "OpenAI") {
+                await openaiValidityHelper(finding);
+            } else if (finding.secretType === "Gemini") {
+                await geminiValidityHelper(finding);
+            } else if (finding.secretType === "Hugging Face") {
+                await huggingfaceValidityHelper(finding);
+            } else if (finding.secretType === "Artifactory") {
+                await artifactoryValidityHelper(finding);
+            } else if (finding.secretType === "Azure OpenAI") {
+                await azureOpenAIValidityHelper(finding);
+            } else if (finding.secretType === "Apollo") {
+                await apolloValidityHelper(finding);
+            } else if (finding.secretType === "Google Cloud Platform") {
+                await gcpValidityHelper(finding);
+            } else if (finding.secretType === "Docker") {
+                await dockerValidityHelper(finding);
+            } else if (finding.secretType === "JotForm") {
+                await jotformValidityHelper(finding);
+            } else if (finding.secretType === "Groq") {
+                await groqValidityHelper(finding);
+            } else if (finding.secretType === "Mailgun") {
+                await mailgunValidityHelper(finding);
+            } else if (finding.secretType === "Mailchimp") {
+                await mailchimpValidityHelper(finding);
+            } else if (finding.secretType === "DeepSeek") {
+                await deepseekValidityHelper(finding);
+            } else if (finding.secretType === "DeepAI") {
+                await deepaiValidityHelper(finding);
+            } else if (finding.secretType === "Telegram Bot Token") {
+                await telegramBotTokenValidityHelper(finding);
+            } else if (finding.secretType === "RapidAPI") {
+                await rapidApiValidityHelper(finding);
+            }
+        } catch (error) {
+            console.error(`Validity check failed for ${finding.secretType}:`, error);
         }
     };
 
     const handleRecheckAll = async () => {
-        for (const finding of findings) {
+        setIsRechecking(true);
+        setRecheckProgress({ current: 0, total: findings.length });
+
+        for (let i = 0; i < findings.length; i++) {
+            const finding = findings[i];
             await handleValidityCheck(finding);
+            setRecheckProgress({ current: i + 1, total: findings.length });
         }
+
+        setIsRechecking(false);
     };
 
     React.useEffect(() => {
@@ -211,11 +225,12 @@ const FindingsTab: React.FC = () => {
                                             <button
                                                 className="recheck-all-button-header tooltip"
                                                 onClick={handleRecheckAll}
+                                                disabled={isRechecking}
                                                 aria-label="Recheck all findings"
                                             >
-                                                <RotateCw size={16} className="recheck-icon" />
+                                                <RotateCw size={16} className={`recheck-icon ${isRechecking ? 'spinning' : ''}`} />
                                                 <span className="tooltip-text">
-                                                    Recheck the validity of all findings
+                                                    {isRechecking ? 'Rechecking validity...' : 'Recheck the validity of all findings'}
                                                 </span>
                                             </button>
                                         </div>
@@ -223,6 +238,29 @@ const FindingsTab: React.FC = () => {
                                 </th>
                             </tr>
                         </thead>
+                        {isRechecking && (
+                            <tbody>
+                                <tr>
+                                    <td colSpan={4} className="status-bar-container">
+                                        <div className="recheck-status-bar">
+                                            <div className="status-bar-content">
+                                                <span className="status-text">
+                                                    Rechecking validity... ({recheckProgress.current}/{recheckProgress.total})
+                                                </span>
+                                                <div className="progress-bar">
+                                                    <div 
+                                                        className="progress-fill"
+                                                        style={{
+                                                            width: `${(recheckProgress.current / recheckProgress.total) * 100}%`
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        )}
                         <tbody>
                             {[...findings]
                                 .sort((a, b) => {

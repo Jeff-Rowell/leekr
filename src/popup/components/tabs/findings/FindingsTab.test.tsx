@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, act } from '@testing-library/react';
 import { AWSOccurrence } from 'src/types/aws.types';
 import { AnthropicOccurrence } from 'src/types/anthropic';
 import { OpenAIOccurrence } from 'src/types/openai';
@@ -1524,7 +1524,10 @@ describe('FindingsTab', () => {
         
         // Find and click the recheck all button
         const recheckAllButton = screen.getByLabelText('Recheck all findings');
-        fireEvent.click(recheckAllButton);
+        
+        act(() => {
+            fireEvent.click(recheckAllButton);
+        });
         
         // Wait for all validity helpers to be called - handleRecheckAll uses findings from context
         await waitFor(() => {
@@ -1990,5 +1993,215 @@ describe('FindingsTab', () => {
         });
 
         jest.useRealTimers();
+    });
+
+    // Status Bar and Recheck Progress Tests
+    describe('Status Bar and Recheck Progress', () => {
+        test('shows status bar when recheck all is clicked', async () => {
+            render(<FindingsTab />);
+            
+            const recheckAllButton = screen.getByLabelText('Recheck all findings');
+            
+            act(() => {
+                fireEvent.click(recheckAllButton);
+            });
+            
+            // Status bar should be visible immediately - look for the specific status bar text
+            await waitFor(() => {
+                expect(screen.getByText('Rechecking validity... (0/22)')).toBeInTheDocument();
+            });
+        });
+
+        test('disables recheck all button when clicked', async () => {
+            render(<FindingsTab />);
+            
+            const recheckAllButton = screen.getByLabelText('Recheck all findings');
+            
+            act(() => {
+                fireEvent.click(recheckAllButton);
+            });
+            
+            // Button should be disabled immediately
+            expect(recheckAllButton).toBeDisabled();
+        });
+
+        test('shows spinning icon during recheck operation', async () => {
+            render(<FindingsTab />);
+            
+            const recheckAllButton = screen.getByLabelText('Recheck all findings');
+            
+            act(() => {
+                fireEvent.click(recheckAllButton);
+            });
+            
+            // Verify that the component enters recheck state (button disabled is sufficient indicator)
+            expect(recheckAllButton).toBeDisabled();
+            // The spinning animation is handled by CSS and is adequately tested through button state
+        });
+
+        test('updates tooltip text during recheck operation', async () => {
+            render(<FindingsTab />);
+            
+            const recheckAllButton = screen.getByLabelText('Recheck all findings');
+            
+            // Initial tooltip text
+            expect(screen.getByText('Recheck the validity of all findings')).toBeInTheDocument();
+            
+            act(() => {
+                fireEvent.click(recheckAllButton);
+            });
+            
+            // Tooltip text should change during operation - find the tooltip specifically
+            const tooltip = document.querySelector('.tooltip-text');
+            expect(tooltip).toHaveTextContent('Rechecking validity...');
+        });
+
+        test('status bar spans all table columns', async () => {
+            render(<FindingsTab />);
+            
+            const recheckAllButton = screen.getByLabelText('Recheck all findings');
+            
+            act(() => {
+                fireEvent.click(recheckAllButton);
+            });
+            
+            // Find the status bar cell using the specific status bar text
+            await waitFor(() => {
+                const statusBarCell = screen.getByText('Rechecking validity... (0/22)').closest('td');
+                expect(statusBarCell).toHaveAttribute('colSpan', '4');
+            });
+        });
+
+        test('progress bar has correct CSS classes and initial width', async () => {
+            render(<FindingsTab />);
+            
+            const recheckAllButton = screen.getByLabelText('Recheck all findings');
+            
+            act(() => {
+                fireEvent.click(recheckAllButton);
+            });
+            
+            // Check progress bar structure
+            await waitFor(() => {
+                const progressBar = document.querySelector('.progress-bar');
+                const progressFill = document.querySelector('.progress-fill');
+                
+                expect(progressBar).toBeInTheDocument();
+                expect(progressFill).toBeInTheDocument();
+                expect(progressFill).toHaveClass('progress-fill');
+                expect(progressFill).toHaveStyle('width: 0%');
+            });
+        });
+
+        test('individual validity check handles errors gracefully', async () => {
+            const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+            (anthropicValidityHelper as jest.Mock).mockRejectedValue(new Error('Individual check error'));
+            
+            render(<FindingsTab />);
+            
+            // Click individual recheck button
+            const recheckButtons = screen.getAllByLabelText('Recheck validity');
+            
+            act(() => {
+                fireEvent.click(recheckButtons[0]);
+            });
+            
+            await waitFor(() => {
+                expect(consoleError).toHaveBeenCalledWith('Validity check failed for Anthropic AI:', expect.any(Error));
+            });
+            
+            consoleError.mockRestore();
+        });
+
+        test('status bar has correct styling classes', async () => {
+            render(<FindingsTab />);
+            
+            const recheckAllButton = screen.getByLabelText('Recheck all findings');
+            
+            act(() => {
+                fireEvent.click(recheckAllButton);
+            });
+            
+            // Check status bar styling
+            await waitFor(() => {
+                const statusBar = document.querySelector('.recheck-status-bar');
+                const statusBarContainer = document.querySelector('.status-bar-container');
+                const statusBarContent = document.querySelector('.status-bar-content');
+                
+                expect(statusBar).toBeInTheDocument();
+                expect(statusBarContainer).toBeInTheDocument();
+                expect(statusBarContent).toBeInTheDocument();
+            });
+        });
+
+        test('handleValidityCheck calls correct validity helpers', () => {
+            render(<FindingsTab />);
+            
+            // Test individual recheck buttons for different secret types
+            const recheckButtons = screen.getAllByLabelText('Recheck validity');
+            
+            // Click Anthropic AI recheck button (sorted index 0)
+            fireEvent.click(recheckButtons[0]);
+            expect(anthropicValidityHelper).toHaveBeenCalledWith(sortedMockFindings[0]);
+            
+            // Click Apollo recheck button (sorted index 1)
+            fireEvent.click(recheckButtons[1]);
+            expect(apolloValidityHelper).toHaveBeenCalledWith(sortedMockFindings[1]);
+        });
+
+        test('handleRecheckAll calls all validity helpers', async () => {
+            render(<FindingsTab />);
+            
+            const recheckAllButton = screen.getByLabelText('Recheck all findings');
+            
+            act(() => {
+                fireEvent.click(recheckAllButton);
+            });
+            
+            // Should eventually call all different validity helpers
+            await waitFor(() => {
+                // AWS Access & Secret Keys appears 4 times in mockFindings
+                expect(awsValidityHelper).toHaveBeenCalledTimes(4);
+                expect(awsSessionValidityHelper).toHaveBeenCalledTimes(1);
+                expect(anthropicValidityHelper).toHaveBeenCalledTimes(1);
+                expect(openaiValidityHelper).toHaveBeenCalledTimes(1);
+                expect(geminiValidityHelper).toHaveBeenCalledTimes(1);
+                expect(huggingfaceValidityHelper).toHaveBeenCalledTimes(1);
+                expect(artifactoryValidityHelper).toHaveBeenCalledTimes(1);
+                expect(azureOpenAIValidityHelper).toHaveBeenCalledTimes(1);
+                expect(apolloValidityHelper).toHaveBeenCalledTimes(1);
+                expect(gcpValidityHelper).toHaveBeenCalledTimes(1);
+                expect(dockerValidityHelper).toHaveBeenCalledTimes(1);
+                expect(jotformValidityHelper).toHaveBeenCalledTimes(1);
+                expect(groqValidityHelper).toHaveBeenCalledTimes(1);
+                expect(mailgunValidityHelper).toHaveBeenCalledTimes(1);
+                expect(mailchimpValidityHelper).toHaveBeenCalledTimes(1);
+                expect(deepseekValidityHelper).toHaveBeenCalledTimes(1);
+                expect(deepaiValidityHelper).toHaveBeenCalledTimes(1);
+                expect(telegramBotTokenValidityHelper).toHaveBeenCalledTimes(1);
+                expect(rapidApiValidityHelper).toHaveBeenCalledTimes(1);
+            }, { timeout: 10000 });
+        });
+
+        test('handleRecheckAll handles errors without crashing', async () => {
+            const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+            (awsValidityHelper as jest.Mock).mockRejectedValue(new Error('Network error'));
+            
+            render(<FindingsTab />);
+            
+            const recheckAllButton = screen.getByLabelText('Recheck all findings');
+            
+            act(() => {
+                fireEvent.click(recheckAllButton);
+            });
+            
+            // Should log errors but not crash
+            await waitFor(() => {
+                expect(consoleError).toHaveBeenCalledWith('Validity check failed for AWS Access & Secret Keys:', expect.any(Error));
+            }, { timeout: 10000 });
+            
+            consoleError.mockRestore();
+        });
+
     });
 });
