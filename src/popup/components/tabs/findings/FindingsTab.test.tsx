@@ -2203,5 +2203,68 @@ describe('FindingsTab', () => {
             consoleError.mockRestore();
         });
 
+        test('handleRecheckAll handles multiple concurrent errors gracefully', async () => {
+            const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+            
+            // Mock multiple validators to fail
+            (awsValidityHelper as jest.Mock).mockRejectedValue(new Error('AWS Network error'));
+            (anthropicValidityHelper as jest.Mock).mockRejectedValue(new Error('Anthropic API error'));
+            (openaiValidityHelper as jest.Mock).mockRejectedValue(new Error('OpenAI timeout'));
+            
+            render(<FindingsTab />);
+            
+            const recheckAllButton = screen.getByLabelText('Recheck all findings');
+            
+            act(() => {
+                fireEvent.click(recheckAllButton);
+            });
+            
+            // Should log all errors concurrently and complete all validations
+            await waitFor(() => {
+                expect(consoleError).toHaveBeenCalledWith('Validity check failed for AWS Access & Secret Keys:', expect.any(Error));
+                expect(consoleError).toHaveBeenCalledWith('Validity check failed for Anthropic AI:', expect.any(Error));
+                expect(consoleError).toHaveBeenCalledWith('Validity check failed for OpenAI:', expect.any(Error));
+            }, { timeout: 10000 });
+
+            // Progress should still reach completion despite errors
+            await waitFor(() => {
+                // The recheck button should be re-enabled indicating completion
+                expect(recheckAllButton).not.toBeDisabled();
+            }, { timeout: 10000 });
+            
+            consoleError.mockRestore();
+        });
+
+        test('handleRecheckAll continues progress tracking even when validation throws', async () => {
+            const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+            
+            // Mock some validators to fail, others to succeed
+            (awsValidityHelper as jest.Mock).mockRejectedValue(new Error('Network failure'));
+            (anthropicValidityHelper as jest.Mock).mockResolvedValue(undefined); // Success
+            (openaiValidityHelper as jest.Mock).mockRejectedValue(new Error('API timeout'));
+            
+            render(<FindingsTab />);
+            
+            const recheckAllButton = screen.getByLabelText('Recheck all findings');
+            
+            act(() => {
+                fireEvent.click(recheckAllButton);
+            });
+            
+            // Wait for completion - all validations should complete despite some failures
+            await waitFor(() => {
+                expect(recheckAllButton).not.toBeDisabled();
+            }, { timeout: 10000 });
+            
+            // Verify both successful and failed validations were logged appropriately
+            expect(consoleError).toHaveBeenCalledWith('Validity check failed for AWS Access & Secret Keys:', expect.any(Error));
+            expect(consoleError).toHaveBeenCalledWith('Validity check failed for OpenAI:', expect.any(Error));
+            
+            // Verify anthropic validation succeeded (no error logged for it)
+            expect(anthropicValidityHelper).toHaveBeenCalled();
+            
+            consoleError.mockRestore();
+        });
+
     });
 });

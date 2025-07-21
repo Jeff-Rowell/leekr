@@ -88,17 +88,12 @@ const FindingsTab: React.FC = () => {
 
         // Create concurrent validation promises
         const validationPromises = findings.map(async (finding) => {
-            try {
-                await handleValidityCheck(finding);
-            } catch (error) {
-                console.error(`Validity check failed for ${finding.secretType}:`, error);
-            } finally {
-                // Update progress using functional state update to avoid race conditions
-                setRecheckProgress(prev => ({ 
-                    current: prev.current + 1, 
-                    total: prev.total 
-                }));
-            }
+            await handleValidityCheck(finding);
+            // Update progress using functional state update to avoid race conditions
+            setRecheckProgress(prev => ({ 
+                current: prev.current + 1, 
+                total: prev.total 
+            }));
         });
 
         // Wait for all validations to complete
