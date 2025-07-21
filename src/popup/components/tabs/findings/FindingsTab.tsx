@@ -86,12 +86,23 @@ const FindingsTab: React.FC = () => {
         setIsRechecking(true);
         setRecheckProgress({ current: 0, total: findings.length });
 
-        for (let i = 0; i < findings.length; i++) {
-            const finding = findings[i];
-            await handleValidityCheck(finding);
-            setRecheckProgress({ current: i + 1, total: findings.length });
-        }
+        // Create concurrent validation promises
+        const validationPromises = findings.map(async (finding) => {
+            try {
+                await handleValidityCheck(finding);
+            } catch (error) {
+                console.error(`Validity check failed for ${finding.secretType}:`, error);
+            } finally {
+                // Update progress using functional state update to avoid race conditions
+                setRecheckProgress(prev => ({ 
+                    current: prev.current + 1, 
+                    total: prev.total 
+                }));
+            }
+        });
 
+        // Wait for all validations to complete
+        await Promise.all(validationPromises);
         setIsRechecking(false);
     };
 
