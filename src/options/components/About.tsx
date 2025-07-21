@@ -107,7 +107,7 @@ export const AboutTab: React.FC = () => {
                             <span>GitHub Repository</span>
                             <ExternalLink size={12} />
                         </a>
-                        <a href="https://leekr.org/privacy" className="about-link" target="_blank" rel="noopener noreferrer">
+                        <a href="https://leekr-site.github.io/index/privacy" className="about-link" target="_blank" rel="noopener noreferrer">
                             <Shield size={16} />
                             <span>Privacy Policy</span>
                             <ExternalLink size={12} />

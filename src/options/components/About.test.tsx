@@ -153,7 +153,7 @@ describe('AboutTab Component', () => {
 
             const privacyLink = screen.getByRole('link', { name: /Privacy Policy/i });
             expect(privacyLink).toBeInTheDocument();
-            expect(privacyLink).toHaveAttribute('href', 'https://leekr.org/privacy');
+            expect(privacyLink).toHaveAttribute('href', 'https://leekr-site.github.io/index/privacy');
             expect(privacyLink).toHaveAttribute('target', '_blank');
             expect(privacyLink).toHaveAttribute('rel', 'noopener noreferrer');
         });
