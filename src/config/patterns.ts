@@ -20,6 +20,7 @@ import { deepseekConfig } from './detectors/deepseek/deepseek';
 import { deepaiConfig } from './detectors/deepai/deepai';
 import { DEFAULT_TELEGRAM_BOT_TOKEN_CONFIG } from './detectors/telegram_bot_token/telegram_bot_token';
 import { DEFAULT_RAPID_API_CONFIG } from './detectors/rapid_api/rapid_api';
+import { DEFAULT_MAKE_CONFIG } from './detectors/make/make';
 
 const awsAccessKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_ACCESS_KEY_CONFIG };
 const awsSessionKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_SESSION_KEY_CONFIG };
@@ -509,6 +510,16 @@ export const patterns: PatternsObj = {
         familyName: "RapidAPI",
         pattern: /\b([A-Za-z0-9_-]{50})\b/g,
         entropy: DEFAULT_RAPID_API_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Make API Token": {
+        name: "Make API Token",
+        familyName: "Make",
+        pattern: /\b([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})\b/g,
+        entropy: DEFAULT_MAKE_CONFIG.requiredEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
         validityEndpoints: [],
