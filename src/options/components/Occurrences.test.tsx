@@ -15,6 +15,7 @@ import { MailgunOccurrence } from '../../types/mailgun';
 import { MailchimpOccurrence } from '../../types/mailchimp';
 import { DeepSeekOccurrence } from '../../types/deepseek';
 import { DeepAIOccurrence } from '../../types/deepai';
+import { MakeOccurrence } from '../../types/make';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -35,6 +36,7 @@ import { deepseekValidityHelper } from '../../utils/validators/deepseek/deepseek
 import { deepaiValidityHelper } from '../../utils/validators/deepai/deepaiValidityHelper';
 import { telegramBotTokenValidityHelper } from '../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper';
 import { rapidApiValidityHelper } from '../../utils/validators/rapid_api/rapidApiValidityHelper';
+import { makeValidityHelper } from '../../utils/validators/make/makeValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
@@ -60,6 +62,7 @@ jest.mock('../../utils/validators/deepseek/deepseekValidityHelper');
 jest.mock('../../utils/validators/deepai/deepaiValidityHelper');
 jest.mock('../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper');
 jest.mock('../../utils/validators/rapid_api/rapidApiValidityHelper');
+jest.mock('../../utils/validators/make/makeValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",
@@ -1213,5 +1216,55 @@ describe('Occurrences Component', () => {
         fireEvent.click(recheckButton);
 
         expect(rapidApiValidityHelper).toHaveBeenCalledWith(rapidApiFinding);
+    });
+
+    test('calls makeValidityHelper on recheck button click for Make', async () => {
+        const makeOccurrence = {
+            fingerprint: "make-fp",
+            filePath: "make-config.js",
+            secretType: "Make",
+            secretValue: {
+                match: {
+                    api_token: "bbb49d50-239a-4609-9569-63ea15ef0997"
+                }
+            },
+            sourceContent: {
+                content: 'const apiToken = "bbb49d50-239a-4609-9569-63ea15ef0997";',
+                contentFilename: "make-config.js",
+                contentStartLineNum: 5,
+                contentEndLineNum: 5,
+                exactMatchNumbers: [17, 53]
+            },
+            url: "http://localhost:3000/static/js/make-config.js",
+            validity: "valid",
+            validatedAt: "2025-05-17T18:16:16.870Z"
+        };
+
+        const makeFinding: Finding = {
+            fingerprint: "make-fp",
+            numOccurrences: 1,
+            occurrences: new Set([makeOccurrence]),
+            secretType: "Make",
+            validity: "valid",
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            secretValue: {
+                match: {
+                    api_token: "bbb49d50-239a-4609-9569-63ea15ef0997"
+                }
+            }
+        };
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: {
+                findings: [makeFinding],
+            },
+        });
+
+        render(<Occurrences filterFingerprint='make-fp' />);
+
+        const recheckButton = screen.getByLabelText('Recheck validity');
+        fireEvent.click(recheckButton);
+
+        expect(makeValidityHelper).toHaveBeenCalledWith(makeFinding);
     });
 });

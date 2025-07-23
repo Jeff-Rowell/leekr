@@ -18,6 +18,7 @@ import { MailgunOccurrence } from '../../types/mailgun';
 import { MailchimpOccurrence } from '../../types/mailchimp';
 import { DeepSeekOccurrence } from '../../types/deepseek';
 import { DeepAIOccurrence } from '../../types/deepai';
+import { MakeOccurrence } from '../../types/make';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -38,6 +39,7 @@ import { deepseekValidityHelper } from '../../utils/validators/deepseek/deepseek
 import { deepaiValidityHelper } from '../../utils/validators/deepai/deepaiValidityHelper';
 import { telegramBotTokenValidityHelper } from '../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper';
 import { rapidApiValidityHelper } from '../../utils/validators/rapid_api/rapidApiValidityHelper';
+import { makeValidityHelper } from '../../utils/validators/make/makeValidityHelper';
 import { Findings } from './Findings';
 
 jest.mock('../../popup/AppContext');
@@ -61,6 +63,7 @@ jest.mock('../../utils/validators/deepseek/deepseekValidityHelper');
 jest.mock('../../utils/validators/deepai/deepaiValidityHelper');
 jest.mock('../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper');
 jest.mock('../../utils/validators/rapid_api/rapidApiValidityHelper');
+jest.mock('../../utils/validators/make/makeValidityHelper');
 
 const mockAwsValidityHelper = awsValidityHelper as jest.MockedFunction<typeof awsValidityHelper>;
 const mockAwsSessionValidityHelper = awsSessionValidityHelper as jest.MockedFunction<typeof awsSessionValidityHelper>;
@@ -81,6 +84,7 @@ const mockDeepseekValidityHelper = deepseekValidityHelper as jest.MockedFunction
 const mockDeepaiValidityHelper = deepaiValidityHelper as jest.MockedFunction<typeof deepaiValidityHelper>;
 const mockTelegramBotTokenValidityHelper = telegramBotTokenValidityHelper as jest.MockedFunction<typeof telegramBotTokenValidityHelper>;
 const mockRapidApiValidityHelper = rapidApiValidityHelper as jest.MockedFunction<typeof rapidApiValidityHelper>;
+const mockMakeValidityHelper = makeValidityHelper as jest.MockedFunction<typeof makeValidityHelper>;
 
 const mockChrome = {
     runtime: {
@@ -1842,6 +1846,31 @@ describe('Findings Component', () => {
             fireEvent.click(recheckButton);
 
             expect(mockRapidApiValidityHelper).toHaveBeenCalledWith(rapidApiFinding);
+        });
+
+        it('should call makeValidityHelper for Make findings', () => {
+            const makeFinding: Finding = {
+                fingerprint: 'fp-make',
+                numOccurrences: 1,
+                secretType: 'Make',
+                validity: 'valid' as const,
+                validatedAt: '2025-05-30T12:00:00.000Z',
+                secretValue: { match: { api_token: 'bbb49d50-239a-4609-9569-63ea15ef0997' } },
+                occurrences: new Set([])
+            };
+
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: [makeFinding],
+                },
+            });
+
+            render(<Findings />);
+
+            const recheckButton = screen.getByLabelText('Recheck validity');
+            fireEvent.click(recheckButton);
+
+            expect(mockMakeValidityHelper).toHaveBeenCalledWith(makeFinding);
         });
     });
 });
