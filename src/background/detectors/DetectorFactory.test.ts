@@ -18,6 +18,7 @@ import { DeepSeekDetector } from './deepseek/DeepSeekDetector';
 import { DeepAIDetector } from './deepai/DeepAIDetector';
 import { TelegramBotTokenDetector } from './telegram_bot_token/TelegramBotTokenDetector';
 import { RapidApiDetector } from './rapid_api/RapidApiDetector';
+import { MakeDetector } from './make/MakeDetector';
 
 describe('ConcreteDetectorFactory', () => {
     let factory: ConcreteDetectorFactory;
@@ -29,7 +30,7 @@ describe('ConcreteDetectorFactory', () => {
     test('createDetectors returns all detector instances', () => {
         const detectors = factory.createDetectors();
         
-        expect(detectors).toHaveLength(19);
+        expect(detectors).toHaveLength(20);
         expect(detectors[0]).toBeInstanceOf(AwsAccessKeysDetector);
         expect(detectors[1]).toBeInstanceOf(AwsSessionKeysDetector);
         expect(detectors[2]).toBeInstanceOf(AnthropicDetector);
@@ -49,6 +50,7 @@ describe('ConcreteDetectorFactory', () => {
         expect(detectors[16]).toBeInstanceOf(DeepAIDetector);
         expect(detectors[17]).toBeInstanceOf(TelegramBotTokenDetector);
         expect(detectors[18]).toBeInstanceOf(RapidApiDetector);
+        expect(detectors[19]).toBeInstanceOf(MakeDetector);
     });
 
     test('createDetector returns specific detector by type', () => {
@@ -71,6 +73,7 @@ describe('ConcreteDetectorFactory', () => {
         const deepaiDetector = factory.createDetector('DeepAI');
         const telegramBotTokenDetector = factory.createDetector('telegram_bot_token');
         const rapidApiDetector = factory.createDetector('rapid_api');
+        const makeDetector = factory.createDetector('make');
 
         expect(awsAccessKeysDetector).toBeInstanceOf(AwsAccessKeysDetector);
         expect(awsSessionKeysDetector).toBeInstanceOf(AwsSessionKeysDetector);
@@ -91,6 +94,7 @@ describe('ConcreteDetectorFactory', () => {
         expect(deepaiDetector).toBeInstanceOf(DeepAIDetector);
         expect(telegramBotTokenDetector).toBeInstanceOf(TelegramBotTokenDetector);
         expect(rapidApiDetector).toBeInstanceOf(RapidApiDetector);
+        expect(makeDetector).toBeInstanceOf(MakeDetector);
     });
 
     test('createDetector returns undefined for unknown type', () => {
@@ -139,5 +143,9 @@ describe('ConcreteDetectorFactory', () => {
         const rapidApiDetector = detectors[18];
         expect(rapidApiDetector.type).toBe('rapid_api');
         expect(rapidApiDetector.name).toBe('RapidAPI');
+
+        const makeDetector = detectors[19];
+        expect(makeDetector.type).toBe('make');
+        expect(makeDetector.name).toBe('Make');
     });
 });

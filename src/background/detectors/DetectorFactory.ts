@@ -18,6 +18,7 @@ import { DeepSeekDetector } from './deepseek/DeepSeekDetector';
 import { DeepAIDetector } from './deepai/DeepAIDetector';
 import { TelegramBotTokenDetector } from './telegram_bot_token/TelegramBotTokenDetector';
 import { RapidApiDetector } from './rapid_api/RapidApiDetector';
+import { MakeDetector } from './make/MakeDetector';
 
 export class ConcreteDetectorFactory implements DetectorFactory {
     private readonly detectorClasses = [
@@ -39,7 +40,8 @@ export class ConcreteDetectorFactory implements DetectorFactory {
         DeepSeekDetector,
         DeepAIDetector,
         TelegramBotTokenDetector,
-        RapidApiDetector
+        RapidApiDetector,
+        MakeDetector
     ];
 
     createDetectors(): SecretDetector[] {
