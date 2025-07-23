@@ -30,6 +30,7 @@ import { deepseekValidityHelper } from '../../utils/validators/deepseek/deepseek
 import { deepaiValidityHelper } from '../../utils/validators/deepai/deepaiValidityHelper';
 import { telegramBotTokenValidityHelper } from '../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper';
 import { rapidApiValidityHelper } from '../../utils/validators/rapid_api/rapidApiValidityHelper';
+import { makeValidityHelper } from '../../utils/validators/make/makeValidityHelper';
 
 // Pagination constants
 const ITEMS_PER_PAGE = 10;
@@ -146,6 +147,8 @@ export const Findings: React.FC = () => {
             telegramBotTokenValidityHelper(finding);
         } else if (finding.secretType === "RapidAPI") {
             rapidApiValidityHelper(finding);
+        } else if (finding.secretType === "Make") {
+            makeValidityHelper(finding);
         }
     };
 

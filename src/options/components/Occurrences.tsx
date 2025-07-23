@@ -21,6 +21,7 @@ import { deepseekValidityHelper } from '../../utils/validators/deepseek/deepseek
 import { deepaiValidityHelper } from '../../utils/validators/deepai/deepaiValidityHelper';
 import { telegramBotTokenValidityHelper } from '../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper';
 import { rapidApiValidityHelper } from '../../utils/validators/rapid_api/rapidApiValidityHelper';
+import { makeValidityHelper } from '../../utils/validators/make/makeValidityHelper';
 
 
 export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFingerprint }) => {
@@ -82,6 +83,8 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
             telegramBotTokenValidityHelper(finding);
         } else if (finding.secretType === "RapidAPI") {
             rapidApiValidityHelper(finding);
+        } else if (finding.secretType === "Make") {
+            makeValidityHelper(finding);
         }
     };
 

@@ -21,6 +21,7 @@ import { deepseekValidityHelper } from '../../../../utils/validators/deepseek/de
 import { deepaiValidityHelper } from '../../../../utils/validators/deepai/deepaiValidityHelper';
 import { telegramBotTokenValidityHelper } from '../../../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper';
 import { rapidApiValidityHelper } from '../../../../utils/validators/rapid_api/rapidApiValidityHelper';
+import { makeValidityHelper } from '../../../../utils/validators/make/makeValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import ModalHeader from '../../modalheader/ModalHeader';
 import './style.css';
@@ -76,6 +77,8 @@ const FindingsTab: React.FC = () => {
                 await telegramBotTokenValidityHelper(finding);
             } else if (finding.secretType === "RapidAPI") {
                 await rapidApiValidityHelper(finding);
+            } else if (finding.secretType === "Make") {
+                await makeValidityHelper(finding);
             }
         } catch (error) {
             console.error(`Validity check failed for ${finding.secretType}:`, error);
