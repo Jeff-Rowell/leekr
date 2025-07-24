@@ -11,6 +11,18 @@ export interface MakeOccurrence extends Occurrence {
     validity?: string;
 }
 
+export interface MakeMcpSecretValue {
+    match: {
+        mcp_token: string;
+        full_url: string;
+    };
+}
+
+export interface MakeMcpOccurrence extends Occurrence {
+    secretValue: MakeMcpSecretValue;
+    validity?: string;
+}
+
 export interface MakeDetectorConfig {
     requiredEntropy: number;
 }

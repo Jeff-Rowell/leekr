@@ -21,6 +21,7 @@ import { deepaiConfig } from './detectors/deepai/deepai';
 import { DEFAULT_TELEGRAM_BOT_TOKEN_CONFIG } from './detectors/telegram_bot_token/telegram_bot_token';
 import { DEFAULT_RAPID_API_CONFIG } from './detectors/rapid_api/rapid_api';
 import { DEFAULT_MAKE_CONFIG } from './detectors/make/api_token/make';
+import { DEFAULT_MAKE_MCP_CONFIG } from './detectors/make/mcp_token/make';
 
 const awsAccessKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_ACCESS_KEY_CONFIG };
 const awsSessionKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_SESSION_KEY_CONFIG };
@@ -520,6 +521,16 @@ export const patterns: PatternsObj = {
         familyName: "Make",
         pattern: /\b([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})\b/g,
         entropy: DEFAULT_MAKE_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Make MCP Token": {
+        name: "Make MCP Token",
+        familyName: "Make MCP",
+        pattern: /https:\/\/(eu[12]|us[12])\.make\.(?:com|celonis\.com)\/(?:mcp\/)?api\/v[12]\/u\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})\/sse/g,
+        entropy: DEFAULT_MAKE_MCP_CONFIG.requiredEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
         validityEndpoints: [],
