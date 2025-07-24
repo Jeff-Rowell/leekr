@@ -1,5 +1,5 @@
-import { Finding } from "src/types/findings.types";
-import { retrieveFindings, storeFindings } from "../../helpers/common";
+import { Finding } from "../../../../types/findings.types";
+import { retrieveFindings, storeFindings } from "../../../helpers/common";
 import { validateMakeApiToken } from "./make";
 
 export async function makeValidityHelper(finding: Finding): Promise<void> {

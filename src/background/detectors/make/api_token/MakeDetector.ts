@@ -1,6 +1,6 @@
-import { SecretDetector } from '../detector.interface';
-import { Occurrence } from '../../../types/findings.types';
-import { patterns } from '../../../config/patterns';
+import { SecretDetector } from '../../detector.interface';
+import { Occurrence } from '../../../../types/findings.types';
+import { patterns } from '../../../../config/patterns';
 import { detectMakeApiToken } from './make';
 
 export class MakeDetector implements SecretDetector {

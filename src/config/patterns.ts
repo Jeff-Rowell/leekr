@@ -20,7 +20,7 @@ import { deepseekConfig } from './detectors/deepseek/deepseek';
 import { deepaiConfig } from './detectors/deepai/deepai';
 import { DEFAULT_TELEGRAM_BOT_TOKEN_CONFIG } from './detectors/telegram_bot_token/telegram_bot_token';
 import { DEFAULT_RAPID_API_CONFIG } from './detectors/rapid_api/rapid_api';
-import { DEFAULT_MAKE_CONFIG } from './detectors/make/make';
+import { DEFAULT_MAKE_CONFIG } from './detectors/make/api_token/make';
 
 const awsAccessKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_ACCESS_KEY_CONFIG };
 const awsSessionKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_SESSION_KEY_CONFIG };

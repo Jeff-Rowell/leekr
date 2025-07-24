@@ -1,21 +1,21 @@
 import { detectMakeApiToken } from './make';
-import { validateMakeApiToken } from '../../../utils/validators/make/make';
-import { calculateShannonEntropy } from '../../../utils/accuracy/entropy';
-import { isKnownFalsePositive } from '../../../utils/accuracy/falsePositives';
+import { validateMakeApiToken } from '../../../../utils/validators/make/api_token/make';
+import { calculateShannonEntropy } from '../../../../utils/accuracy/entropy';
+import { isKnownFalsePositive } from '../../../../utils/accuracy/falsePositives';
 import { 
     findSecretPosition, 
     getExistingFindings, 
     getSourceMapUrl 
-} from '../../../utils/helpers/common';
-import { computeFingerprint } from '../../../utils/helpers/computeFingerprint';
-import { patterns } from '../../../config/patterns';
+} from '../../../../utils/helpers/common';
+import { computeFingerprint } from '../../../../utils/helpers/computeFingerprint';
+import { patterns } from '../../../../config/patterns';
 
-jest.mock('../../../utils/validators/make/make');
-jest.mock('../../../utils/accuracy/entropy');
-jest.mock('../../../utils/accuracy/falsePositives');
-jest.mock('../../../utils/helpers/common');
-jest.mock('../../../utils/helpers/computeFingerprint');
-jest.mock('../../../../external/source-map');
+jest.mock('../../../../utils/validators/make/api_token/make');
+jest.mock('../../../../utils/accuracy/entropy');
+jest.mock('../../../../utils/accuracy/falsePositives');
+jest.mock('../../../../utils/helpers/common');
+jest.mock('../../../../utils/helpers/computeFingerprint');
+jest.mock('../../../../../external/source-map');
 
 global.fetch = jest.fn();
 global.chrome = {
@@ -314,7 +314,7 @@ describe('detectMakeApiToken', () => {
                 })
             };
 
-            const sourceMapModule = require('../../../../external/source-map');
+            const sourceMapModule = require('../../../../../external/source-map');
             sourceMapModule.SourceMapConsumer = mockSourceMapConsumer;
 
             const result = await detectMakeApiToken(content, url);
@@ -361,7 +361,7 @@ describe('detectMakeApiToken', () => {
                 })
             };
 
-            const sourceMapModule = require('../../../../external/source-map');
+            const sourceMapModule = require('../../../../../external/source-map');
             sourceMapModule.SourceMapConsumer = mockSourceMapConsumer;
 
             const result = await detectMakeApiToken(content, url);
@@ -423,7 +423,7 @@ describe('detectMakeApiToken', () => {
                 })
             };
 
-            const sourceMapModule = require('../../../../external/source-map');
+            const sourceMapModule = require('../../../../../external/source-map');
             sourceMapModule.SourceMapConsumer = mockSourceMapConsumer;
 
             const result = await detectMakeApiToken(content, url);

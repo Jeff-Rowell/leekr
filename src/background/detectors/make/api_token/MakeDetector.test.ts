@@ -1,6 +1,6 @@
 import { MakeDetector } from './MakeDetector';
 import { detectMakeApiToken } from './make';
-import { patterns } from '../../../config/patterns';
+import { patterns } from '../../../../config/patterns';
 
 jest.mock('./make');
 

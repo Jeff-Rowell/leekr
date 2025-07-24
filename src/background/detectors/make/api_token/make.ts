@@ -1,12 +1,12 @@
-import { patterns } from '../../../config/patterns';
-import { calculateShannonEntropy } from '../../../utils/accuracy/entropy';
-import { isKnownFalsePositive } from '../../../utils/accuracy/falsePositives';
-import { findSecretPosition, getExistingFindings, getSourceMapUrl } from '../../../utils/helpers/common';
-import { computeFingerprint } from '../../../utils/helpers/computeFingerprint';
-import { MakeOccurrence, MakeSecretValue } from '../../../types/make';
-import { Finding, Occurrence, SourceContent } from '../../../types/findings.types';
-import { validateMakeApiToken } from '../../../utils/validators/make/make';
-import * as sourceMap from '../../../../external/source-map';
+import { patterns } from '../../../../config/patterns';
+import { calculateShannonEntropy } from '../../../../utils/accuracy/entropy';
+import { isKnownFalsePositive } from '../../../../utils/accuracy/falsePositives';
+import { findSecretPosition, getExistingFindings, getSourceMapUrl } from '../../../../utils/helpers/common';
+import { computeFingerprint } from '../../../../utils/helpers/computeFingerprint';
+import { MakeOccurrence, MakeSecretValue } from '../../../../types/make';
+import { Finding, Occurrence, SourceContent } from '../../../../types/findings.types';
+import { validateMakeApiToken } from '../../../../utils/validators/make/api_token/make';
+import * as sourceMap from '../../../../../external/source-map';
 
 export async function detectMakeApiToken(content: string, url: string): Promise<Occurrence[]> {
     console.log('[Make Detector] Starting detection on URL:', url);

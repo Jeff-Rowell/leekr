@@ -1,10 +1,10 @@
 import { makeValidityHelper } from './makeValidityHelper';
 import { validateMakeApiToken } from './make';
-import { retrieveFindings, storeFindings } from '../../helpers/common';
-import { Finding } from '../../../types/findings.types';
+import { retrieveFindings, storeFindings } from '../../../helpers/common';
+import { Finding } from '../../../../types/findings.types';
 
 jest.mock('./make');
-jest.mock('../../helpers/common');
+jest.mock('../../../helpers/common');
 
 describe('makeValidityHelper', () => {
     const mockValidateMakeApiToken = validateMakeApiToken as jest.MockedFunction<typeof validateMakeApiToken>;

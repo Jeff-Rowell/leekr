@@ -39,7 +39,7 @@ import { deepseekValidityHelper } from '../../../../utils/validators/deepseek/de
 import { deepaiValidityHelper } from '../../../../utils/validators/deepai/deepaiValidityHelper';
 import { telegramBotTokenValidityHelper } from '../../../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper';
 import { rapidApiValidityHelper } from '../../../../utils/validators/rapid_api/rapidApiValidityHelper';
-import { makeValidityHelper } from '../../../../utils/validators/make/makeValidityHelper';
+import { makeValidityHelper } from '../../../../utils/validators/make/api_token/makeValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import FindingsTab from './FindingsTab';
 
@@ -123,7 +123,7 @@ jest.mock('../../../../utils/validators/rapid_api/rapidApiValidityHelper', () =>
     rapidApiValidityHelper: jest.fn(),
 }));
 
-jest.mock('../../../../utils/validators/make/makeValidityHelper', () => ({
+jest.mock('../../../../utils/validators/make/api_token/makeValidityHelper', () => ({
     makeValidityHelper: jest.fn(),
 }));
 

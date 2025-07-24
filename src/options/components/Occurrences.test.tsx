@@ -36,7 +36,7 @@ import { deepseekValidityHelper } from '../../utils/validators/deepseek/deepseek
 import { deepaiValidityHelper } from '../../utils/validators/deepai/deepaiValidityHelper';
 import { telegramBotTokenValidityHelper } from '../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper';
 import { rapidApiValidityHelper } from '../../utils/validators/rapid_api/rapidApiValidityHelper';
-import { makeValidityHelper } from '../../utils/validators/make/makeValidityHelper';
+import { makeValidityHelper } from '../../utils/validators/make/api_token/makeValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
@@ -62,7 +62,7 @@ jest.mock('../../utils/validators/deepseek/deepseekValidityHelper');
 jest.mock('../../utils/validators/deepai/deepaiValidityHelper');
 jest.mock('../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper');
 jest.mock('../../utils/validators/rapid_api/rapidApiValidityHelper');
-jest.mock('../../utils/validators/make/makeValidityHelper');
+jest.mock('../../utils/validators/make/api_token/makeValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",

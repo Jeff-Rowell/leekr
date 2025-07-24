@@ -18,7 +18,7 @@ import { DeepSeekDetector } from './deepseek/DeepSeekDetector';
 import { DeepAIDetector } from './deepai/DeepAIDetector';
 import { TelegramBotTokenDetector } from './telegram_bot_token/TelegramBotTokenDetector';
 import { RapidApiDetector } from './rapid_api/RapidApiDetector';
-import { MakeDetector } from './make/MakeDetector';
+import { MakeDetector } from './make/api_token/MakeDetector';
 
 describe('ConcreteDetectorFactory', () => {
     let factory: ConcreteDetectorFactory;
