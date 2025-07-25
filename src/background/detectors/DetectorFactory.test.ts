@@ -30,7 +30,7 @@ describe('ConcreteDetectorFactory', () => {
     test('createDetectors returns all detector instances', () => {
         const detectors = factory.createDetectors();
         
-        expect(detectors).toHaveLength(20);
+        expect(detectors).toHaveLength(21);
         expect(detectors[0]).toBeInstanceOf(AwsAccessKeysDetector);
         expect(detectors[1]).toBeInstanceOf(AwsSessionKeysDetector);
         expect(detectors[2]).toBeInstanceOf(AnthropicDetector);
