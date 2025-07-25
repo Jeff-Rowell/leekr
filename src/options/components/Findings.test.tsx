@@ -40,6 +40,7 @@ import { deepaiValidityHelper } from '../../utils/validators/deepai/deepaiValidi
 import { telegramBotTokenValidityHelper } from '../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper';
 import { rapidApiValidityHelper } from '../../utils/validators/rapid_api/rapidApiValidityHelper';
 import { makeValidityHelper } from '../../utils/validators/make/api_token/makeValidityHelper';
+import { makeMcpValidityHelper } from '../../utils/validators/make/mcp_token/makeMcpValidityHelper';
 import { Findings } from './Findings';
 
 jest.mock('../../popup/AppContext');
@@ -64,6 +65,7 @@ jest.mock('../../utils/validators/deepai/deepaiValidityHelper');
 jest.mock('../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper');
 jest.mock('../../utils/validators/rapid_api/rapidApiValidityHelper');
 jest.mock('../../utils/validators/make/api_token/makeValidityHelper');
+jest.mock('../../utils/validators/make/mcp_token/makeMcpValidityHelper');
 
 const mockAwsValidityHelper = awsValidityHelper as jest.MockedFunction<typeof awsValidityHelper>;
 const mockAwsSessionValidityHelper = awsSessionValidityHelper as jest.MockedFunction<typeof awsSessionValidityHelper>;
@@ -85,6 +87,7 @@ const mockDeepaiValidityHelper = deepaiValidityHelper as jest.MockedFunction<typ
 const mockTelegramBotTokenValidityHelper = telegramBotTokenValidityHelper as jest.MockedFunction<typeof telegramBotTokenValidityHelper>;
 const mockRapidApiValidityHelper = rapidApiValidityHelper as jest.MockedFunction<typeof rapidApiValidityHelper>;
 const mockMakeValidityHelper = makeValidityHelper as jest.MockedFunction<typeof makeValidityHelper>;
+const mockMakeMcpValidityHelper = makeMcpValidityHelper as jest.MockedFunction<typeof makeMcpValidityHelper>;
 
 const mockChrome = {
     runtime: {
@@ -1871,6 +1874,36 @@ describe('Findings Component', () => {
             fireEvent.click(recheckButton);
 
             expect(mockMakeValidityHelper).toHaveBeenCalledWith(makeFinding);
+        });
+
+        it('should call makeMcpValidityHelper for Make MCP findings', () => {
+            const makeMcpFinding: Finding = {
+                fingerprint: 'fp-make-mcp',
+                numOccurrences: 1,
+                secretType: 'Make MCP',
+                validity: 'valid' as const,
+                validatedAt: '2025-05-30T12:00:00.000Z',
+                secretValue: { 
+                    match: { 
+                        mcp_token: 'bbb49d50-239a-4609-9569-63ea15ef0997',
+                        full_url: 'https://hook.eu1.make.com/u/bbb49d50-239a-4609-9569-63ea15ef0997/abc123'
+                    } 
+                },
+                occurrences: new Set([])
+            };
+
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: [makeMcpFinding],
+                },
+            });
+
+            render(<Findings />);
+
+            const recheckButton = screen.getByLabelText('Recheck validity');
+            fireEvent.click(recheckButton);
+
+            expect(mockMakeMcpValidityHelper).toHaveBeenCalledWith(makeMcpFinding);
         });
     });
 });
