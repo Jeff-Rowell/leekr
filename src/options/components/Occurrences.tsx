@@ -22,6 +22,7 @@ import { deepaiValidityHelper } from '../../utils/validators/deepai/deepaiValidi
 import { telegramBotTokenValidityHelper } from '../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper';
 import { rapidApiValidityHelper } from '../../utils/validators/rapid_api/rapidApiValidityHelper';
 import { makeValidityHelper } from '../../utils/validators/make/api_token/makeValidityHelper';
+import { makeMcpValidityHelper } from '../../utils/validators/make/mcp_token/makeMcpValidityHelper';
 
 
 export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFingerprint }) => {
@@ -85,6 +86,8 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
             rapidApiValidityHelper(finding);
         } else if (finding.secretType === "Make") {
             makeValidityHelper(finding);
+        } else if (finding.secretType === "Make MCP") {
+            makeMcpValidityHelper(finding);
         }
     };
 

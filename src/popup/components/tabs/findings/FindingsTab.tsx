@@ -22,6 +22,7 @@ import { deepaiValidityHelper } from '../../../../utils/validators/deepai/deepai
 import { telegramBotTokenValidityHelper } from '../../../../utils/validators/telegram_bot_token/telegramBotTokenValidityHelper';
 import { rapidApiValidityHelper } from '../../../../utils/validators/rapid_api/rapidApiValidityHelper';
 import { makeValidityHelper } from '../../../../utils/validators/make/api_token/makeValidityHelper';
+import { makeMcpValidityHelper } from '../../../../utils/validators/make/mcp_token/makeMcpValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import ModalHeader from '../../modalheader/ModalHeader';
 import './style.css';
@@ -79,6 +80,8 @@ const FindingsTab: React.FC = () => {
                 await rapidApiValidityHelper(finding);
             } else if (finding.secretType === "Make") {
                 await makeValidityHelper(finding);
+            } else if (finding.secretType === "Make MCP") {
+                await makeMcpValidityHelper(finding);
             }
         } catch (error) {
             console.error(`Validity check failed for ${finding.secretType}:`, error);
