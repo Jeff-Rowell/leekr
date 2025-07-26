@@ -4,7 +4,7 @@ const baseUrls = [
     'https://us1.make.com/api/v2/',
     'https://us2.make.com/api/v2/',
     'https://eu1.make.celonis.com/api/v2/',
-    'https://eu2.make.celonis.com/api/v2/',
+    'https://us1.make.celonis.com/api/v2/',
 ]
 
 export const validateMakeApiToken = async (apiToken: string): Promise<{ valid: boolean; error?: string }> => {
