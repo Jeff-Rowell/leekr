@@ -556,7 +556,7 @@ describe('detectMakeMcpToken', () => {
             const originalMatch = String.prototype.match;
             let matchCallCount = 0;
             
-            String.prototype.match = function(regex) {
+            String.prototype.match = function(regex: any) {
                 matchCallCount++;
                 // First call is the pattern match in detectMakeMcpToken (line 12)
                 if (matchCallCount === 1) {
