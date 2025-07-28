@@ -18,6 +18,7 @@ import { DeepAIOccurrence } from 'src/types/deepai';
 import { TelegramBotTokenOccurrence } from 'src/types/telegram_bot_token';
 import { RapidApiOccurrence } from 'src/types/rapid_api';
 import { MakeOccurrence, MakeMcpOccurrence } from 'src/types/make';
+import { LangsmithOccurrence } from 'src/types/langsmith';
 import { Finding, Occurrence } from 'src/types/findings.types';
 import { retrieveFindings, storeFindings } from '../../../../utils/helpers/common';
 import { awsValidityHelper } from '../../../../utils/validators/aws/aws_access_keys/awsValidityHelper';
@@ -41,6 +42,7 @@ import { telegramBotTokenValidityHelper } from '../../../../utils/validators/tel
 import { rapidApiValidityHelper } from '../../../../utils/validators/rapid_api/rapidApiValidityHelper';
 import { makeValidityHelper } from '../../../../utils/validators/make/api_token/makeValidityHelper';
 import { makeMcpValidityHelper } from '../../../../utils/validators/make/mcp_token/makeMcpValidityHelper';
+import { langsmithValidityHelper } from '../../../../utils/validators/langsmith/langsmithValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import FindingsTab from './FindingsTab';
 
@@ -129,6 +131,9 @@ jest.mock('../../../../utils/validators/make/api_token/makeValidityHelper', () =
 }));
 jest.mock('../../../../utils/validators/make/mcp_token/makeMcpValidityHelper', () => ({
     makeMcpValidityHelper: jest.fn(),
+}));
+jest.mock('../../../../utils/validators/langsmith/langsmithValidityHelper', () => ({
+    langsmithValidityHelper: jest.fn(),
 }));
 
 jest.mock('../../../../utils/helpers/common', () => ({
@@ -525,6 +530,29 @@ describe('FindingsTab', () => {
     };
 
     const mockMakeMcpOccurrences: Set<Occurrence> = new Set([mockMakeMcpOccurrence]);
+
+    const mockLangsmithOccurrence: LangsmithOccurrence = {
+        filePath: "main.langsmith.js",
+        fingerprint: "fp25",
+        secretType: "LangSmith",
+        secretValue: {
+            match: { 
+                api_key: "lsv2_pt_12345678901234567890123456789012_1234567890"
+            }
+        },
+        type: "Personal API Token",
+        sourceContent: {
+            content: 'const apiKey = "lsv2_pt_12345678901234567890123456789012_1234567890";',
+            contentFilename: "main.langsmith.js",
+            contentStartLineNum: 5,
+            contentEndLineNum: 5,
+            exactMatchNumbers: [17, 68]
+        },
+        url: "http://localhost:3000/static/js/main.langsmith.js",
+        validity: "valid"
+    };
+
+    const mockLangsmithOccurrences: Set<Occurrence> = new Set([mockLangsmithOccurrence]);
 
     const mockFindings: Finding[] = [
         {
@@ -1042,6 +1070,21 @@ describe('FindingsTab', () => {
                 validity: "valid"
             }
         },
+        {
+            fingerprint: "fp25",
+            numOccurrences: mockLangsmithOccurrences.size,
+            occurrences: mockLangsmithOccurrences,
+            validity: "valid",
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            secretType: "LangSmith",
+            secretValue: {
+                match: { 
+                    api_key: "lsv2_pt_12345678901234567890123456789012_1234567890"
+                },
+                validatedAt: "2025-05-17T18:16:16.870Z",
+                validity: "valid"
+            }
+        },
     ];
 
     // Helper to get sorted findings (matches FindingsTab sorting logic)
@@ -1146,14 +1189,14 @@ describe('FindingsTab', () => {
     test('shows validity check icon for validated findings', () => {
         render(<FindingsTab />);
         const shieldIcons = screen.getAllByTestId('shield-check-icon');
-        expect(shieldIcons.length).toBe(24);
+        expect(shieldIcons.length).toBe(25);
     });
 
     test('opens settings menu when settings button is clicked', async () => {
         render(<FindingsTab />);
 
         const settingsButtons = screen.getAllByLabelText('Settings');
-        expect(settingsButtons.length).toBe(24);
+        expect(settingsButtons.length).toBe(25);
         fireEvent.click(settingsButtons[0]);
 
         await waitFor(() => {
@@ -1214,7 +1257,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(24);
+        expect(recheckButtons).toHaveLength(25);
 
         fireEvent.click(recheckButtons[0]);
         expect(anthropicValidityHelper).toHaveBeenCalledWith(sortedMockFindings[0]);
@@ -1224,7 +1267,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(24);
+        expect(recheckButtons).toHaveLength(25);
 
         fireEvent.click(recheckButtons[7]);
         expect(awsSessionValidityHelper).toHaveBeenCalledWith(sortedMockFindings[7]);
@@ -1234,7 +1277,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(24);
+        expect(recheckButtons).toHaveLength(25);
 
         fireEvent.click(recheckButtons[5]);
         expect(awsValidityHelper).toHaveBeenCalledWith(sortedMockFindings[5]);
@@ -1244,17 +1287,17 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(24);
+        expect(recheckButtons).toHaveLength(25);
 
-        fireEvent.click(recheckButtons[21]);
-        expect(openaiValidityHelper).toHaveBeenCalledWith(sortedMockFindings[21]);
+        fireEvent.click(recheckButtons[22]);
+        expect(openaiValidityHelper).toHaveBeenCalledWith(sortedMockFindings[22]);
     });
 
     test('calls geminiValidityHelper when recheck button is clicked for Gemini', async () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(24);
+        expect(recheckButtons).toHaveLength(25);
 
         fireEvent.click(recheckButtons[12]);
         expect(geminiValidityHelper).toHaveBeenCalledWith(sortedMockFindings[12]);
@@ -1264,7 +1307,7 @@ describe('FindingsTab', () => {
         render(<FindingsTab />);
 
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(24);
+        expect(recheckButtons).toHaveLength(25);
 
         fireEvent.click(recheckButtons[15]);
         expect(huggingfaceValidityHelper).toHaveBeenCalledWith(sortedMockFindings[15]);
@@ -1354,7 +1397,7 @@ describe('FindingsTab', () => {
         
         // Find the Artifactory recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(24);
+        expect(recheckButtons).toHaveLength(25);
         
         // Click the Artifactory recheck button (sorted index 2) 
         fireEvent.click(recheckButtons[2]);
@@ -1368,7 +1411,7 @@ describe('FindingsTab', () => {
         
         // Find the Azure OpenAI recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(24);
+        expect(recheckButtons).toHaveLength(25);
         
         // Click the Azure OpenAI recheck button (sorted index 8)
         fireEvent.click(recheckButtons[8]);
@@ -1382,7 +1425,7 @@ describe('FindingsTab', () => {
         
         // Find the Apollo recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(24);
+        expect(recheckButtons).toHaveLength(25);
         
         // Click the Apollo recheck button (sorted index 1)
         fireEvent.click(recheckButtons[1]);
@@ -1396,7 +1439,7 @@ describe('FindingsTab', () => {
         
         // Find the GCP recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(24);
+        expect(recheckButtons).toHaveLength(25);
         
         // Click the GCP recheck button (sorted index 13)
         fireEvent.click(recheckButtons[13]);
@@ -1462,7 +1505,7 @@ describe('FindingsTab', () => {
         
         // Find the Docker recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(24);
+        expect(recheckButtons).toHaveLength(25);
         
         // Click the Docker recheck button (sorted index 11)
         fireEvent.click(recheckButtons[11]);
@@ -1476,7 +1519,7 @@ describe('FindingsTab', () => {
         
         // Find the JotForm recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(24);
+        expect(recheckButtons).toHaveLength(25);
         
         // Click the JotForm recheck button (sorted index 16)
         fireEvent.click(recheckButtons[16]);
@@ -1490,7 +1533,7 @@ describe('FindingsTab', () => {
         
         // Find the Groq recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(24);
+        expect(recheckButtons).toHaveLength(25);
         
         // Click the Groq recheck button (sorted index 14)
         fireEvent.click(recheckButtons[14]);
@@ -1504,13 +1547,13 @@ describe('FindingsTab', () => {
         
         // Find the Mailgun recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(24);
+        expect(recheckButtons).toHaveLength(25);
         
-        // Click the Mailgun recheck button (sorted index 18)
-        fireEvent.click(recheckButtons[18]);
+        // Click the Mailgun recheck button (sorted index 19)
+        fireEvent.click(recheckButtons[19]);
         
         // Verify mailgun validity helper was called
-        expect(mailgunValidityHelper).toHaveBeenCalledWith(sortedMockFindings[18]);
+        expect(mailgunValidityHelper).toHaveBeenCalledWith(sortedMockFindings[19]);
     });
 
     test('calls mailchimpValidityHelper when recheck button is clicked for Mailchimp', async () => {
@@ -1518,13 +1561,13 @@ describe('FindingsTab', () => {
         
         // Find the Mailchimp recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(24);
+        expect(recheckButtons).toHaveLength(25);
         
-        // Click the Mailchimp recheck button (sorted index 17)
-        fireEvent.click(recheckButtons[17]);
+        // Click the Mailchimp recheck button (sorted index 18)
+        fireEvent.click(recheckButtons[18]);
         
         // Verify mailchimp validity helper was called
-        expect(mailchimpValidityHelper).toHaveBeenCalledWith(sortedMockFindings[17]);
+        expect(mailchimpValidityHelper).toHaveBeenCalledWith(sortedMockFindings[18]);
     });
 
     test('calls deepseekValidityHelper when recheck button is clicked for DeepSeek', async () => {
@@ -1532,7 +1575,7 @@ describe('FindingsTab', () => {
         
         // Find the DeepSeek recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(24);
+        expect(recheckButtons).toHaveLength(25);
         
         // Click the DeepSeek recheck button (sorted index 10)
         fireEvent.click(recheckButtons[10]);
@@ -1546,7 +1589,7 @@ describe('FindingsTab', () => {
         
         // Find the DeepAI recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(24);
+        expect(recheckButtons).toHaveLength(25);
         
         // Click the DeepAI recheck button (sorted index 9)
         fireEvent.click(recheckButtons[9]);
@@ -1560,13 +1603,13 @@ describe('FindingsTab', () => {
         
         // Find the Telegram Bot Token recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(24);
+        expect(recheckButtons).toHaveLength(25);
         
-        // Click the Telegram Bot Token recheck button (sorted index 23)
-        fireEvent.click(recheckButtons[23]);
+        // Click the Telegram Bot Token recheck button (sorted index 24)
+        fireEvent.click(recheckButtons[24]);
         
         // Verify telegram bot token validity helper was called
-        expect(telegramBotTokenValidityHelper).toHaveBeenCalledWith(sortedMockFindings[23]);
+        expect(telegramBotTokenValidityHelper).toHaveBeenCalledWith(sortedMockFindings[24]);
     });
 
     test('calls rapidApiValidityHelper when recheck button is clicked for RapidAPI', async () => {
@@ -1574,13 +1617,13 @@ describe('FindingsTab', () => {
         
         // Find the RapidAPI recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(24);
+        expect(recheckButtons).toHaveLength(25);
         
-        // Click the RapidAPI recheck button (sorted index 22)
-        fireEvent.click(recheckButtons[22]);
+        // Click the RapidAPI recheck button (sorted index 23)
+        fireEvent.click(recheckButtons[23]);
         
         // Verify rapidApi validity helper was called
-        expect(rapidApiValidityHelper).toHaveBeenCalledWith(sortedMockFindings[22]);
+        expect(rapidApiValidityHelper).toHaveBeenCalledWith(sortedMockFindings[23]);
     });
 
     test('calls makeValidityHelper when recheck button is clicked for Make', async () => {
@@ -1588,13 +1631,13 @@ describe('FindingsTab', () => {
         
         // Find the Make recheck button directly (in the validity tooltip)
         const recheckButtons = screen.getAllByLabelText('Recheck validity');
-        expect(recheckButtons).toHaveLength(24);
+        expect(recheckButtons).toHaveLength(25);
         
-        // Click the Make recheck button (sorted index 19)
-        fireEvent.click(recheckButtons[19]);
+        // Click the Make recheck button (sorted index 20)
+        fireEvent.click(recheckButtons[20]);
         
         // Verify make validity helper was called
-        expect(makeValidityHelper).toHaveBeenCalledWith(sortedMockFindings[19]);
+        expect(makeValidityHelper).toHaveBeenCalledWith(sortedMockFindings[20]);
     });
 
     test('renders recheck all button when findings exist', () => {
@@ -1651,6 +1694,7 @@ describe('FindingsTab', () => {
             expect(rapidApiValidityHelper).toHaveBeenCalledTimes(1); // 1 RapidAPI
             expect(makeValidityHelper).toHaveBeenCalledTimes(1); // 1 Make
             expect(makeMcpValidityHelper).toHaveBeenCalledTimes(1); // 1 Make MCP
+            expect(langsmithValidityHelper).toHaveBeenCalledTimes(1); // 1 LangSmith
         });
     });
 
@@ -2110,7 +2154,7 @@ describe('FindingsTab', () => {
             
             // Status bar should be visible immediately - look for the specific status bar text
             await waitFor(() => {
-                expect(screen.getByText('Rechecking validity... (0/24)')).toBeInTheDocument();
+                expect(screen.getByText('Rechecking validity... (0/25)')).toBeInTheDocument();
             });
         });
 
@@ -2169,7 +2213,7 @@ describe('FindingsTab', () => {
             
             // Find the status bar cell using the specific status bar text
             await waitFor(() => {
-                const statusBarCell = screen.getByText('Rechecking validity... (0/24)').closest('td');
+                const statusBarCell = screen.getByText('Rechecking validity... (0/25)').closest('td');
                 expect(statusBarCell).toHaveAttribute('colSpan', '4');
             });
         });
@@ -2284,6 +2328,7 @@ describe('FindingsTab', () => {
                 expect(rapidApiValidityHelper).toHaveBeenCalledTimes(1);
                 expect(makeValidityHelper).toHaveBeenCalledTimes(1);
                 expect(makeMcpValidityHelper).toHaveBeenCalledTimes(1);
+                expect(langsmithValidityHelper).toHaveBeenCalledTimes(1);
             }, { timeout: 10000 });
         });
 

@@ -16,6 +16,7 @@ import { MailchimpOccurrence } from '../../types/mailchimp';
 import { DeepSeekOccurrence } from '../../types/deepseek';
 import { DeepAIOccurrence } from '../../types/deepai';
 import { MakeOccurrence } from '../../types/make';
+import { LangsmithOccurrence } from '../../types/langsmith';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -38,6 +39,7 @@ import { telegramBotTokenValidityHelper } from '../../utils/validators/telegram_
 import { rapidApiValidityHelper } from '../../utils/validators/rapid_api/rapidApiValidityHelper';
 import { makeValidityHelper } from '../../utils/validators/make/api_token/makeValidityHelper';
 import { makeMcpValidityHelper } from '../../utils/validators/make/mcp_token/makeMcpValidityHelper';
+import { langsmithValidityHelper } from '../../utils/validators/langsmith/langsmithValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
@@ -65,6 +67,7 @@ jest.mock('../../utils/validators/telegram_bot_token/telegramBotTokenValidityHel
 jest.mock('../../utils/validators/rapid_api/rapidApiValidityHelper');
 jest.mock('../../utils/validators/make/api_token/makeValidityHelper');
 jest.mock('../../utils/validators/make/mcp_token/makeMcpValidityHelper');
+jest.mock('../../utils/validators/langsmith/langsmithValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",
@@ -236,6 +239,29 @@ const mockGcpOccurrence: GcpOccurrence = {
 
 const mockHuggingFaceOccurrences: Set<Occurrence> = new Set([mockHuggingFaceOccurrence]);
 const mockGcpOccurrences: Set<Occurrence> = new Set([mockGcpOccurrence]);
+
+const mockLangsmithOccurrence: LangsmithOccurrence = {
+    filePath: "main.langsmith.js",
+    fingerprint: "fp17",
+    type: "Personal API Token",
+    secretType: "LangSmith",
+    secretValue: {
+        match: { 
+            api_key: "lsv2_pt_12345678901234567890123456789012_1234567890"
+        }
+    },
+    sourceContent: {
+        content: "langsmithfoobar\n".repeat(18),
+        contentEndLineNum: 35,
+        contentFilename: "LangsmithApp.js",
+        contentStartLineNum: 18,
+        exactMatchNumbers: [23, 30]
+    },
+    url: "http://localhost:3000/static/js/langsmith.foobar.js",
+    validity: "valid"
+};
+
+const mockLangsmithOccurrences: Set<Occurrence> = new Set([mockLangsmithOccurrence]);
 
 const mockFindings: Finding[] = [
     {
@@ -454,6 +480,21 @@ const mockFindings: Finding[] = [
         secretValue: {
             match: { 
                 apiKey: "key-" + "a".repeat(32)
+            },
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            validity: "valid"
+        }
+    },
+    {
+        fingerprint: "fp17",
+        numOccurrences: mockLangsmithOccurrences.size,
+        occurrences: mockLangsmithOccurrences,
+        validity: "valid",
+        validatedAt: "2025-05-13T18:16:16.870Z",
+        secretType: "LangSmith",
+        secretValue: {
+            match: { 
+                api_key: "lsv2_pt_12345678901234567890123456789012_1234567890"
             },
             validatedAt: "2025-05-17T18:16:16.870Z",
             validity: "valid"
@@ -1320,5 +1361,14 @@ describe('Occurrences Component', () => {
         fireEvent.click(recheckButton);
 
         expect(makeMcpValidityHelper).toHaveBeenCalledWith(makeMcpFinding);
+    });
+
+    test('calls langsmithValidityHelper on recheck button click for LangSmith', async () => {
+        render(<Occurrences filterFingerprint='fp17' />);
+
+        const recheckButton = screen.getByLabelText('Recheck validity');
+        fireEvent.click(recheckButton);
+
+        expect(langsmithValidityHelper).toHaveBeenCalledWith(mockFindings[11]);
     });
 });

@@ -41,6 +41,7 @@ import { telegramBotTokenValidityHelper } from '../../utils/validators/telegram_
 import { rapidApiValidityHelper } from '../../utils/validators/rapid_api/rapidApiValidityHelper';
 import { makeValidityHelper } from '../../utils/validators/make/api_token/makeValidityHelper';
 import { makeMcpValidityHelper } from '../../utils/validators/make/mcp_token/makeMcpValidityHelper';
+import { langsmithValidityHelper } from '../../utils/validators/langsmith/langsmithValidityHelper';
 import { Findings } from './Findings';
 
 jest.mock('../../popup/AppContext');
@@ -66,6 +67,7 @@ jest.mock('../../utils/validators/telegram_bot_token/telegramBotTokenValidityHel
 jest.mock('../../utils/validators/rapid_api/rapidApiValidityHelper');
 jest.mock('../../utils/validators/make/api_token/makeValidityHelper');
 jest.mock('../../utils/validators/make/mcp_token/makeMcpValidityHelper');
+jest.mock('../../utils/validators/langsmith/langsmithValidityHelper');
 
 const mockAwsValidityHelper = awsValidityHelper as jest.MockedFunction<typeof awsValidityHelper>;
 const mockAwsSessionValidityHelper = awsSessionValidityHelper as jest.MockedFunction<typeof awsSessionValidityHelper>;
@@ -88,6 +90,7 @@ const mockTelegramBotTokenValidityHelper = telegramBotTokenValidityHelper as jes
 const mockRapidApiValidityHelper = rapidApiValidityHelper as jest.MockedFunction<typeof rapidApiValidityHelper>;
 const mockMakeValidityHelper = makeValidityHelper as jest.MockedFunction<typeof makeValidityHelper>;
 const mockMakeMcpValidityHelper = makeMcpValidityHelper as jest.MockedFunction<typeof makeMcpValidityHelper>;
+const mockLangsmithValidityHelper = langsmithValidityHelper as jest.MockedFunction<typeof langsmithValidityHelper>;
 
 const mockChrome = {
     runtime: {
@@ -1904,6 +1907,35 @@ describe('Findings Component', () => {
             fireEvent.click(recheckButton);
 
             expect(mockMakeMcpValidityHelper).toHaveBeenCalledWith(makeMcpFinding);
+        });
+
+        it('should call langsmithValidityHelper for LangSmith findings', () => {
+            const langsmithFinding: Finding = {
+                fingerprint: 'fp-langsmith',
+                numOccurrences: 1,
+                secretType: 'LangSmith',
+                validity: 'valid' as const,
+                validatedAt: '2025-05-30T12:00:00.000Z',
+                secretValue: { 
+                    match: { 
+                        api_key: 'lsv2_pt_12345678901234567890123456789012_1234567890'
+                    } 
+                },
+                occurrences: new Set([])
+            };
+
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: [langsmithFinding],
+                },
+            });
+
+            render(<Findings />);
+
+            const recheckButton = screen.getByLabelText('Recheck validity');
+            fireEvent.click(recheckButton);
+
+            expect(mockLangsmithValidityHelper).toHaveBeenCalledWith(langsmithFinding);
         });
     });
 });
