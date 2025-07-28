@@ -19,6 +19,8 @@ import { DeepAIDetector } from './deepai/DeepAIDetector';
 import { TelegramBotTokenDetector } from './telegram_bot_token/TelegramBotTokenDetector';
 import { RapidApiDetector } from './rapid_api/RapidApiDetector';
 import { MakeDetector } from './make/api_token/MakeDetector';
+import { MakeMcpDetector } from './make/mcp_token/MakeMcpDetector';
+import { LangsmithDetector } from './langsmith/LangsmithDetector';
 
 describe('ConcreteDetectorFactory', () => {
     let factory: ConcreteDetectorFactory;
@@ -30,7 +32,7 @@ describe('ConcreteDetectorFactory', () => {
     test('createDetectors returns all detector instances', () => {
         const detectors = factory.createDetectors();
         
-        expect(detectors).toHaveLength(21);
+        expect(detectors).toHaveLength(22);
         expect(detectors[0]).toBeInstanceOf(AwsAccessKeysDetector);
         expect(detectors[1]).toBeInstanceOf(AwsSessionKeysDetector);
         expect(detectors[2]).toBeInstanceOf(AnthropicDetector);
@@ -51,6 +53,8 @@ describe('ConcreteDetectorFactory', () => {
         expect(detectors[17]).toBeInstanceOf(TelegramBotTokenDetector);
         expect(detectors[18]).toBeInstanceOf(RapidApiDetector);
         expect(detectors[19]).toBeInstanceOf(MakeDetector);
+        expect(detectors[20]).toBeInstanceOf(MakeMcpDetector);
+        expect(detectors[21]).toBeInstanceOf(LangsmithDetector);
     });
 
     test('createDetector returns specific detector by type', () => {
@@ -74,6 +78,8 @@ describe('ConcreteDetectorFactory', () => {
         const telegramBotTokenDetector = factory.createDetector('telegram_bot_token');
         const rapidApiDetector = factory.createDetector('rapid_api');
         const makeDetector = factory.createDetector('make');
+        const makeMcpDetector = factory.createDetector('make_mcp');
+        const langsmithDetector = factory.createDetector('langsmith');
 
         expect(awsAccessKeysDetector).toBeInstanceOf(AwsAccessKeysDetector);
         expect(awsSessionKeysDetector).toBeInstanceOf(AwsSessionKeysDetector);
@@ -95,6 +101,8 @@ describe('ConcreteDetectorFactory', () => {
         expect(telegramBotTokenDetector).toBeInstanceOf(TelegramBotTokenDetector);
         expect(rapidApiDetector).toBeInstanceOf(RapidApiDetector);
         expect(makeDetector).toBeInstanceOf(MakeDetector);
+        expect(makeMcpDetector).toBeInstanceOf(MakeMcpDetector);
+        expect(langsmithDetector).toBeInstanceOf(LangsmithDetector);
     });
 
     test('createDetector returns undefined for unknown type', () => {
