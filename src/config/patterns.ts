@@ -22,6 +22,7 @@ import { DEFAULT_TELEGRAM_BOT_TOKEN_CONFIG } from './detectors/telegram_bot_toke
 import { DEFAULT_RAPID_API_CONFIG } from './detectors/rapid_api/rapid_api';
 import { DEFAULT_MAKE_CONFIG } from './detectors/make/api_token/make';
 import { DEFAULT_MAKE_MCP_CONFIG } from './detectors/make/mcp_token/make';
+import { DEFAULT_LANGSMITH_API_KEY_CONFIG } from './detectors/langsmith/langsmith';
 
 const awsAccessKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_ACCESS_KEY_CONFIG };
 const awsSessionKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_SESSION_KEY_CONFIG };
@@ -531,6 +532,16 @@ export const patterns: PatternsObj = {
         familyName: "Make MCP",
         pattern: /https:\/\/(eu[12]|us[12])\.make\.(?:com|celonis\.com)\/(?:mcp\/)?api\/v[12]\/u\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})\/sse/g,
         entropy: DEFAULT_MAKE_MCP_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "LangSmith API Key": {
+        name: "LangSmith API Key",
+        familyName: "LangSmith",
+        pattern: /\b(lsv2_(?:pt|sk)_[a-f0-9]{32}_[a-f0-9]{10})\b/g,
+        entropy: DEFAULT_LANGSMITH_API_KEY_CONFIG.requiredEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
         validityEndpoints: [],
