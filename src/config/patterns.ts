@@ -23,6 +23,7 @@ import { DEFAULT_RAPID_API_CONFIG } from './detectors/rapid_api/rapid_api';
 import { DEFAULT_MAKE_CONFIG } from './detectors/make/api_token/make';
 import { DEFAULT_MAKE_MCP_CONFIG } from './detectors/make/mcp_token/make';
 import { DEFAULT_LANGSMITH_API_KEY_CONFIG } from './detectors/langsmith/langsmith';
+import { DEFAULT_SLACK_CONFIG } from './detectors/slack/slack';
 
 const awsAccessKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_ACCESS_KEY_CONFIG };
 const awsSessionKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_SESSION_KEY_CONFIG };
@@ -542,6 +543,46 @@ export const patterns: PatternsObj = {
         familyName: "LangSmith",
         pattern: /\b(lsv2_(?:pt|sk)_[a-f0-9]{32}_[a-f0-9]{10})\b/g,
         entropy: DEFAULT_LANGSMITH_API_KEY_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Slack Bot Token": {
+        name: "Slack Bot Token",
+        familyName: "Slack",
+        pattern: /\b(xoxb-[0-9]{10,13}-[0-9]{10,13}[a-zA-Z0-9-]*)\b/g,
+        entropy: DEFAULT_SLACK_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Slack User Token": {
+        name: "Slack User Token",
+        familyName: "Slack",
+        pattern: /\b(xoxp-[0-9]{10,13}-[0-9]{10,13}[a-zA-Z0-9-]*)\b/g,
+        entropy: DEFAULT_SLACK_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Slack Workspace Access Token": {
+        name: "Slack Workspace Access Token", 
+        familyName: "Slack",
+        pattern: /\b(xoxa-[0-9]{10,13}-[0-9]{10,13}[a-zA-Z0-9-]*)\b/g,
+        entropy: DEFAULT_SLACK_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "Slack Workspace Refresh Token": {
+        name: "Slack Workspace Refresh Token",
+        familyName: "Slack", 
+        pattern: /\b(xoxr-[0-9]{10,13}-[0-9]{10,13}[a-zA-Z0-9-]*)\b/g,
+        entropy: DEFAULT_SLACK_CONFIG.requiredEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
         validityEndpoints: [],
