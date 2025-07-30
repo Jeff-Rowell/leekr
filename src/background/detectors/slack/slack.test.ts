@@ -97,7 +97,7 @@ describe('detectSlack', () => {
     });
 
     it('should detect and validate Slack workspace access token', async () => {
-        const content = 'const slackToken = "xoxe.xoxp-1-Mi0yLTg0MzYzODgxMjkxNjgtODQxMzU3MzYyMzQxMC05MjczMjk2Njk3ODU5LTkyNjIzMDg3MTc3OTktZGZjNmRmYjA1MThmOTAxZGEwYjM1NmQ1OTMxMTJmMzI3ZjhlYmRhMWEwMDliZjc5ODM0MTIwNjM0NGViNzIwMg";';
+        const content = 'const slackToken = "xoxe.xoxp-1-Mi0yLTg0QzYzOLgxMjkxTjgtODQxMzU3MzYyMzQxMC05jjczMjk2Njk3ODU5LTkyNjIzMDg3MTc3OTktZGZjNmRmYjA1MThmOTAxZGEwYjM1NmQ1OTMxMTJmMzI3ZjhlYmRhMWEwMDliZjc5ODM0MTIwNjM0NGViNzIwMg";';
         const url = 'https://example.com/test.js';
 
         mockValidateSlackToken.mockResolvedValue({
@@ -112,7 +112,7 @@ describe('detectSlack', () => {
     });
 
     it('should detect and validate Slack workspace refresh token', async () => {
-        const content = 'const slackToken = "xoxe-1-My0xLTg0MzYzODgxMjkxNjgtOTI3MzI5NjY5Nzg1OS05MjYyMzA4NzI5MDMxLWRjMmU2ZmZhZDY0ZWNkNWNjMGQzYTdhZWNiYWRmNjdhOWJkOWIwNjliNjE3ZjQ1YjgwNjE5MDJhMGI0MGQ4ODM";';
+        const content = 'const slackToken = "xoxe-1-My0xLTg0MzYzODgxMjkxNjgtOTI3MzI5NjY5Nzg1OS05yjMyQzA4NzI5MDMxLWRjMmU2ZmZhZDY0ZWNkNWNjMGQzYTdhZWNiYWRmNjdhLWJkOWIwNjliNje2ZjQ1YjgwNjE5MDJhMGI0MGQ4ODM";';
         const url = 'https://example.com/test.js';
 
         mockValidateSlackToken.mockResolvedValue({
