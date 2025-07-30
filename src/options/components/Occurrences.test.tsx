@@ -17,6 +17,7 @@ import { DeepSeekOccurrence } from '../../types/deepseek';
 import { DeepAIOccurrence } from '../../types/deepai';
 import { MakeOccurrence } from '../../types/make';
 import { LangsmithOccurrence } from '../../types/langsmith';
+import { SlackOccurrence } from '../../types/slack';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -40,6 +41,7 @@ import { rapidApiValidityHelper } from '../../utils/validators/rapid_api/rapidAp
 import { makeValidityHelper } from '../../utils/validators/make/api_token/makeValidityHelper';
 import { makeMcpValidityHelper } from '../../utils/validators/make/mcp_token/makeMcpValidityHelper';
 import { langsmithValidityHelper } from '../../utils/validators/langsmith/langsmithValidityHelper';
+import { slackValidityHelper } from '../../utils/validators/slack/slackValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
@@ -68,6 +70,7 @@ jest.mock('../../utils/validators/rapid_api/rapidApiValidityHelper');
 jest.mock('../../utils/validators/make/api_token/makeValidityHelper');
 jest.mock('../../utils/validators/make/mcp_token/makeMcpValidityHelper');
 jest.mock('../../utils/validators/langsmith/langsmithValidityHelper');
+jest.mock('../../utils/validators/slack/slackValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",
@@ -1370,5 +1373,61 @@ describe('Occurrences Component', () => {
         fireEvent.click(recheckButton);
 
         expect(langsmithValidityHelper).toHaveBeenCalledWith(mockFindings[11]);
+    });
+
+    test('calls slackValidityHelper on recheck button click for Slack', async () => {
+        const slackOccurrence: SlackOccurrence = {
+            fingerprint: "slack-fp",
+            filePath: "slack-config.js",
+            secretType: "Slack",
+            secretValue: {
+                match: {
+                    token: "xoxb-1234567890-1234567890-test-token-here",
+                    token_type: "Slack Bot Token"
+                }
+            },
+            url: "http://localhost:3000/slack-config.js",
+            sourceContent: {
+                content: "const slackToken = 'xoxb-1234567890-1234567890-test-token-here';",
+                contentFilename: "slack-config.js",
+                contentStartLineNum: 1,
+                contentEndLineNum: 1,
+                exactMatchNumbers: [1]
+            },
+            validity: "valid",
+            team: "Test Team",
+            user: "test-user",
+            teamId: "T1234567",
+            userId: "U1234567",
+            botId: "B1234567"
+        };
+
+        const slackFinding: Finding = {
+            fingerprint: "slack-fp",
+            numOccurrences: 1,
+            secretType: "Slack",
+            validity: "valid",
+            validatedAt: "2025-05-30T12:00:00.000Z",
+            secretValue: {
+                match: {
+                    token: "xoxb-1234567890-1234567890-test-token-here",
+                    token_type: "Slack Bot Token"
+                }
+            },
+            occurrences: new Set([slackOccurrence])
+        };
+
+        (useAppContext as jest.Mock).mockReturnValue({
+            data: {
+                findings: [slackFinding],
+            },
+        });
+
+        render(<Occurrences filterFingerprint='slack-fp' />);
+
+        const recheckButton = screen.getByLabelText('Recheck validity');
+        fireEvent.click(recheckButton);
+
+        expect(slackValidityHelper).toHaveBeenCalledWith(slackFinding);
     });
 });

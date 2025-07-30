@@ -19,6 +19,7 @@ import { MailchimpOccurrence } from '../../types/mailchimp';
 import { DeepSeekOccurrence } from '../../types/deepseek';
 import { DeepAIOccurrence } from '../../types/deepai';
 import { MakeOccurrence } from '../../types/make';
+import { SlackOccurrence } from '../../types/slack';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -42,6 +43,7 @@ import { rapidApiValidityHelper } from '../../utils/validators/rapid_api/rapidAp
 import { makeValidityHelper } from '../../utils/validators/make/api_token/makeValidityHelper';
 import { makeMcpValidityHelper } from '../../utils/validators/make/mcp_token/makeMcpValidityHelper';
 import { langsmithValidityHelper } from '../../utils/validators/langsmith/langsmithValidityHelper';
+import { slackValidityHelper } from '../../utils/validators/slack/slackValidityHelper';
 import { Findings } from './Findings';
 
 jest.mock('../../popup/AppContext');
@@ -68,6 +70,7 @@ jest.mock('../../utils/validators/rapid_api/rapidApiValidityHelper');
 jest.mock('../../utils/validators/make/api_token/makeValidityHelper');
 jest.mock('../../utils/validators/make/mcp_token/makeMcpValidityHelper');
 jest.mock('../../utils/validators/langsmith/langsmithValidityHelper');
+jest.mock('../../utils/validators/slack/slackValidityHelper');
 
 const mockAwsValidityHelper = awsValidityHelper as jest.MockedFunction<typeof awsValidityHelper>;
 const mockAwsSessionValidityHelper = awsSessionValidityHelper as jest.MockedFunction<typeof awsSessionValidityHelper>;
@@ -91,6 +94,7 @@ const mockRapidApiValidityHelper = rapidApiValidityHelper as jest.MockedFunction
 const mockMakeValidityHelper = makeValidityHelper as jest.MockedFunction<typeof makeValidityHelper>;
 const mockMakeMcpValidityHelper = makeMcpValidityHelper as jest.MockedFunction<typeof makeMcpValidityHelper>;
 const mockLangsmithValidityHelper = langsmithValidityHelper as jest.MockedFunction<typeof langsmithValidityHelper>;
+const mockSlackValidityHelper = slackValidityHelper as jest.MockedFunction<typeof slackValidityHelper>;
 
 const mockChrome = {
     runtime: {
@@ -1936,6 +1940,36 @@ describe('Findings Component', () => {
             fireEvent.click(recheckButton);
 
             expect(mockLangsmithValidityHelper).toHaveBeenCalledWith(langsmithFinding);
+        });
+
+        it('should call slackValidityHelper for Slack findings', () => {
+            const slackFinding: Finding = {
+                fingerprint: 'fp-slack',
+                numOccurrences: 1,
+                secretType: 'Slack',
+                validity: 'valid' as const,
+                validatedAt: '2025-05-30T12:00:00.000Z',
+                secretValue: { 
+                    match: { 
+                        token: 'xoxb-1234567890-1234567890-test-token-here',
+                        token_type: 'Slack Bot Token'
+                    } 
+                },
+                occurrences: new Set([])
+            };
+
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: [slackFinding],
+                },
+            });
+
+            render(<Findings />);
+
+            const recheckButton = screen.getByLabelText('Recheck validity');
+            fireEvent.click(recheckButton);
+
+            expect(mockSlackValidityHelper).toHaveBeenCalledWith(slackFinding);
         });
     });
 });
