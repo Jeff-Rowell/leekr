@@ -21,6 +21,7 @@ import { RapidApiDetector } from './rapid_api/RapidApiDetector';
 import { MakeDetector } from './make/api_token/MakeDetector';
 import { MakeMcpDetector } from './make/mcp_token/MakeMcpDetector';
 import { LangsmithDetector } from './langsmith/LangsmithDetector';
+import { SlackDetector } from './SlackDetector';
 
 export class ConcreteDetectorFactory implements DetectorFactory {
     private readonly detectorClasses = [
@@ -45,7 +46,8 @@ export class ConcreteDetectorFactory implements DetectorFactory {
         RapidApiDetector,
         MakeDetector,
         MakeMcpDetector,
-        LangsmithDetector
+        LangsmithDetector,
+        SlackDetector
     ];
 
     createDetectors(): SecretDetector[] {
