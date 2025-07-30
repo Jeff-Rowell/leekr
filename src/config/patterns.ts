@@ -571,7 +571,7 @@ export const patterns: PatternsObj = {
     "Slack Workspace Access Token": {
         name: "Slack Workspace Access Token", 
         familyName: "Slack",
-        pattern: /\b(xoxa-[0-9]{10,13}-[0-9]{10,13}[a-zA-Z0-9-]*)\b/g,
+        pattern: /\b(xoxe\.xoxp-[0-9]+-[a-zA-Z0-9-]+)\b/g,
         entropy: DEFAULT_SLACK_CONFIG.requiredEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
@@ -581,7 +581,7 @@ export const patterns: PatternsObj = {
     "Slack Workspace Refresh Token": {
         name: "Slack Workspace Refresh Token",
         familyName: "Slack", 
-        pattern: /\b(xoxr-[0-9]{10,13}-[0-9]{10,13}[a-zA-Z0-9-]*)\b/g,
+        pattern: /\b(xoxe-[0-9]+-[a-zA-Z0-9-]+)\b/g,
         entropy: DEFAULT_SLACK_CONFIG.requiredEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
