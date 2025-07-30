@@ -24,6 +24,7 @@ import { rapidApiValidityHelper } from '../../../../utils/validators/rapid_api/r
 import { makeValidityHelper } from '../../../../utils/validators/make/api_token/makeValidityHelper';
 import { makeMcpValidityHelper } from '../../../../utils/validators/make/mcp_token/makeMcpValidityHelper';
 import { langsmithValidityHelper } from '../../../../utils/validators/langsmith/langsmithValidityHelper';
+import { slackValidityHelper } from '../../../../utils/validators/slack/slackValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import ModalHeader from '../../modalheader/ModalHeader';
 import './style.css';
@@ -85,6 +86,8 @@ const FindingsTab: React.FC = () => {
                 await makeMcpValidityHelper(finding);
             } else if (finding.secretType === "LangSmith") {
                 await langsmithValidityHelper(finding);
+            } else if (finding.secretType === "Slack") {
+                await slackValidityHelper(finding);
             }
         } catch (error) {
             console.error(`Validity check failed for ${finding.secretType}:`, error);

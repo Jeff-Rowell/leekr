@@ -33,6 +33,7 @@ import { rapidApiValidityHelper } from '../../utils/validators/rapid_api/rapidAp
 import { makeValidityHelper } from '../../utils/validators/make/api_token/makeValidityHelper';
 import { makeMcpValidityHelper } from '../../utils/validators/make/mcp_token/makeMcpValidityHelper';
 import { langsmithValidityHelper } from '../../utils/validators/langsmith/langsmithValidityHelper';
+import { slackValidityHelper } from '../../utils/validators/slack/slackValidityHelper';
 
 // Pagination constants
 const ITEMS_PER_PAGE = 10;
@@ -155,6 +156,8 @@ export const Findings: React.FC = () => {
             makeMcpValidityHelper(finding);
         } else if (finding.secretType === "LangSmith") {
             langsmithValidityHelper(finding);
+        } else if (finding.secretType === "Slack") {
+            slackValidityHelper(finding);
         }
     };
 
