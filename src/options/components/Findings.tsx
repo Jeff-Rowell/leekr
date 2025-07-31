@@ -81,9 +81,12 @@ export const Findings: React.FC = () => {
         });
 
         setFilteredFindings(results);
-        // Reset to first page when filters change
-        setCurrentPage(1);
     }, [data.findings, validityFilter, typeFilter, sortField, sortDirection]);
+
+    // Separate effect to reset pagination only when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [validityFilter, typeFilter, sortField, sortDirection]);
 
     // Calculate pagination
     const totalPages = Math.ceil(filteredFindings.length / ITEMS_PER_PAGE);

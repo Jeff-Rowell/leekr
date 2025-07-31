@@ -1972,4 +1972,82 @@ describe('Findings Component', () => {
             expect(mockSlackValidityHelper).toHaveBeenCalledWith(slackFinding);
         });
     });
+
+    describe('Pagination behavior', () => {
+        it('should preserve current page when findings data changes (validity recheck scenario)', () => {
+            const initialFindings: Finding[] = Array.from({ length: 25 }, (_, i) => ({
+                fingerprint: `fp${i}`,
+                numOccurrences: 1,
+                secretType: 'Test Type',
+                validity: 'valid' as const,
+                validatedAt: '2025-05-30T12:00:00.000Z',
+                secretValue: { match: { key: `value${i}` } },
+                occurrences: new Set([])
+            }));
+
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: initialFindings,
+                },
+            });
+
+            const { rerender } = render(<Findings />);
+
+            // Navigate to page 3
+            const page3Button = screen.getByRole('button', { name: '3' });
+            fireEvent.click(page3Button);
+
+            // Verify we're on page 3
+            expect(screen.getByRole('button', { name: '3' })).toHaveClass('active');
+
+            // Simulate findings data change (like what happens during validity recheck)
+            const updatedFindings = [...initialFindings];
+            updatedFindings[0] = { ...updatedFindings[0], validity: 'invalid' as const };
+
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: updatedFindings,
+                },
+            });
+
+            rerender(<Findings />);
+
+            // Page should still be 3 (not reset to 1)
+            expect(screen.getByRole('button', { name: '3' })).toHaveClass('active');
+        });
+
+        it('should reset to page 1 when filters change', () => {
+            const initialFindings: Finding[] = Array.from({ length: 25 }, (_, i) => ({
+                fingerprint: `fp${i}`,
+                numOccurrences: 1,
+                secretType: i < 10 ? 'Type A' : 'Type B',
+                validity: 'valid' as const,
+                validatedAt: '2025-05-30T12:00:00.000Z',
+                secretValue: { match: { key: `value${i}` } },
+                occurrences: new Set([])
+            }));
+
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: initialFindings,
+                },
+            });
+
+            render(<Findings />);
+
+            // Navigate to page 3
+            const page3Button = screen.getByRole('button', { name: '3' });
+            fireEvent.click(page3Button);
+
+            // Verify we're on page 3
+            expect(screen.getByRole('button', { name: '3' })).toHaveClass('active');
+
+            // Change the type filter
+            const typeFilter = screen.getByLabelText('Secret Type:');
+            fireEvent.change(typeFilter, { target: { value: 'Type A' } });
+
+            // Should reset to page 1
+            expect(screen.getByRole('button', { name: '1' })).toHaveClass('active');
+        });
+    });
 });
