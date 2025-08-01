@@ -4,6 +4,7 @@ import {
     ChevronLeft,
     ChevronRight,
     ChevronUp,
+    RefreshCw,
     RotateCw,
     ShieldCheck,
     SquareArrowRight
@@ -46,6 +47,8 @@ export const Findings: React.FC = () => {
     const [typeFilter, setTypeFilter] = useState<string>('');
     const [sortField, setSortField] = useState<'secretType' | 'numOccurrences' | 'validity'>('secretType');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+    const [isRechecking, setIsRechecking] = useState(false);
+    const [recheckProgress, setRecheckProgress] = useState({ current: 0, total: 0 });
 
     // Get all unique secret types for the filter dropdown
     const uniqueSecretTypes = Array.from(new Set(data.findings.map(f => f.secretType)));
@@ -115,53 +118,76 @@ export const Findings: React.FC = () => {
     };
 
     const handleValidityCheck = async (finding: Finding) => {
-        if (finding.secretType === "AWS Access & Secret Keys") {
-            awsValidityHelper(finding);
-        } else if (finding.secretType === "AWS Session Keys") {
-            awsSessionValidityHelper(finding);
-        } else if (finding.secretType === "Anthropic AI") {
-            anthropicValidityHelper(finding);
-        } else if (finding.secretType === "OpenAI") {
-            openaiValidityHelper(finding);
-        } else if (finding.secretType === "Gemini") {
-            geminiValidityHelper(finding);
-        } else if (finding.secretType === "Hugging Face") {
-            huggingfaceValidityHelper(finding);
-        } else if (finding.secretType === "Artifactory") {
-            artifactoryValidityHelper(finding);
-        } else if (finding.secretType === "Azure OpenAI") {
-            azureOpenAIValidityHelper(finding);
-        } else if (finding.secretType === "Apollo") {
-            apolloValidityHelper(finding);
-        } else if (finding.secretType === "Google Cloud Platform") {
-            gcpValidityHelper(finding);
-        } else if (finding.secretType === "Docker") {
-            dockerValidityHelper(finding);
-        } else if (finding.secretType === "JotForm") {
-            jotformValidityHelper(finding);
-        } else if (finding.secretType === "Groq") {
-            groqValidityHelper(finding);
-        } else if (finding.secretType === "Mailgun") {
-            mailgunValidityHelper(finding);
-        } else if (finding.secretType === "Mailchimp") {
-            mailchimpValidityHelper(finding);
-        } else if (finding.secretType === "DeepSeek") {
-            deepseekValidityHelper(finding);
-        } else if (finding.secretType === "DeepAI") {
-            deepaiValidityHelper(finding);
-        } else if (finding.secretType === "Telegram Bot Token") {
-            telegramBotTokenValidityHelper(finding);
-        } else if (finding.secretType === "RapidAPI") {
-            rapidApiValidityHelper(finding);
-        } else if (finding.secretType === "Make") {
-            makeValidityHelper(finding);
-        } else if (finding.secretType === "Make MCP") {
-            makeMcpValidityHelper(finding);
-        } else if (finding.secretType === "LangSmith") {
-            langsmithValidityHelper(finding);
-        } else if (finding.secretType === "Slack") {
-            slackValidityHelper(finding);
+        try {
+            if (finding.secretType === "AWS Access & Secret Keys") {
+                await awsValidityHelper(finding);
+            } else if (finding.secretType === "AWS Session Keys") {
+                await awsSessionValidityHelper(finding);
+            } else if (finding.secretType === "Anthropic AI") {
+                await anthropicValidityHelper(finding);
+            } else if (finding.secretType === "OpenAI") {
+                await openaiValidityHelper(finding);
+            } else if (finding.secretType === "Gemini") {
+                await geminiValidityHelper(finding);
+            } else if (finding.secretType === "Hugging Face") {
+                await huggingfaceValidityHelper(finding);
+            } else if (finding.secretType === "Artifactory") {
+                await artifactoryValidityHelper(finding);
+            } else if (finding.secretType === "Azure OpenAI") {
+                await azureOpenAIValidityHelper(finding);
+            } else if (finding.secretType === "Apollo") {
+                await apolloValidityHelper(finding);
+            } else if (finding.secretType === "Google Cloud Platform") {
+                await gcpValidityHelper(finding);
+            } else if (finding.secretType === "Docker") {
+                await dockerValidityHelper(finding);
+            } else if (finding.secretType === "JotForm") {
+                await jotformValidityHelper(finding);
+            } else if (finding.secretType === "Groq") {
+                await groqValidityHelper(finding);
+            } else if (finding.secretType === "Mailgun") {
+                await mailgunValidityHelper(finding);
+            } else if (finding.secretType === "Mailchimp") {
+                await mailchimpValidityHelper(finding);
+            } else if (finding.secretType === "DeepSeek") {
+                await deepseekValidityHelper(finding);
+            } else if (finding.secretType === "DeepAI") {
+                await deepaiValidityHelper(finding);
+            } else if (finding.secretType === "Telegram Bot Token") {
+                await telegramBotTokenValidityHelper(finding);
+            } else if (finding.secretType === "RapidAPI") {
+                await rapidApiValidityHelper(finding);
+            } else if (finding.secretType === "Make") {
+                await makeValidityHelper(finding);
+            } else if (finding.secretType === "Make MCP") {
+                await makeMcpValidityHelper(finding);
+            } else if (finding.secretType === "LangSmith") {
+                await langsmithValidityHelper(finding);
+            } else if (finding.secretType === "Slack") {
+                await slackValidityHelper(finding);
+            }
+        } catch (error) {
+            console.error(`Validity check failed for ${finding.secretType}:`, error);
         }
+    };
+
+    const handleRecheckAll = async () => {
+        setIsRechecking(true);
+        setRecheckProgress({ current: 0, total: filteredFindings.length });
+
+        // Create concurrent validation promises
+        const validationPromises = filteredFindings.map(async (finding) => {
+            await handleValidityCheck(finding);
+            // Update progress using functional state update to avoid race conditions
+            setRecheckProgress(prev => ({ 
+                current: prev.current + 1, 
+                total: prev.total 
+            }));
+        });
+
+        // Wait for all validations to complete
+        await Promise.all(validationPromises);
+        setIsRechecking(false);
     };
 
     const getValidityColorClass = (validity: ValidityStatus): string => {
@@ -216,7 +242,43 @@ export const Findings: React.FC = () => {
                             ))}
                         </select>
                     </div>
+
+                    {filteredFindings.length > 0 && (
+                        <div className="filter-item">
+                            <button
+                                className="recheck-all-button tooltip"
+                                onClick={handleRecheckAll}
+                                disabled={isRechecking}
+                                aria-label="Recheck all findings validity"
+                                data-testid="recheck-all-button"
+                            >
+                                <RefreshCw size={16} className={`recheck-icon ${isRechecking ? 'spinning' : ''}`} />
+                                <span>Recheck All</span>
+                                <span className="tooltip-text">
+                                    {isRechecking ? 'Rechecking validity...' : 'Recheck the validity of all findings'}
+                                </span>
+                            </button>
+                        </div>
+                    )}
                 </div>
+
+                {isRechecking && (
+                    <div className="recheck-status-bar">
+                        <div className="status-bar-content">
+                            <span className="status-text">
+                                Rechecking validity... ({recheckProgress.current}/{recheckProgress.total})
+                            </span>
+                            <div className="progress-bar">
+                                <div 
+                                    className="progress-fill"
+                                    style={{
+                                        width: `${(recheckProgress.current / recheckProgress.total) * 100}%`
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Findings Table */}

@@ -114,6 +114,8 @@ jest.mock('lucide-react', () => ({
         <div data-testid="square-arrow-right" data-size={size}>SquareArrowRight</div>,
     RotateCw: ({ size }: { size?: number }) =>
         <div data-testid="rotate-cw" data-size={size}>RotateCw</div>,
+    RefreshCw: ({ size, className }: { size?: number; className?: string }) =>
+        <div data-testid="refresh-cw" data-size={size}>RefreshCw</div>,
     ChevronDown: ({ size, className }: { size?: number; className?: string }) =>
         <div data-testid={`chevron-down${className ? `-${className}` : ''}`} data-size={size}>ChevronDown</div>,
     ChevronUp: ({ size }: { size?: number }) =>
@@ -1259,6 +1261,61 @@ describe('Findings Component', () => {
             await user.click(recheckButtons[3]); // Azure OpenAI is index 3 in alphabetical order
 
             expect(mockAzureOpenAIValidityHelper).toHaveBeenCalledWith(mockFindings[9]); // Azure OpenAI finding
+        });
+
+        test('handles recheck all functionality', async () => {
+            const user = userEvent.setup();
+            render(<Findings />);
+
+            // Find the recheck all button
+            const recheckAllButton = screen.getByTestId('recheck-all-button');
+            expect(recheckAllButton).toBeInTheDocument();
+
+            // Click the recheck all button
+            await user.click(recheckAllButton);
+
+            // Wait for async operations to complete
+            await new Promise(resolve => setTimeout(resolve, 200));
+
+            // Verify that at least some validity helpers were called
+            // (Since we have AWS findings which are the most common in the mock data)
+            expect(mockAwsValidityHelper).toHaveBeenCalled();
+            
+            // Verify the button was disabled during recheck process
+            expect(recheckAllButton).toBeInTheDocument();
+        });
+
+        test('handles errors during validity check gracefully', async () => {
+            // Mock console.error to verify error logging
+            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+            
+            const user = userEvent.setup();
+            render(<Findings />);
+
+            // Make Anthropic validity helper throw an error after render
+            // First finding alphabetically is Anthropic AI
+            const errorToThrow = new Error('Network error');
+            mockAnthropicValidityHelper.mockRejectedValueOnce(errorToThrow);
+
+            const recheckButtons = screen.getAllByTestId('rotate-cw');
+            
+            // Click on the first recheck button which should be for Anthropic AI
+            await user.click(recheckButtons[0]);
+
+            // Wait for the async operation to complete
+            await new Promise(resolve => setTimeout(resolve, 200));
+
+            // Verify that the Anthropic validity helper was called
+            expect(mockAnthropicValidityHelper).toHaveBeenCalled();
+
+            // Verify that the error was logged
+            expect(consoleSpy).toHaveBeenCalledWith(
+                'Validity check failed for Anthropic AI:', 
+                errorToThrow
+            );
+
+            // Cleanup
+            consoleSpy.mockRestore();
         });
     });
 

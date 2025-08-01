@@ -1248,6 +1248,96 @@ th .sortable-header {
     flex-direction: column;
 }
 
+/* Recheck All button styles */
+.recheck-all-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--color-bg-dark-transparent);
+    border: 1px solid #3a3a45;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #f0f0f0;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.recheck-all-button:hover:not(:disabled) {
+    background-color: var(--color-bg-dark);
+    border-color: var(--color-leek);
+    color: var(--color-leek);
+}
+
+.recheck-all-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.recheck-all-button:disabled:hover {
+    background-color: var(--color-bg-dark-transparent);
+    border-color: #3a3a45;
+    color: #f0f0f0;
+}
+
+.recheck-icon {
+    width: 16px;
+    height: 16px;
+}
+
+/* Spinning animation for recheck icon */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.recheck-icon.spinning {
+    animation: spin 1s linear infinite;
+}
+
+/* Status bar styles for recheck progress */
+.recheck-status-bar {
+    background-color: #242429;
+    color: #e0e0e0;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-top: 8px;
+    border: 1px solid #3a3a45;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.status-bar-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.status-text {
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background-color: rgba(224, 224, 224, 0.2);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--color-leek);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
 @media (max-width: 768px) {
     .about-links {
         flex-direction: column;
