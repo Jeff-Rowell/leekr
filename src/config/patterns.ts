@@ -24,9 +24,11 @@ import { DEFAULT_MAKE_CONFIG } from './detectors/make/api_token/make';
 import { DEFAULT_MAKE_MCP_CONFIG } from './detectors/make/mcp_token/make';
 import { DEFAULT_LANGSMITH_API_KEY_CONFIG } from './detectors/langsmith/langsmith';
 import { DEFAULT_SLACK_CONFIG } from './detectors/slack/slack';
+import { DEFAULT_PAYPAL_OAUTH_CONFIG } from './detectors/paypal_oauth/paypal_oauth';
 
 const awsAccessKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_ACCESS_KEY_CONFIG };
 const awsSessionKeyConfig: AWSDetectorConfig = { ...DEFAULT_AWS_SESSION_KEY_CONFIG };
+const paypalOAuthConfig = { ...DEFAULT_PAYPAL_OAUTH_CONFIG };
 export const patterns: PatternsObj = {
     "AWS Access Key": {
         name: "AWS Access Key",
@@ -583,6 +585,26 @@ export const patterns: PatternsObj = {
         familyName: "Slack", 
         pattern: /\b(xoxe-[0-9]+-[a-zA-Z0-9-]+)\b/g,
         entropy: DEFAULT_SLACK_CONFIG.requiredEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "PayPal OAuth Client ID": {
+        name: "PayPal OAuth Client ID",
+        familyName: "PayPal OAuth",
+        pattern: /\b([A-Za-z0-9_\.]{7}-[A-Za-z0-9_\.]{72}|[A-Za-z0-9_\.]{5}-[A-Za-z0-9_\.]{38})\b/g,
+        entropy: paypalOAuthConfig.requiredClientIdEntropy,
+        isValidityCustomizable: false,
+        hasCustomValidity: false,
+        validityEndpoints: [],
+        global: true
+    },
+    "PayPal OAuth Client Secret": {
+        name: "PayPal OAuth Client Secret",
+        familyName: "PayPal OAuth",
+        pattern: /\b([A-Za-z0-9_\.\-]{44,80})\b/g,
+        entropy: paypalOAuthConfig.requiredClientSecretEntropy,
         isValidityCustomizable: false,
         hasCustomValidity: false,
         validityEndpoints: [],
