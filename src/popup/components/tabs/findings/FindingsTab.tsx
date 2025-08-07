@@ -25,6 +25,7 @@ import { makeValidityHelper } from '../../../../utils/validators/make/api_token/
 import { makeMcpValidityHelper } from '../../../../utils/validators/make/mcp_token/makeMcpValidityHelper';
 import { langsmithValidityHelper } from '../../../../utils/validators/langsmith/langsmithValidityHelper';
 import { slackValidityHelper } from '../../../../utils/validators/slack/slackValidityHelper';
+import { paypalOAuthValidityHelper } from '../../../../utils/validators/paypal_oauth/paypalOAuthValidityHelper';
 import { useAppContext } from '../../../AppContext';
 import ModalHeader from '../../modalheader/ModalHeader';
 import './style.css';
@@ -88,6 +89,8 @@ const FindingsTab: React.FC = () => {
                 await langsmithValidityHelper(finding);
             } else if (finding.secretType === "Slack") {
                 await slackValidityHelper(finding);
+            } else if (finding.secretType === "PayPal OAuth") {
+                await paypalOAuthValidityHelper(finding);
             }
         } catch (error) {
             console.error(`Validity check failed for ${finding.secretType}:`, error);

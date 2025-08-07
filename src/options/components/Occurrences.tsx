@@ -25,6 +25,7 @@ import { makeValidityHelper } from '../../utils/validators/make/api_token/makeVa
 import { makeMcpValidityHelper } from '../../utils/validators/make/mcp_token/makeMcpValidityHelper';
 import { langsmithValidityHelper } from '../../utils/validators/langsmith/langsmithValidityHelper';
 import { slackValidityHelper } from '../../utils/validators/slack/slackValidityHelper';
+import { paypalOAuthValidityHelper } from '../../utils/validators/paypal_oauth/paypalOAuthValidityHelper';
 
 
 export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFingerprint }) => {
@@ -94,6 +95,8 @@ export const Occurrences: React.FC<{ filterFingerprint?: string }> = ({ filterFi
             langsmithValidityHelper(finding);
         } else if (finding.secretType === "Slack") {
             slackValidityHelper(finding);
+        } else if (finding.secretType === "PayPal OAuth") {
+            paypalOAuthValidityHelper(finding);
         }
     };
 
