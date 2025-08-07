@@ -18,6 +18,7 @@ import { DeepAIOccurrence } from '../../types/deepai';
 import { MakeOccurrence } from '../../types/make';
 import { LangsmithOccurrence } from '../../types/langsmith';
 import { SlackOccurrence } from '../../types/slack';
+import { PayPalOAuthOccurrence } from '../../types/paypal_oauth';
 import { Finding, Occurrence } from '../../types/findings.types';
 import { awsValidityHelper } from '../../utils/validators/aws/aws_access_keys/awsValidityHelper';
 import { awsSessionValidityHelper } from '../../utils/validators/aws/aws_session_keys/awsValidityHelper';
@@ -42,6 +43,7 @@ import { makeValidityHelper } from '../../utils/validators/make/api_token/makeVa
 import { makeMcpValidityHelper } from '../../utils/validators/make/mcp_token/makeMcpValidityHelper';
 import { langsmithValidityHelper } from '../../utils/validators/langsmith/langsmithValidityHelper';
 import { slackValidityHelper } from '../../utils/validators/slack/slackValidityHelper';
+import { paypalOAuthValidityHelper } from '../../utils/validators/paypal_oauth/paypalOAuthValidityHelper';
 import { Occurrences } from './Occurrences';
 
 jest.mock('../../popup/AppContext', () => ({
@@ -71,6 +73,7 @@ jest.mock('../../utils/validators/make/api_token/makeValidityHelper');
 jest.mock('../../utils/validators/make/mcp_token/makeMcpValidityHelper');
 jest.mock('../../utils/validators/langsmith/langsmithValidityHelper');
 jest.mock('../../utils/validators/slack/slackValidityHelper');
+jest.mock('../../utils/validators/paypal_oauth/paypalOAuthValidityHelper');
 
 const mockOccurrence: AWSOccurrence = {
     accountId: "123456789876",
@@ -265,6 +268,29 @@ const mockLangsmithOccurrence: LangsmithOccurrence = {
 };
 
 const mockLangsmithOccurrences: Set<Occurrence> = new Set([mockLangsmithOccurrence]);
+
+const mockPayPalOAuthOccurrence: PayPalOAuthOccurrence = {
+    filePath: "main.paypal.js",
+    fingerprint: "fp22",
+    secretType: "PayPal OAuth",
+    secretValue: {
+        match: {
+            client_id: "AbCdEf1-123456789012345678901234567890123456789012345678901234567890123456789012",
+            client_secret: "abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        }
+    },
+    sourceContent: {
+        content: "const paypalConfig = {\n  client_id: 'AbCdEf1-123456789012345678901234567890123456789012345678901234567890123456789012',\n  client_secret: 'abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ'\n};",
+        contentFilename: "PayPalApp.js",
+        contentStartLineNum: 18,
+        contentEndLineNum: 22,
+        exactMatchNumbers: [19, 20]
+    },
+    url: "http://localhost:3000/static/js/paypal.foobar.js",
+    validity: "valid"
+};
+
+const mockPayPalOAuthOccurrences: Set<Occurrence> = new Set([mockPayPalOAuthOccurrence]);
 
 const mockFindings: Finding[] = [
     {
@@ -502,6 +528,32 @@ const mockFindings: Finding[] = [
             validatedAt: "2025-05-17T18:16:16.870Z",
             validity: "valid"
         }
+    },
+    // Dummy entries to reach index 21 for PayPal OAuth
+    { fingerprint: "dummy1", numOccurrences: 0, occurrences: new Set(), validity: "valid", validatedAt: "2025-05-13T18:16:16.870Z", secretType: "Dummy1", secretValue: { match: {}, validatedAt: "2025-05-17T18:16:16.870Z", validity: "valid" } },
+    { fingerprint: "dummy2", numOccurrences: 0, occurrences: new Set(), validity: "valid", validatedAt: "2025-05-13T18:16:16.870Z", secretType: "Dummy2", secretValue: { match: {}, validatedAt: "2025-05-17T18:16:16.870Z", validity: "valid" } },
+    { fingerprint: "dummy3", numOccurrences: 0, occurrences: new Set(), validity: "valid", validatedAt: "2025-05-13T18:16:16.870Z", secretType: "Dummy3", secretValue: { match: {}, validatedAt: "2025-05-17T18:16:16.870Z", validity: "valid" } },
+    { fingerprint: "dummy4", numOccurrences: 0, occurrences: new Set(), validity: "valid", validatedAt: "2025-05-13T18:16:16.870Z", secretType: "Dummy4", secretValue: { match: {}, validatedAt: "2025-05-17T18:16:16.870Z", validity: "valid" } },
+    { fingerprint: "dummy5", numOccurrences: 0, occurrences: new Set(), validity: "valid", validatedAt: "2025-05-13T18:16:16.870Z", secretType: "Dummy5", secretValue: { match: {}, validatedAt: "2025-05-17T18:16:16.870Z", validity: "valid" } },
+    { fingerprint: "dummy6", numOccurrences: 0, occurrences: new Set(), validity: "valid", validatedAt: "2025-05-13T18:16:16.870Z", secretType: "Dummy6", secretValue: { match: {}, validatedAt: "2025-05-17T18:16:16.870Z", validity: "valid" } },
+    { fingerprint: "dummy7", numOccurrences: 0, occurrences: new Set(), validity: "valid", validatedAt: "2025-05-13T18:16:16.870Z", secretType: "Dummy7", secretValue: { match: {}, validatedAt: "2025-05-17T18:16:16.870Z", validity: "valid" } },
+    { fingerprint: "dummy8", numOccurrences: 0, occurrences: new Set(), validity: "valid", validatedAt: "2025-05-13T18:16:16.870Z", secretType: "Dummy8", secretValue: { match: {}, validatedAt: "2025-05-17T18:16:16.870Z", validity: "valid" } },
+    { fingerprint: "dummy9", numOccurrences: 0, occurrences: new Set(), validity: "valid", validatedAt: "2025-05-13T18:16:16.870Z", secretType: "Dummy9", secretValue: { match: {}, validatedAt: "2025-05-17T18:16:16.870Z", validity: "valid" } },
+    {
+        fingerprint: "fp22",
+        numOccurrences: mockPayPalOAuthOccurrences.size,
+        occurrences: mockPayPalOAuthOccurrences,
+        validity: "valid",
+        validatedAt: "2025-05-13T18:16:16.870Z",
+        secretType: "PayPal OAuth",
+        secretValue: {
+            match: {
+                client_id: "AbCdEf1-123456789012345678901234567890123456789012345678901234567890123456789012",
+                client_secret: "abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            },
+            validatedAt: "2025-05-17T18:16:16.870Z",
+            validity: "valid"
+        }
     }
 ]
 
@@ -668,6 +720,15 @@ describe('Occurrences Component', () => {
         fireEvent.click(recheckButton);
 
         expect(azureOpenAIValidityHelper).toHaveBeenCalledWith(mockFindings[7]);
+    });
+
+    test('calls PayPal OAuth validity helper when recheck button is clicked', () => {
+        render(<Occurrences filterFingerprint='fp22' />);
+
+        const recheckButton = screen.getByLabelText('Recheck validity');
+        fireEvent.click(recheckButton);
+
+        expect(paypalOAuthValidityHelper).toHaveBeenCalledWith(mockFindings[21]);
     });
 
     test('does not call validity helpers for unknown secret types', () => {

@@ -44,6 +44,7 @@ import { makeValidityHelper } from '../../utils/validators/make/api_token/makeVa
 import { makeMcpValidityHelper } from '../../utils/validators/make/mcp_token/makeMcpValidityHelper';
 import { langsmithValidityHelper } from '../../utils/validators/langsmith/langsmithValidityHelper';
 import { slackValidityHelper } from '../../utils/validators/slack/slackValidityHelper';
+import { paypalOAuthValidityHelper } from '../../utils/validators/paypal_oauth/paypalOAuthValidityHelper';
 import { Findings } from './Findings';
 
 jest.mock('../../popup/AppContext');
@@ -71,6 +72,7 @@ jest.mock('../../utils/validators/make/api_token/makeValidityHelper');
 jest.mock('../../utils/validators/make/mcp_token/makeMcpValidityHelper');
 jest.mock('../../utils/validators/langsmith/langsmithValidityHelper');
 jest.mock('../../utils/validators/slack/slackValidityHelper');
+jest.mock('../../utils/validators/paypal_oauth/paypalOAuthValidityHelper');
 
 const mockAwsValidityHelper = awsValidityHelper as jest.MockedFunction<typeof awsValidityHelper>;
 const mockAwsSessionValidityHelper = awsSessionValidityHelper as jest.MockedFunction<typeof awsSessionValidityHelper>;
@@ -95,6 +97,7 @@ const mockMakeValidityHelper = makeValidityHelper as jest.MockedFunction<typeof 
 const mockMakeMcpValidityHelper = makeMcpValidityHelper as jest.MockedFunction<typeof makeMcpValidityHelper>;
 const mockLangsmithValidityHelper = langsmithValidityHelper as jest.MockedFunction<typeof langsmithValidityHelper>;
 const mockSlackValidityHelper = slackValidityHelper as jest.MockedFunction<typeof slackValidityHelper>;
+const mockPaypalOAuthValidityHelper = paypalOAuthValidityHelper as jest.MockedFunction<typeof paypalOAuthValidityHelper>;
 
 const mockChrome = {
     runtime: {
@@ -2027,6 +2030,36 @@ describe('Findings Component', () => {
             fireEvent.click(recheckButton);
 
             expect(mockSlackValidityHelper).toHaveBeenCalledWith(slackFinding);
+        });
+
+        test('handles validity recheck for PayPal OAuth', async () => {
+            const paypalOAuthFinding: Finding = {
+                fingerprint: 'paypal-oauth-fp',
+                numOccurrences: 1,
+                secretType: 'PayPal OAuth',
+                validity: 'valid',
+                validatedAt: '2025-05-30T12:00:00.000Z',
+                occurrences: new Set([]),
+                secretValue: {
+                    match: {
+                        client_id: 'AbCdEf12-3456789012345678901234567890123456789012345678901234567890123456789',
+                        client_secret: 'abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+                    }
+                }
+            };
+
+            (useAppContext as jest.Mock).mockReturnValue({
+                data: {
+                    findings: [paypalOAuthFinding],
+                },
+            });
+
+            render(<Findings />);
+
+            const recheckButtons = screen.getAllByTestId('rotate-cw');
+            fireEvent.click(recheckButtons[0]);
+
+            expect(mockPaypalOAuthValidityHelper).toHaveBeenCalledWith(paypalOAuthFinding);
         });
     });
 
