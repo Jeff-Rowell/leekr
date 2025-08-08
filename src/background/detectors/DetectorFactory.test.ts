@@ -22,6 +22,7 @@ import { MakeDetector } from './make/api_token/MakeDetector';
 import { MakeMcpDetector } from './make/mcp_token/MakeMcpDetector';
 import { LangsmithDetector } from './langsmith/LangsmithDetector';
 import { SlackDetector } from './SlackDetector';
+import { PayPalOAuthDetector } from './paypal_oauth/PayPalOAuthDetector';
 
 describe('ConcreteDetectorFactory', () => {
     let factory: ConcreteDetectorFactory;
@@ -33,7 +34,7 @@ describe('ConcreteDetectorFactory', () => {
     test('createDetectors returns all detector instances', () => {
         const detectors = factory.createDetectors();
         
-        expect(detectors).toHaveLength(23);
+        expect(detectors).toHaveLength(24);
         expect(detectors[0]).toBeInstanceOf(AwsAccessKeysDetector);
         expect(detectors[1]).toBeInstanceOf(AwsSessionKeysDetector);
         expect(detectors[2]).toBeInstanceOf(AnthropicDetector);
@@ -57,6 +58,7 @@ describe('ConcreteDetectorFactory', () => {
         expect(detectors[20]).toBeInstanceOf(MakeMcpDetector);
         expect(detectors[21]).toBeInstanceOf(LangsmithDetector);
         expect(detectors[22]).toBeInstanceOf(SlackDetector);
+        expect(detectors[23]).toBeInstanceOf(PayPalOAuthDetector);
     });
 
     test('createDetector returns specific detector by type', () => {
@@ -83,6 +85,7 @@ describe('ConcreteDetectorFactory', () => {
         const makeMcpDetector = factory.createDetector('make_mcp');
         const langsmithDetector = factory.createDetector('langsmith');
         const slackDetector = factory.createDetector('slack');
+        const paypalOAuthDetector = factory.createDetector('paypal_oauth');
 
         expect(awsAccessKeysDetector).toBeInstanceOf(AwsAccessKeysDetector);
         expect(awsSessionKeysDetector).toBeInstanceOf(AwsSessionKeysDetector);
@@ -107,6 +110,7 @@ describe('ConcreteDetectorFactory', () => {
         expect(makeMcpDetector).toBeInstanceOf(MakeMcpDetector);
         expect(langsmithDetector).toBeInstanceOf(LangsmithDetector);
         expect(slackDetector).toBeInstanceOf(SlackDetector);
+        expect(paypalOAuthDetector).toBeInstanceOf(PayPalOAuthDetector);
     });
 
     test('createDetector returns undefined for unknown type', () => {
@@ -159,5 +163,9 @@ describe('ConcreteDetectorFactory', () => {
         const makeDetector = detectors[19];
         expect(makeDetector.type).toBe('make');
         expect(makeDetector.name).toBe('Make');
+
+        const paypalOAuthDetector = detectors[23];
+        expect(paypalOAuthDetector.type).toBe('paypal_oauth');
+        expect(paypalOAuthDetector.name).toBe('PayPal OAuth');
     });
 });
